@@ -26,7 +26,7 @@ export const Navbar = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 40);
+      setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -54,21 +54,21 @@ export const Navbar = () => {
 
   return (
     <nav className={cn(
-      "fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-700 px-6 py-3 w-[92%] max-w-7xl rounded-full border border-foreground/5 glow-tracer",
+      "fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 px-6 md:px-8 py-3.5 w-[92%] max-w-7xl rounded-full border shadow-xl backdrop-blur-md",
       isScrolled 
-        ? "glass shadow-2xl py-3.5" 
-        : "bg-background/25 dark:bg-black/35 backdrop-blur-lg border-white/5"
+        ? "bg-white/98 dark:bg-[#0A0A0A]/98 border-neutral-200/60 dark:border-neutral-800/80 py-3 shadow-2xl" 
+        : "bg-white/90 dark:bg-[#0F0F0F]/90 border-neutral-200/40 dark:border-neutral-800/40"
     )}>
       <div className="flex items-center justify-between">
         {/* Brand Logo */}
-        <Link to="/" className="flex items-center gap-2 group">
-          <span className="text-xl md:text-2xl font-display font-black tracking-tighter text-foreground">
-            <span className="text-brand-gold group-hover:gold-foil-text transition-all duration-300">FAXR</span> MEBEL
+        <Link to="/" className="flex items-center gap-2 group shrink-0">
+          <span className="text-lg md:text-2xl font-display font-black tracking-tighter text-foreground transition-colors">
+            <span className="text-[#8C6A3C] dark:text-brand-gold group-hover:text-brand-gold transition-colors duration-300">FAXR</span> MEBEL
           </span>
         </Link>
 
         {/* Desktop Nav Center */}
-        <div className="hidden md:flex items-center gap-10">
+        <div className="hidden md:flex items-center gap-8 lg:gap-10">
           {navLinks.map((link) => {
             const isActive = location.pathname === link.path;
             return (
@@ -76,17 +76,17 @@ export const Navbar = () => {
                 key={link.path}
                 to={link.path}
                 className={cn(
-                  "text-[10px] font-bold uppercase tracking-hero transition-all relative py-1",
+                  "text-[10px] lg:text-[11px] font-bold uppercase tracking-hero transition-all relative py-1",
                   isActive 
-                    ? "text-brand-gold font-extrabold" 
-                    : "text-foreground/60 hover:text-brand-gold"
+                    ? "text-foreground font-black" 
+                    : "text-foreground/60 hover:text-foreground"
                 )}
               >
                 {link.name}
                 {isActive && (
                   <motion.span 
                     layoutId="activeTabUnderline"
-                    className="absolute -bottom-1 left-0 right-0 h-[2px] bg-brand-gold rounded-full"
+                    className="absolute -bottom-1.5 left-0 right-0 h-[2.5px] bg-[#8C6A3C] dark:bg-brand-gold rounded-full"
                     transition={{ type: "spring", stiffness: 380, damping: 30 }}
                   />
                 )}
@@ -96,9 +96,9 @@ export const Navbar = () => {
         </div>
 
         {/* Action Panel */}
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-3 lg:gap-4">
           {/* Language Switcher Grid */}
-          <div className="hidden lg:flex bg-foreground/5 border border-foreground/5 rounded-full p-0.5 text-[8px] font-black uppercase tracking-widest">
+          <div className="hidden lg:flex bg-foreground/[0.04] border border-foreground/[0.04] rounded-full p-0.5 text-[8px] font-black uppercase tracking-widest">
             {languages.map((lang) => (
               <button
                 key={lang.code}
@@ -106,8 +106,8 @@ export const Navbar = () => {
                 className={cn(
                   "px-3 py-1.5 rounded-full transition-all duration-300",
                   i18n.language.startsWith(lang.code) 
-                    ? "bg-brand-gold text-black shadow-md font-bold" 
-                    : "text-foreground/45 hover:text-foreground"
+                    ? "bg-[#8C6A3C] dark:bg-brand-gold text-white dark:text-black shadow-sm font-bold" 
+                    : "text-foreground/50 hover:text-foreground"
                 )}
               >
                 {lang.name}
@@ -115,52 +115,51 @@ export const Navbar = () => {
             ))}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 lg:gap-2">
             {/* Theme Toggle */}
             <button 
               onClick={toggleTheme}
-              className="p-2 rounded-full hover:bg-foreground/5 text-foreground transition-all duration-300 hover:scale-115"
+              className="p-2 rounded-full hover:bg-foreground/[0.05] text-foreground transition-all duration-300 hover:scale-110"
               aria-label="Theme toggle"
             >
-              {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4 text-brand-gold" />}
+              {theme === 'light' ? <Moon className="w-4.5 h-4.5" /> : <Sun className="w-4.5 h-4.5 text-brand-gold animate-spin-slow" />}
             </button>
 
-            {/* Shopping Cart Indicator */}
+            {/* Redesigned Premium Highlighted Shopping Cart */}
             <Link 
               to="/cart" 
-              className="p-2 rounded-full hover:bg-foreground/5 text-foreground transition-all duration-300 relative hover:scale-115"
+              className={cn(
+                "flex items-center gap-2 px-3.5 py-2 rounded-full transition-all duration-300 hover:scale-105 border",
+                totalItems > 0
+                  ? "bg-[#8C6A3C] dark:bg-brand-gold border-[#8C6A3C] dark:border-brand-gold text-white dark:text-black font-extrabold shadow-md shadow-brand-gold/10"
+                  : "bg-foreground/[0.04] border-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground"
+              )}
               aria-label="Cart link"
             >
-              <ShoppingCart className="w-4 h-4" />
-              <AnimatePresence>
-                {totalItems > 0 && (
-                  <motion.span 
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    exit={{ scale: 0 }}
-                    className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-brand-gold text-black text-[8px] font-black rounded-full flex items-center justify-center shadow-md shadow-brand-gold/30"
-                  >
-                    {totalItems}
-                  </motion.span>
-                )}
-              </AnimatePresence>
+              <ShoppingCart className="w-4.5 h-4.5" />
+              <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">
+                {t('nav.cart') || 'Savat'} {totalItems > 0 && `(${totalItems})`}
+              </span>
+              {totalItems > 0 && (
+                <span className="sm:hidden w-2 h-2 bg-red-500 rounded-full" />
+              )}
             </Link>
 
             {/* Personal Portal profile link */}
             <Link 
               to={isLoggedIn ? "/profile" : "/auth"} 
               className={cn(
-                "p-2 rounded-full hover:bg-foreground/5 transition-all duration-300 hover:scale-115",
-                location.pathname === "/profile" || location.pathname === "/auth" ? "text-brand-gold" : "text-foreground"
+                "p-2 rounded-full hover:bg-foreground/[0.05] transition-all duration-300 hover:scale-110",
+                location.pathname === "/profile" || location.pathname === "/auth" ? "text-[#8C6A3C] dark:text-brand-gold" : "text-foreground"
               )}
               aria-label="Profile link"
             >
-              <User className="w-4 h-4" />
+              <User className="w-4.5 h-4.5" />
             </Link>
 
             {/* Mobile Menu Trigger */}
             <button 
-              className="md:hidden p-2 rounded-full hover:bg-foreground/5 text-foreground transition-colors"
+              className="md:hidden p-2 rounded-full hover:bg-foreground/[0.05] text-foreground transition-colors"
               onClick={() => setIsOpen(!isOpen)}
               aria-label="Mobile menu"
             >
@@ -180,7 +179,7 @@ export const Navbar = () => {
             transition={{ duration: 0.4, ease: "easeInOut" }}
             className="md:hidden glass mt-4 rounded-3xl overflow-hidden border border-foreground/5"
           >
-            <div className="flex flex-col p-6 gap-5">
+            <div className="flex flex-col p-6 gap-5 bg-white dark:bg-[#0F0F0F]">
               {navLinks.map((link) => (
                 <Link 
                   key={link.path}
@@ -188,7 +187,7 @@ export const Navbar = () => {
                   onClick={() => setIsOpen(false)}
                   className={cn(
                     "text-xs font-bold uppercase tracking-hero border-b border-foreground/5 pb-3.5 transition-colors",
-                    location.pathname === link.path ? "text-brand-gold font-extrabold" : "text-foreground hover:text-brand-gold"
+                    location.pathname === link.path ? "text-[#8C6A3C] dark:text-brand-gold font-extrabold" : "text-foreground hover:text-brand-gold"
                   )}
                 >
                   {link.name}
@@ -204,9 +203,9 @@ export const Navbar = () => {
                       key={lang.code}
                       onClick={() => changeLanguage(lang.code)}
                       className={cn(
-                        "px-3 py-1 rounded-full text-[9px] font-black tracking-widest uppercase transition-all",
+                        "px-3 py-1.5 rounded-full text-[9px] font-black tracking-widest uppercase transition-all",
                         i18n.language.startsWith(lang.code) 
-                          ? "bg-brand-gold text-black font-bold" 
+                          ? "bg-[#8C6A3C] dark:bg-brand-gold text-white dark:text-black font-bold" 
                           : "bg-foreground/5 text-foreground/50"
                       )}
                     >
