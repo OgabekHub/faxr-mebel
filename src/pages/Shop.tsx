@@ -353,7 +353,7 @@ export const Shop = () => {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="bg-background border border-foreground/5 rounded-[2.5rem] w-full max-w-4xl p-8 relative z-10 shadow-2xl flex flex-col md:flex-row gap-8 max-h-[90vh] overflow-y-auto"
+              className="bg-background border border-foreground/5 rounded-[2.5rem] w-full max-w-4xl p-8 relative z-10 shadow-2xl grid grid-cols-1 md:grid-cols-2 gap-8 max-h-[90vh] overflow-y-auto overflow-x-hidden"
             >
               {/* Close trigger button */}
               <button 
@@ -364,7 +364,7 @@ export const Shop = () => {
               </button>
 
               {/* Left Side Visual Preview */}
-              <div className="w-full md:w-1/2 h-[320px] md:h-[420px] rounded-3xl overflow-hidden shrink-0 relative bg-foreground/5">
+              <div className="w-full h-[320px] md:h-[420px] rounded-3xl overflow-hidden relative bg-foreground/5">
                 <img src={quickViewProduct.image} alt={t('product.' + quickViewProduct.id + '.name')} className="w-full h-full object-cover" />
                 <div className="absolute top-4 left-4 glass px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest text-foreground">
                   {t('shop.category.' + quickViewProduct.category)}
