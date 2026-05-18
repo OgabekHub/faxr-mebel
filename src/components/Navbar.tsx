@@ -54,7 +54,8 @@ export const Navbar = () => {
 
   return (
     <nav className={cn(
-      "fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 px-6 md:px-8 py-3.5 w-[92%] max-w-7xl rounded-full border shadow-xl backdrop-blur-md",
+      "fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 px-6 md:px-8 py-3.5 w-[92%] max-w-7xl border shadow-xl backdrop-blur-md",
+      isOpen ? "rounded-[2rem]" : "rounded-full",
       isScrolled 
         ? "bg-white dark:bg-[#0A0A0A] border-neutral-200 dark:border-neutral-800/80 py-3 shadow-2xl" 
         : "bg-white/95 dark:bg-[#0D0D0D]/95 border-neutral-200/60 dark:border-neutral-800/60"
@@ -178,9 +179,9 @@ export const Navbar = () => {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.4, ease: "easeInOut" }}
-            className="md:hidden mt-4 rounded-3xl overflow-hidden border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#0F0F0F]"
+            className="md:hidden overflow-hidden w-full"
           >
-            <div className="flex flex-col p-6 gap-5">
+            <div className="flex flex-col pt-4 pb-2 gap-5 border-t border-neutral-100 dark:border-neutral-800/60 mt-4">
               {navLinks.map((link) => (
                 <Link 
                   key={link.path}
