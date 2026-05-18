@@ -35,14 +35,14 @@ const featuredProducts = [
 ];
 
 const woodMaterials = [
-  { name: "Yong'oq (Walnut)", type: 'premium', origin: 'Farg\'ona vodiysi', description: 'Quyuq rang, o\'ta mustahkam tuzilish va hashamatli yaltiroq yuzaga ega bo\'lgan oliy navli yog\'och.', color: 'bg-[#402C1B]', texture: 'https://images.unsplash.com/photo-1541123437800-1bb1317badc2?q=80&w=400' },
-  { name: 'Eman (Oak)', type: 'classic', origin: 'Rossiya o\'rmonlari', description: 'Ochiq qumrang va oltin tusli, namlikka o\'ta chidamli va asrlar davomida xizmat qiladigan klassik tanlov.', color: 'bg-[#BFA37A]', texture: 'https://images.unsplash.com/photo-1533090161767-e6ffed986c88?q=80&w=400' },
-  { name: 'Qayrag\'och (Birch)', type: 'eco', origin: 'Zarafshon tog\'lari', description: 'Silliq, och tusli va egiluvchan yog\'och. Zamonaviy skandinavcha minimalist mebellar uchun ideal.', color: 'bg-[#EBDCB9]', texture: 'https://images.unsplash.com/photo-1604014237800-1c9102c219da?q=80&w=400' }
+  { id: 'walnut', color: 'bg-[#402C1B]', texture: 'https://images.unsplash.com/photo-1541123437800-1bb1317badc2?q=80&w=400' },
+  { id: 'oak', color: 'bg-[#BFA37A]', texture: 'https://images.unsplash.com/photo-1533090161767-e6ffed986c88?q=80&w=400' },
+  { id: 'birch', color: 'bg-[#EBDCB9]', texture: 'https://images.unsplash.com/photo-1604014237800-1c9102c219da?q=80&w=400' }
 ];
 
 const fabricMaterials = [
-  { name: 'Italiya Baxmali (Velvet)', type: 'luxury', feature: 'Suv o\'tkazmaydigan (Waterproof)', description: 'Yumshoq, hashamatli tekstura va tozalash oson bo\'lgan premium mato. Nafis yaltiroq effekt beradi.', color: 'bg-emerald-800' },
-  { name: 'Toza Charm (Full-grain Leather)', type: 'exclusive', feature: 'Nafas oladigan (Breathable)', description: 'Tabiiy italyan charmi. Vaqt o\'tishi bilan yanada chiroyli xarakter kasb etadi va o\'ta bardoshli.', color: 'bg-amber-950' }
+  { id: 'velvet', color: 'bg-emerald-800' },
+  { id: 'leather', color: 'bg-amber-950' }
 ];
 
 export const Home = () => {
@@ -54,7 +54,7 @@ export const Home = () => {
 
   const handleAddToCart = (product: any) => {
     addToCart(product);
-    setAddedToast(product.name);
+    setAddedToast(t(`product.${product.id}.name`));
     setTimeout(() => setAddedToast(null), 3000);
   };
 
@@ -74,7 +74,7 @@ export const Home = () => {
               <Check className="w-3.5 h-3.5" />
             </div>
             <span className="text-xs font-bold uppercase tracking-wider text-foreground">
-              {addedToast} savatchaga qo'shildi!
+              {addedToast} {t('home.toast.added')}
             </span>
           </motion.div>
         )}
@@ -93,10 +93,10 @@ export const Home = () => {
           <div className="absolute inset-0 bg-[url('/images/sofa.png')] bg-cover bg-center opacity-65 group-hover:scale-105 transition-transform duration-1000"></div>
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
           <div className="absolute bottom-12 left-8 md:left-12 right-12 text-white z-10">
-            <span className="text-brand-gold uppercase tracking-hero text-[10px] font-extrabold mb-4 block">Faxr Mebel 2026 Collection</span>
+            <span className="text-brand-gold uppercase tracking-hero text-[10px] font-extrabold mb-4 block">{t('home.hero.collection')}</span>
             <h1 className="text-4xl md:text-6xl font-editorial-title mb-6">
-              Modern Living For <br/>
-              <span className="font-bold italic gold-foil-text">Elegant Spaces.</span>
+              {t('home.hero.title')} <br/>
+              <span className="font-bold italic gold-foil-text">{t('home.hero.titleGold')}</span>
             </h1>
             <div className="flex space-x-4">
               <Link to="/shop" className="bg-brand-gold text-black px-8 py-4 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-brand-gold-muted transition-all duration-300 shadow-xl shadow-brand-gold/20">
@@ -108,22 +108,22 @@ export const Home = () => {
 
         {/* Featured Mini Card */}
         <motion.div
-           initial={{ opacity: 0, x: 25 }}
-           animate={{ opacity: 1, x: 0 }}
-           transition={{ delay: 0.2, duration: 0.6 }}
-           className="col-span-1 md:col-span-4 row-span-2 bento-card glow-tracer p-8 flex flex-col justify-between"
+          initial={{ opacity: 0, x: 25 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+          className="col-span-1 md:col-span-4 row-span-2 bento-card glow-tracer p-8 flex flex-col justify-between"
         >
           <div>
-            <span className="text-foreground/45 text-[10px] uppercase tracking-widest font-black block">Tanlangan Asar</span>
-            <h3 className="text-xl font-bold mt-2">Royal Velvet Sofa</h3>
-            <p className="text-foreground/50 text-[11px] mt-1.5 font-light italic">Premium Italiya baxmali bilan bezatilgan.</p>
+            <span className="text-foreground/45 text-[10px] uppercase tracking-widest font-black block">{t('home.featured.teaser')}</span>
+            <h3 className="text-xl font-bold mt-2">{t(`product.${featuredProducts[0].id}.name`)}</h3>
+            <p className="text-foreground/50 text-[11px] mt-1.5 font-light italic">{t('home.featured.desc')}</p>
             <span className="price-tag text-2xl mt-4 block italic">{formatPrice(12000000)}</span>
           </div>
           <button 
             onClick={() => handleAddToCart(featuredProducts[0])}
             className="mt-6 w-full py-3.5 bg-foreground/5 border border-foreground/10 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-brand-gold hover:text-black transition-all duration-300"
           >
-            Savatga Qo'shish
+            {t('common.addToCart')}
           </button>
         </motion.div>
 
@@ -139,8 +139,8 @@ export const Home = () => {
             <Shield className="w-5 h-5 text-brand-gold" />
           </div>
           <div>
-            <h4 className="font-extrabold text-sm uppercase tracking-wider">Umrbod<br/>Kafolat</h4>
-            <p className="text-[9px] opacity-75 mt-1 font-semibold italic">Yevropa standarti bo'yicha</p>
+            <h4 className="font-extrabold text-sm uppercase tracking-wider leading-tight whitespace-pre-line">{t('home.warranty.title')}</h4>
+            <p className="text-[9px] opacity-75 mt-1 font-semibold italic">{t('home.warranty.desc')}</p>
           </div>
         </motion.div>
 
@@ -155,37 +155,37 @@ export const Home = () => {
           <div className="flex space-x-1 mb-2 text-brand-gold">
             {[1,2,3,4,5].map(i => <Star key={i} className="w-3.5 h-3.5 fill-current" />)}
           </div>
-          <div className="text-[9px] uppercase font-black text-foreground/45 tracking-widest">Mijozlar Bahosi</div>
+          <div className="text-[9px] uppercase font-black text-foreground/45 tracking-widest">{t('home.rating.desc')}</div>
         </motion.div>
 
         {/* Small Teasers */}
         <div className="col-span-1 md:col-span-4 row-span-2 bento-card glow-tracer overflow-hidden flex flex-col group">
           <div className="p-6">
-            <h3 className="text-xs font-black uppercase tracking-widest">Minimalist Bed Frame</h3>
-            <p className="text-[10px] text-foreground/45 mt-1 italic">Yong'oq yog'ochi va yoritish tizimi</p>
+            <h3 className="text-xs font-black uppercase tracking-widest">{t('home.teaser1.title')}</h3>
+            <p className="text-[10px] text-foreground/45 mt-1 italic">{t('home.teaser1.desc')}</p>
           </div>
           <div className="flex-1 bg-[url('/images/bed.png')] bg-cover bg-center min-h-[140px] group-hover:scale-105 transition-transform duration-700"></div>
         </div>
 
         <div className="col-span-1 md:col-span-4 row-span-2 bento-card glow-tracer overflow-hidden flex flex-col group">
           <div className="p-6">
-            <h3 className="text-xs font-black uppercase tracking-widest">Oak Dining Table</h3>
-            <p className="text-[10px] text-foreground/45 mt-1 italic">Tabiiy eman yog'ochidan stol to'plami</p>
+            <h3 className="text-xs font-black uppercase tracking-widest">{t('home.teaser2.title')}</h3>
+            <p className="text-[10px] text-foreground/45 mt-1 italic">{t('home.teaser2.desc')}</p>
           </div>
           <div className="flex-1 bg-[url('/images/dining_table.png')] bg-cover bg-center min-h-[140px] group-hover:scale-105 transition-transform duration-700"></div>
         </div>
 
         <div className="col-span-1 md:col-span-4 row-span-2 bento-card p-8 flex flex-col justify-center border-l-4 border-l-brand-gold">
           <p className="text-xs leading-relaxed italic text-foreground/75 font-light">
-            "Faxr Mebel uyingizga shunchaki mebel emas, haqiqiy hashamat va nafislik olib kiradi. Italiya baxmalining sifati kishini lol qoldiradi."
+            {t('home.testimonial.text')}
           </p>
           <div className="flex items-center mt-6 space-x-3.5">
             <div className="w-10 h-10 rounded-full bg-foreground/5 overflow-hidden">
                <img src="https://i.pravatar.cc/150?u=9" alt="Elena" className="w-full h-full object-cover" />
             </div>
             <div>
-              <div className="text-[10px] font-black uppercase tracking-wider">Elena V.</div>
-              <div className="text-[8px] text-foreground/45 uppercase tracking-widest font-black">Interyer Dizayner</div>
+              <div className="text-[10px] font-black uppercase tracking-wider">{t('home.testimonial.name')}</div>
+              <div className="text-[8px] text-foreground/45 uppercase tracking-widest font-black">{t('home.testimonial.role')}</div>
             </div>
           </div>
         </div>
@@ -195,10 +195,10 @@ export const Home = () => {
       {/* Interactive Craftsmanship & Materials Showcase */}
       <section className="py-12 border-t border-foreground/5">
         <div className="text-center mb-12">
-          <span className="text-brand-gold uppercase tracking-hero text-[10px] font-black block">Artisan Craft</span>
-          <h2 className="text-3xl md:text-5xl font-editorial-title mt-2">Tabiiy Materiallar <span className="font-bold italic gold-foil-text">Sifati.</span></h2>
+          <span className="text-brand-gold uppercase tracking-hero text-[10px] font-black block">{t('materials.teaser')}</span>
+          <h2 className="text-3xl md:text-5xl font-editorial-title mt-2">{t('materials.title')} <span className="font-bold italic gold-foil-text">{t('materials.titleGold')}</span></h2>
           <p className="text-xs text-foreground/55 max-w-xl mx-auto mt-4 font-light leading-relaxed">
-            Biz har bir buyurtma uchun faqatgina ekologik toza tabiiy daraxt tanasi hamda hashamatli Italiya matolarini saralab olamiz.
+            {t('materials.desc')}
           </p>
         </div>
 
@@ -207,41 +207,41 @@ export const Home = () => {
           <div className="bento-card glow-tracer p-8 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between border-b border-foreground/5 pb-4 mb-6">
-                <h3 className="text-lg font-bold tracking-tight uppercase text-brand-gold">Premium Yog'och Turlari</h3>
+                <h3 className="text-lg font-bold tracking-tight uppercase text-brand-gold">{t('materials.wood.title')}</h3>
                 <Award className="w-5 h-5 text-brand-gold" />
               </div>
               
               <div className="flex gap-3 mb-6">
                 {woodMaterials.map((wood) => (
                   <button
-                    key={wood.name}
+                    key={wood.id}
                     onClick={() => setSelectedWood(wood)}
                     className={`px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${
-                      selectedWood.name === wood.name 
+                      selectedWood.id === wood.id 
                         ? 'bg-brand-gold text-black shadow-lg shadow-brand-gold/15' 
                         : 'bg-foreground/5 text-foreground/60 hover:bg-foreground/10'
                     }`}
                   >
                     <span className={`w-3 h-3 rounded-full ${wood.color} border border-white/20`} />
-                    {wood.name.split(' ')[0]}
+                    {t(`wood.${wood.id}.name`).split(' ')[0]}
                   </button>
                 ))}
               </div>
 
               <div className="space-y-4">
-                <h4 className="text-xl font-editorial-title font-bold text-foreground">{selectedWood.name}</h4>
+                <h4 className="text-xl font-editorial-title font-bold text-foreground">{t(`wood.${selectedWood.id}.name`)}</h4>
                 <div className="flex items-center gap-8 text-[10px] uppercase font-bold text-foreground/45 tracking-wider">
-                  <span>Kelib chiqishi: <strong className="text-foreground">{selectedWood.origin}</strong></span>
-                  <span>Klassifikatsiya: <strong className="text-brand-gold">{selectedWood.type}</strong></span>
+                  <span>Kelib chiqishi: <strong className="text-foreground">{t(`wood.${selectedWood.id}.origin`)}</strong></span>
+                  <span>Klassifikatsiya: <strong className="text-brand-gold">{t(`wood.${selectedWood.id}.type`)}</strong></span>
                 </div>
-                <p className="text-xs text-foreground/60 leading-relaxed font-light italic mt-3">{selectedWood.description}</p>
+                <p className="text-xs text-foreground/60 leading-relaxed font-light italic mt-3">{t(`wood.${selectedWood.id}.description`)}</p>
               </div>
             </div>
             
             <div className="mt-8 relative h-32 rounded-2xl overflow-hidden group">
-              <img src={selectedWood.texture} alt={selectedWood.name} className="w-full h-full object-cover brightness-75 group-hover:scale-105 transition-transform duration-700" />
+              <img src={selectedWood.texture} alt={t(`wood.${selectedWood.id}.name`)} className="w-full h-full object-cover brightness-75 group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-black/45 flex items-center justify-center p-4">
-                <span className="text-[9px] uppercase tracking-hero text-white/80 font-black border border-white/20 px-4 py-2 rounded-full">Mikroskopik Tekstura Ko'rinishi</span>
+                <span className="text-[9px] uppercase tracking-hero text-white/80 font-black border border-white/20 px-4 py-2 rounded-full">{t('materials.wood.texture')}</span>
               </div>
             </div>
           </div>
@@ -250,41 +250,41 @@ export const Home = () => {
           <div className="bento-card glow-tracer p-8 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between border-b border-foreground/5 pb-4 mb-6">
-                <h3 className="text-lg font-bold tracking-tight uppercase text-brand-gold">Hashamatli Upolstery Matolar</h3>
+                <h3 className="text-lg font-bold tracking-tight uppercase text-brand-gold">{t('materials.fabric.title')}</h3>
                 <Info className="w-5 h-5 text-brand-gold" />
               </div>
               
               <div className="flex gap-3 mb-6">
                 {fabricMaterials.map((fabric) => (
                   <button
-                    key={fabric.name}
+                    key={fabric.id}
                     onClick={() => setSelectedFabric(fabric)}
                     className={`px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${
-                      selectedFabric.name === fabric.name 
+                      selectedFabric.id === fabric.id 
                         ? 'bg-brand-gold text-black shadow-lg shadow-brand-gold/15' 
                         : 'bg-foreground/5 text-foreground/60 hover:bg-foreground/10'
                     }`}
                   >
                     <span className={`w-3 h-3 rounded-full ${fabric.color}`} />
-                    {fabric.name.split(' ')[1] || fabric.name.split(' ')[0]}
+                    {t(`fabric.${fabric.id}.name`).split(' ')[1] || t(`fabric.${fabric.id}.name`).split(' ')[0]}
                   </button>
                 ))}
               </div>
 
               <div className="space-y-4">
-                <h4 className="text-xl font-editorial-title font-bold text-foreground">{selectedFabric.name}</h4>
+                <h4 className="text-xl font-editorial-title font-bold text-foreground">{t(`fabric.${selectedFabric.id}.name`)}</h4>
                 <div className="flex items-center gap-8 text-[10px] uppercase font-bold text-foreground/45 tracking-wider">
-                  <span>Mato Xususiyati: <strong className="text-green-500">{selectedFabric.feature}</strong></span>
-                  <span>Kolleksiya: <strong className="text-brand-gold">{selectedFabric.type}</strong></span>
+                  <span>Mato Xususiyati: <strong className="text-green-500">{t(`fabric.${selectedFabric.id}.feature`)}</strong></span>
+                  <span>Kolleksiya: <strong className="text-brand-gold">{t(`fabric.${selectedFabric.id}.type`)}</strong></span>
                 </div>
-                <p className="text-xs text-foreground/60 leading-relaxed font-light italic mt-3">{selectedFabric.description}</p>
+                <p className="text-xs text-foreground/60 leading-relaxed font-light italic mt-3">{t(`fabric.${selectedFabric.id}.description`)}</p>
               </div>
             </div>
 
             <div className="mt-8 bg-foreground/5 p-6 rounded-2xl border border-foreground/5">
-              <span className="text-[9px] uppercase font-black tracking-widest text-brand-gold block mb-3">Buyurtma uchun mato tanlash</span>
+              <span className="text-[9px] uppercase font-black tracking-widest text-brand-gold block mb-3">{t('materials.fabric.custom')}</span>
               <p className="text-[11px] text-foreground/50 leading-relaxed">
-                Mebellarni o'zingiz xohlagan boshqa turdagi yoki rangdagi matolar bilan ham buyurtma qilishingiz mumkin. Biz Italiya, Turkiya va Belgiyadan keltirilgan 200 dan ortiq matolarni taklif etamiz.
+                {t('materials.fabric.customDesc')}
               </p>
             </div>
           </div>
@@ -295,12 +295,12 @@ export const Home = () => {
       <section className="py-12">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
           <div>
-            <span className="text-brand-gold uppercase tracking-hero text-[10px] font-black block">Curated Pieces</span>
-            <h2 className="text-3xl md:text-5xl font-editorial-title mt-2">Mashhur Kolleksiyalar.</h2>
-            <p className="text-xs text-foreground/50 italic mt-1">Sizning hashamatli yashash makoningiz uchun maxsus saralangan.</p>
+            <span className="text-brand-gold uppercase tracking-hero text-[10px] font-black block">{t('featured.teaser')}</span>
+            <h2 className="text-3xl md:text-5xl font-editorial-title mt-2">{t('featured.title')}</h2>
+            <p className="text-xs text-foreground/50 italic mt-1">{t('featured.desc')}</p>
           </div>
           <Link to="/shop" className="text-brand-gold font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:translate-x-2 transition-transform">
-            Barchasini ko'rish <ArrowRight className="w-4 h-4 text-brand-gold" />
+            {t('common.seeAll')} <ArrowRight className="w-4 h-4 text-brand-gold" />
           </Link>
         </div>
         
@@ -312,15 +312,15 @@ export const Home = () => {
               className="bento-card glow-tracer p-6 group"
             >
               <div className="relative aspect-square rounded-[1.8rem] overflow-hidden mb-6">
-                <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" />
+                <img src={product.image} alt={t(`product.${product.id}.name`)} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" />
                 <div className="absolute top-4 right-4 glass px-4 py-1.5 rounded-full text-[9px] font-black text-brand-gold uppercase tracking-widest">
-                  {product.category}
+                  {t(`shop.category.${product.category}`)}
                 </div>
               </div>
               
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-lg font-bold tracking-tight text-foreground">{product.name}</h3>
+                  <h3 className="text-lg font-bold tracking-tight text-foreground">{t(`product.${product.id}.name`)}</h3>
                   <div className="flex items-center gap-1 mt-1 text-brand-gold text-[10px] font-bold">
                     <Star className="w-3 h-3 fill-current" /> {product.rating}
                   </div>
@@ -332,7 +332,7 @@ export const Home = () => {
                 onClick={() => handleAddToCart(product)}
                 className="w-full mt-2 py-3 bg-foreground/5 hover:bg-brand-gold hover:text-black rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-300 border border-foreground/5"
               >
-                Savatga Qo'shish
+                {t('common.addToCart')}
               </button>
             </motion.div>
           ))}
@@ -344,29 +344,29 @@ export const Home = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-[550px]">
            <div className="bento-card p-10 md:p-12 flex flex-col justify-between">
               <div>
-                <span className="text-brand-gold uppercase tracking-hero text-[10px] font-black block">Tashrif buyuring</span>
-                <h2 className="text-3xl md:text-5xl font-editorial-title mt-2 mb-4">Bizning Showroom.</h2>
+                <span className="text-brand-gold uppercase tracking-hero text-[10px] font-black block">{t('showroom.teaser')}</span>
+                <h2 className="text-3xl md:text-5xl font-editorial-title mt-2 mb-4">{t('showroom.title')}</h2>
                 <div className="flex items-center gap-3 text-brand-gold mb-6">
                   <MapPin className="w-5 h-5" />
                   <span className="text-xs font-bold uppercase tracking-widest">Tashkent, Uzbekistan</span>
                 </div>
                 <p className="text-xs text-foreground/55 leading-relaxed mb-8 font-light italic">
-                  Premium matolarimizning yumshoqligini his qiling, mebellarimizni qo'lda sayqallangan yog'och sifatini yaqindan ko'ring va bizning professional mebel dizaynerlarimizdan bepul maslahat oling.
+                  {t('showroom.desc')}
                 </p>
                 <div className="space-y-3.5">
                    <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-wider text-foreground/75">
                       <Clock className="w-4 h-4 text-brand-gold" /> 
-                      <span>Har kuni 09:00 — 20:00</span>
+                      <span>{t('showroom.hours')}</span>
                    </div>
                    <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-wider text-foreground/75">
                       <Phone className="w-4 h-4 text-brand-gold" /> 
-                      <span>+998 71 200 00 00</span>
+                      <span>{t('showroom.phone')}</span>
                    </div>
                 </div>
               </div>
               
               <Link to="/contact" className="w-full mt-10 py-4 border border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-black rounded-full font-bold text-xs uppercase tracking-widest text-center transition-all duration-300">
-                Konsultatsiya Band Qilish
+                {t('showroom.cta')}
               </Link>
            </div>
            

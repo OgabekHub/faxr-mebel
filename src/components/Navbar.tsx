@@ -54,7 +54,7 @@ export const Navbar = () => {
 
   return (
     <nav className={cn(
-      "fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 px-6 md:px-8 py-3.5 w-[92%] max-w-7xl border shadow-xl backdrop-blur-md",
+      "fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-[background-color,border-color,padding,border-radius,box-shadow] duration-300 px-6 md:px-8 py-3.5 w-[92%] max-w-7xl border shadow-xl backdrop-blur-md",
       isOpen ? "rounded-[2rem]" : "rounded-full",
       isScrolled 
         ? "bg-white dark:bg-[#0A0A0A] border-neutral-200 dark:border-neutral-800/80 py-3 shadow-2xl" 
