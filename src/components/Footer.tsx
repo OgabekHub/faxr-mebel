@@ -1,26 +1,119 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Facebook, Instagram, Twitter, MessageCircle, Send, Phone, Mail, MapPin } from 'lucide-react';
+import { Facebook, Instagram, Send, Phone, Mail, MapPin, ArrowRight, ShieldCheck, Award } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { motion } from 'motion/react';
 
 export const Footer = () => {
   const { t } = useTranslation();
+  const [email, setEmail] = useState('');
+  const [subscribed, setSubscribed] = useState(false);
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email.trim()) {
+      setSubscribed(true);
+      setEmail('');
+      setTimeout(() => setSubscribed(false), 5000);
+    }
+  };
 
   return (
-    <footer className="h-40 px-8 flex flex-col md:flex-row items-center justify-between border-t border-white/5 text-[9px] uppercase tracking-[0.2em] font-medium text-foreground/40 bg-background overflow-hidden">
-      <div className="flex flex-col md:flex-row items-center gap-8">
-        <div className="font-bold text-foreground">© 2026 Faxr Mebel. All rights reserved.</div>
-        <div className="flex space-x-8">
-          <a href="#" className="hover:text-brand-gold transition-colors">Instagram</a>
-          <a href="#" className="hover:text-brand-gold transition-colors">Pinterest</a>
-          <a href="#" className="hover:text-brand-gold transition-colors">Behance</a>
+    <footer className="bg-foreground/[0.01] border-t border-foreground/5 pt-20 pb-12 px-8 overflow-hidden relative">
+      {/* Subtle luxury glow in footer background */}
+      <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-brand-gold/5 blur-[100px] rounded-full pointer-events-none" />
+      
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
+        {/* Column 1: Brand & Logo */}
+        <div className="md:col-span-4 space-y-6">
+          <Link to="/" className="text-2xl font-display font-bold tracking-tighter">
+            <span className="text-brand-gold">FAXR</span> MEBEL
+          </Link>
+          <p className="text-xs text-foreground/50 leading-relaxed font-light italic max-w-sm">
+            Elegansiya va hashamat uyg'unligi. Biz milliy mebelsozlik hunarmandchiligi an'analarini zamonaviy arxitektura minimalizmi bilan birlashtirib, chindan ham mukammal mebellarni yaratamiz.
+          </p>
+          <div className="flex gap-3 text-foreground/30">
+            <Award className="w-5 h-5 text-brand-gold" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/50">100% Qo'l mehnati & Kafolat</span>
+          </div>
+        </div>
+
+        {/* Column 2: Navigation Links */}
+        <div className="md:col-span-2 space-y-4">
+          <h4 className="text-[10px] font-bold uppercase tracking-widest text-brand-gold">Navigatsiya</h4>
+          <ul className="space-y-2.5 text-xs font-medium text-foreground/60">
+            <li><Link to="/" className="hover:text-brand-gold transition-colors">{t('nav.home')}</Link></li>
+            <li><Link to="/shop" className="hover:text-brand-gold transition-colors">{t('nav.shop')}</Link></li>
+            <li><Link to="/about" className="hover:text-brand-gold transition-colors">{t('nav.about')}</Link></li>
+            <li><Link to="/contact" className="hover:text-brand-gold transition-colors">{t('nav.contact')}</Link></li>
+          </ul>
+        </div>
+
+        {/* Column 3: Contact & Showroom */}
+        <div className="md:col-span-3 space-y-4">
+          <h4 className="text-[10px] font-bold uppercase tracking-widest text-brand-gold">Showroom</h4>
+          <ul className="space-y-3.5 text-xs text-foreground/60 leading-relaxed">
+            <li className="flex items-start gap-2.5">
+              <MapPin className="w-4 h-4 text-brand-gold shrink-0 mt-0.5" />
+              <span>Tashkent, Uzbekistan<br/>Yunusobod tumani, 19-mavze, 12-uy</span>
+            </li>
+            <li className="flex items-center gap-2.5">
+              <Phone className="w-4 h-4 text-brand-gold shrink-0" />
+              <a href="tel:+998712000000" className="hover:text-brand-gold transition-colors font-bold">+998 71 200 00 00</a>
+            </li>
+            <li className="flex items-center gap-2.5">
+              <Mail className="w-4 h-4 text-brand-gold shrink-0" />
+              <a href="mailto:info@faxrmebel.uz" className="hover:text-brand-gold transition-colors">info@faxrmebel.uz</a>
+            </li>
+          </ul>
+        </div>
+
+        {/* Column 4: Newsletter Subscription */}
+        <div className="md:col-span-3 space-y-4">
+          <h4 className="text-[10px] font-bold uppercase tracking-widest text-brand-gold">Kolleksiya Yangiliklari</h4>
+          <p className="text-[11px] text-foreground/50 leading-relaxed">
+            Yangi premium dizaynlar va eksklyuziv takliflardan birinchilardan bo'lib xabardor bo'ling.
+          </p>
+          
+          <form onSubmit={handleSubscribe} className="space-y-2">
+            <div className="relative flex items-center">
+              <input 
+                type="email" 
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Elektron manzilingiz" 
+                className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 text-xs outline-none focus:border-brand-gold transition-all italic pr-12"
+              />
+              <button 
+                type="submit" 
+                className="absolute right-2 p-2 bg-brand-gold hover:bg-brand-gold-muted text-black rounded-lg transition-colors"
+              >
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            {subscribed && (
+              <motion.p 
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-[10px] text-green-500 font-bold uppercase tracking-wider"
+              >
+                Obuna bo'linganligi tasdiqlandi!
+              </motion.p>
+            )}
+          </form>
         </div>
       </div>
-      
-      <div className="flex items-center space-x-4 mt-6 md:mt-0">
-        <span className="italic">Tashkent, Uzbekistan</span>
-        <span className="w-1.5 h-1.5 bg-brand-gold rounded-full"></span>
-        <span className="font-bold">+998 71 200 00 00</span>
+
+      {/* Footer Bottom Bar */}
+      <div className="max-w-7xl mx-auto pt-8 border-t border-foreground/5 flex flex-col md:flex-row items-center justify-between gap-6 text-[10px] uppercase tracking-widest font-semibold text-foreground/40">
+        <div>© 2026 Faxr Mebel. Barcha huquqlar himoyalangan.</div>
+        
+        <div className="flex space-x-8">
+          <a href="https://instagram.com" className="hover:text-brand-gold transition-colors flex items-center gap-1.5"><Instagram className="w-3.5 h-3.5" /> Instagram</a>
+          <a href="https://t.me" className="hover:text-brand-gold transition-colors flex items-center gap-1.5"><Send className="w-3.5 h-3.5" /> Telegram</a>
+          <a href="https://facebook.com" className="hover:text-brand-gold transition-colors flex items-center gap-1.5"><Facebook className="w-3.5 h-3.5" /> Facebook</a>
+        </div>
       </div>
     </footer>
   );

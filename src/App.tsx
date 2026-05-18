@@ -18,9 +18,8 @@ import { CartProvider } from './context/CartContext';
 import './lib/i18n'; // Init i18n
 import { motion, AnimatePresence } from 'motion/react';
 
-// Placeholder Pages
-const About = () => <div className="pt-32 text-center h-screen font-display font-bold text-4xl text-brand-gold">About Faxr Mebel</div>;
-const Profile = () => <div className="pt-32 text-center h-screen font-display font-bold text-4xl text-brand-gold">Your Profile</div>;
+import { About } from './pages/About';
+import { Profile } from './pages/Profile';
 
 export default function App() {
   return (

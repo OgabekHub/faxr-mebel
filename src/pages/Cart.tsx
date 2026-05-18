@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
-import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, CreditCard, ChevronLeft, CheckCircle2 } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, CreditCard, ChevronLeft, CheckCircle2, Gift, Award, HelpCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { formatPrice } from '../lib/utils';
 import { Link, useNavigate } from 'react-router-dom';
@@ -15,60 +15,105 @@ export const Cart = () => {
   const [isCheckout, setIsCheckout] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+
+  // Premium Custom Add-ons
+  const [premiumBox, setPremiumBox] = useState(false);
+  const [artisanCert, setArtisanCert] = useState(false);
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    address: ''
+    address: '',
+    wishes: ''
   });
+
+  const getAddonTotal = () => {
+    let total = 0;
+    if (premiumBox) total += 500000; // 500k UZS
+    if (artisanCert) total += 150000; // 150k UZS
+    return total;
+  };
+
+  const finalAmount = totalAmount + getAddonTotal();
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const orderDetails = cart.map(item => `- ${item.name} (x${item.quantity}): ${formatPrice(item.price * item.quantity)}`).join('\n');
+    const orderDetails = cart.map(item => {
+      let customTag = '';
+      if (item.bespokeDetails) {
+        customTag = `\n   ↳ 🪵 <i>Yog'och: ${item.bespokeDetails.wood}</i> | 🧵 <i>Mato: ${item.bespokeDetails.fabric}</i>`;
+      }
+      return `- <b>${item.name}</b> (x${item.quantity}): ${formatPrice(item.price * item.quantity)}${customTag}`;
+    }).join('\n');
+
+    const addonsList = [
+      premiumBox ? '🎁 Hashamatli Yog\'och Qadoqlash (+500,000 UZS)' : '',
+      artisanCert ? '📜 Ustaxonaning Asillik Sertifikati (+150,000 UZS)' : ''
+    ].filter(Boolean).join('\n') || 'Yo\'q';
+
     const message = `
-🌟 <b>YANGI BUYURTMA</b> 🌟
+🌟 <b>YANGI PRESTIGE BUYURTMA</b> 🌟
 
 👤 <b>Mijoz:</b> ${formData.name}
 📱 <b>Telefon:</b> ${formData.phone}
 📍 <b>Manzil:</b> ${formData.address}
+✍️ <b>Qo'shimcha istaklar:</b> ${formData.wishes || 'Yo\'q'}
 
 🛒 <b>Buyurtma tarkibi:</b>
 ${orderDetails}
 
-💰 <b>Umumiy summa:</b> ${formatPrice(totalAmount)}
+➕ <b>Qo'shimcha xizmatlar:</b>
+${addonsList}
+
+💰 <b>Umumiy summa:</b> <b>${formatPrice(finalAmount)}</b>
+📅 <b>Sana:</b> ${new Date().toLocaleString('uz-UZ')}
 `;
 
-    await sendTelegramMessage(message);
-    
+    const result = await sendTelegramMessage(message);
     setIsSubmitting(false);
-    setIsSuccess(true);
     
-    setTimeout(() => {
-      clearCart();
-      navigate('/shop');
-    }, 4000);
+    if (result.success) {
+      setIsSuccess(true);
+      setTimeout(() => {
+        clearCart();
+        navigate('/');
+      }, 4500);
+    } else {
+      alert("Xatolik yuz berdi. Iltimos, ma'lumotlarni tekshiring va qayta urinib ko'ring.");
+    }
   };
 
   if (isSuccess) {
     return (
-      <div className="pt-40 pb-20 px-6 max-w-7xl mx-auto text-center h-screen">
+      <div className="pt-44 pb-20 px-6 max-w-7xl mx-auto text-center h-screen flex flex-col items-center justify-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-xl bg-white dark:bg-white/5 bento-card p-12 shadow-2xl border border-brand-gold/20"
         >
-          <div className="w-32 h-32 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-8">
-            <CheckCircle2 className="w-16 h-16 text-green-500" />
+          <div className="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-8 animate-pulse">
+            <CheckCircle2 className="w-12 h-12 text-green-500" />
           </div>
-          <h1 className="text-4xl font-display font-bold mb-4">Buyurtma Qabul Qılındı</h1>
-          <p className="text-foreground/60 mb-10 max-w-md mx-auto">
-            Xaridingiz uchun rahmat! Tez orada menejerlarimiz siz bilan bog'lanishadi.
+          <h1 className="text-3xl md:text-4xl font-editorial-title font-bold mb-4">Buyurtmangiz Qabul Qilindi!</h1>
+          <p className="text-xs text-foreground/60 mb-8 leading-relaxed max-w-md mx-auto italic">
+            Xaridingiz uchun tashakkur! Faxr Mebel master-artisanlari buyurtma ustida ish boshlashdi. Tez orada aloqaga chiqamiz.
           </p>
+          <div className="w-full bg-foreground/5 h-1.5 rounded-full overflow-hidden mb-8">
+            <motion.div 
+              initial={{ width: 0 }}
+              animate={{ width: "100%" }}
+              transition={{ duration: 4 }}
+              className="bg-brand-gold h-full"
+            />
+          </div>
           <button 
             onClick={() => { clearCart(); navigate('/shop'); }}
-            className="bg-brand-gold text-black px-10 py-4 rounded-full font-bold hover:scale-105 transition-all inline-flex items-center gap-2"
+            className="bg-brand-gold text-black px-8 py-3.5 rounded-full font-bold text-xs uppercase tracking-hero hover:scale-105 transition-transform inline-flex items-center gap-2"
           >
-            <ArrowRight className="w-4 h-4 mr-2" /> Xaridni Davom Ettirish
+            Do'konga qaytish <ArrowRight className="w-4 h-4" />
           </button>
         </motion.div>
       </div>
@@ -77,23 +122,24 @@ ${orderDetails}
 
   if (cart.length === 0) {
     return (
-      <div className="pt-40 pb-20 px-6 max-w-7xl mx-auto text-center h-screen">
+      <div className="pt-44 pb-20 px-6 max-w-7xl mx-auto text-center h-screen flex flex-col items-center justify-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
+          className="max-w-md"
         >
-          <div className="w-32 h-32 bg-foreground/5 rounded-full flex items-center justify-center mx-auto mb-8">
-            <ShoppingBag className="w-16 h-16 text-foreground/20" />
+          <div className="w-24 h-24 bg-foreground/5 rounded-full flex items-center justify-center mx-auto mb-6">
+            <ShoppingBag className="w-10 h-10 text-foreground/20" />
           </div>
-          <h1 className="text-4xl font-display font-bold mb-4">Your Cart is Empty</h1>
-          <p className="text-foreground/60 mb-10 max-w-md mx-auto">
-            Looks like you haven't added anything to your cart yet. Explore our luxury collection and find something beautiful.
+          <h1 className="text-3xl font-editorial-title font-bold mb-3">Sizning savatchangiz bo'sh</h1>
+          <p className="text-xs text-foreground/50 mb-8 leading-relaxed italic">
+            Eksklyuziv mebel katalogimizdan o'zingizga ma'qul kelgan asarni tanlang va uyingizga hashamat olib kiring.
           </p>
           <Link 
             to="/shop" 
-            className="bg-brand-gold text-white px-10 py-4 rounded-full font-bold hover:bg-brand-gold-muted transition-all inline-flex items-center gap-2"
+            className="bg-brand-gold text-black px-8 py-3.5 rounded-full font-bold text-xs uppercase tracking-hero hover:scale-105 transition-transform inline-flex items-center gap-2 shadow-lg shadow-brand-gold/15"
           >
-            Start Shopping <ArrowRight className="w-4 h-4" />
+            Kolleksiyani ko'rish <ArrowRight className="w-4 h-4" />
           </Link>
         </motion.div>
       </div>
@@ -101,12 +147,25 @@ ${orderDetails}
   }
 
   return (
-    <div className="pt-32 pb-20 px-6 max-w-7xl mx-auto">
-      <h1 className="text-4xl font-display font-bold mb-12">Shopping Cart ({totalItems})</h1>
+    <div className="pt-36 pb-20 px-6 max-w-7xl mx-auto">
+      {/* Visual checkout step timeline */}
+      <div className="flex items-center justify-center gap-4 md:gap-8 mb-12">
+        <div className={cn("flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest", !isCheckout ? "text-brand-gold" : "text-foreground/35")}>
+          <span className="w-6 h-6 bg-brand-gold/10 rounded-full flex items-center justify-center border border-brand-gold/20">1</span>
+          Savatcha
+        </div>
+        <div className="w-16 h-[1px] bg-foreground/10" />
+        <div className={cn("flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest", isCheckout ? "text-brand-gold" : "text-foreground/35")}>
+          <span className="w-6 h-6 bg-foreground/5 rounded-full flex items-center justify-center border border-transparent">2</span>
+          Tasdiqlash
+        </div>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        {/* Cart Items */}
-        <div className="lg:col-span-2 space-y-6">
+      <h1 className="text-3xl md:text-5xl font-editorial-title mb-10">Savatchadagi asarlar ({totalItems})</h1>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        {/* Left Side: Cart Items List */}
+        <div className="lg:col-span-8 space-y-6">
           <AnimatePresence>
             {cart.map((item) => (
               <motion.div 
@@ -115,40 +174,48 @@ ${orderDetails}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
-                className="glass p-6 rounded-[2.5rem] flex flex-col sm:flex-row items-center gap-8 group"
+                className="bento-card p-6 flex flex-col sm:flex-row items-center gap-6 group"
               >
-                <div className="w-40 h-40 rounded-2xl overflow-hidden shrink-0">
-                  <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <div className="w-32 h-32 rounded-2xl overflow-hidden shrink-0 relative bg-foreground/5">
+                  <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                 </div>
                 
-                <div className="flex-grow text-center sm:text-left">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-brand-gold">{item.category}</span>
-                  <h3 className="text-xl font-bold mb-4">{item.name}</h3>
-                  <div className="flex items-center justify-center sm:justify-start gap-4">
-                    <div className="flex items-center gap-3 bg-foreground/5 p-2 rounded-full">
+                <div className="flex-grow text-center sm:text-left space-y-2">
+                  <span className="text-[9px] font-black uppercase tracking-widest text-brand-gold">{item.category}</span>
+                  <h3 className="text-lg font-bold tracking-tight text-foreground">{item.name}</h3>
+                  
+                  {item.bespokeDetails && (
+                    <div className="text-[10px] text-brand-gold bg-brand-gold/5 border border-brand-gold/10 px-3 py-1 rounded-lg inline-block">
+                      🪵 {item.bespokeDetails.wood} | 🧵 {item.bespokeDetails.fabric}
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-center sm:justify-start gap-4 pt-1">
+                    <div className="flex items-center gap-2 bg-foreground/5 px-2 py-1 rounded-lg">
                       <button 
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="p-1 hover:bg-white dark:hover:bg-white/10 rounded-full transition-colors"
+                        className="p-1 hover:bg-white dark:hover:bg-white/10 rounded transition-colors text-foreground"
                       >
                         <Minus className="w-3 h-3" />
                       </button>
-                      <span className="text-sm font-bold w-6 text-center">{item.quantity}</span>
+                      <span className="text-xs font-bold w-6 text-center">{item.quantity}</span>
                       <button 
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="p-1 hover:bg-white dark:hover:bg-white/10 rounded-full transition-colors"
+                        className="p-1 hover:bg-white dark:hover:bg-white/10 rounded transition-colors text-foreground"
                       >
                         <Plus className="w-3 h-3" />
                       </button>
                     </div>
-                    <span className="text-sm text-foreground/40 font-medium">x {formatPrice(item.price)}</span>
+                    <span className="text-xs text-foreground/45">x {formatPrice(item.price)}</span>
                   </div>
                 </div>
 
-                <div className="text-center sm:text-right flex flex-col items-center sm:items-end gap-4 min-w-[120px]">
-                  <span className="text-xl font-display font-bold">{formatPrice(item.price * item.quantity)}</span>
+                <div className="text-center sm:text-right flex flex-col items-center sm:items-end gap-3 min-w-[120px]">
+                  <span className="price-tag text-xl font-bold">{formatPrice(item.price * item.quantity)}</span>
                   <button 
                     onClick={() => removeFromCart(item.id)}
-                    className="p-3 text-red-500 hover:bg-red-500 hover:text-white rounded-full transition-all"
+                    className="p-2.5 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-colors border border-red-500/10"
+                    aria-label="Remove item"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -158,120 +225,176 @@ ${orderDetails}
           </AnimatePresence>
         </div>
 
-        {/* Summary or Checkout Form */}
-        <aside className="lg:col-span-1">
-          <div className="glass p-10 rounded-[3rem] sticky top-32 border border-white/10 shadow-2xl">
+        {/* Right Side: Order Summary or Form checkout */}
+        <aside className="lg:col-span-4">
+          <div className="bento-card p-8 sticky top-32 border border-foreground/5 shadow-xl">
             {!isCheckout ? (
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
+                className="space-y-6"
               >
-                <h3 className="text-2xl font-display font-bold mb-8">Order Summary</h3>
+                <h3 className="text-2xl font-editorial-title font-bold mb-4 text-foreground">Buyurtma yakuni</h3>
                 
-                <div className="space-y-4 mb-8">
-                  <div className="flex justify-between text-foreground/60 text-sm">
-                    <span>Subtotal</span>
+                {/* Premium Luxury Options */}
+                <div className="border-t border-b border-foreground/5 py-5 space-y-4">
+                  <span className="text-[9px] font-black uppercase tracking-widest text-brand-gold block">Hashamatli Qo'shimchalar</span>
+                  
+                  {/* Option 1: Gift box */}
+                  <label className="flex items-start gap-3 cursor-pointer group">
+                    <input 
+                      type="checkbox" 
+                      checked={premiumBox}
+                      onChange={(e) => setPremiumBox(e.target.checked)}
+                      className="mt-1 accent-brand-gold rounded"
+                    />
+                    <div>
+                      <span className="text-xs font-bold flex items-center gap-1.5 text-foreground group-hover:text-brand-gold transition-colors">
+                        <Gift className="w-3.5 h-3.5" /> Yog'och Qadoqlash
+                      </span>
+                      <p className="text-[9px] text-foreground/45 mt-0.5 leading-relaxed font-light italic">
+                        Premium mebellar uchun hashamatli qattiq yog'och quti (+500k UZS)
+                      </p>
+                    </div>
+                  </label>
+
+                  {/* Option 2: Certificate */}
+                  <label className="flex items-start gap-3 cursor-pointer group">
+                    <input 
+                      type="checkbox" 
+                      checked={artisanCert}
+                      onChange={(e) => setArtisanCert(e.target.checked)}
+                      className="mt-1 accent-brand-gold rounded"
+                    />
+                    <div>
+                      <span className="text-xs font-bold flex items-center gap-1.5 text-foreground group-hover:text-brand-gold transition-colors">
+                        <Award className="w-3.5 h-3.5" /> Asillik Sertifikati
+                      </span>
+                      <p className="text-[9px] text-foreground/45 mt-0.5 leading-relaxed font-light italic">
+                        Mebelning tozaligi va qo'lda sayqallanganligini tasdiqlovchi sertifikat (+150k UZS)
+                      </p>
+                    </div>
+                  </label>
+                </div>
+
+                {/* Subtotals and Totals */}
+                <div className="space-y-3.5 text-xs">
+                  <div className="flex justify-between text-foreground/55">
+                    <span>Mebellar qiymati</span>
                     <span>{formatPrice(totalAmount)}</span>
                   </div>
-                  <div className="flex justify-between text-foreground/60 text-sm">
-                    <span>Shipping</span>
-                    <span className="text-green-500 font-bold uppercase text-[10px]">Free</span>
+                  {premiumBox && (
+                    <div className="flex justify-between text-foreground/55 animate-fade-in">
+                      <span>Yog'och Qadoqlash</span>
+                      <span>{formatPrice(500000)}</span>
+                    </div>
+                  )}
+                  {artisanCert && (
+                    <div className="flex justify-between text-foreground/55 animate-fade-in">
+                      <span>Asillik Sertifikati</span>
+                      <span>{formatPrice(150000)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-foreground/55">
+                    <span>O'rnatish & Yetkazish</span>
+                    <span className="text-green-500 font-extrabold uppercase text-[9px] tracking-wider">Bepul (Luxe Service)</span>
                   </div>
                   <div className="pt-4 border-t border-foreground/5 flex justify-between items-center text-xl font-bold">
-                    <span>Total</span>
-                    <span className="text-brand-gold">{formatPrice(totalAmount)}</span>
+                    <span>Jami</span>
+                    <span className="price-tag text-2xl font-bold">{formatPrice(finalAmount)}</span>
                   </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-4 pt-2">
                   <button 
                     onClick={() => setIsCheckout(true)}
-                    className="w-full bg-brand-gold text-black py-4 rounded-2xl font-bold hover:bg-brand-gold/90 transition-all shadow-xl shadow-brand-gold/20 flex items-center justify-center gap-2 group"
+                    className="w-full bg-brand-gold text-black py-4 rounded-xl font-extrabold text-xs uppercase tracking-hero hover:scale-102 transition-transform shadow-xl shadow-brand-gold/15 flex items-center justify-center gap-2"
                   >
-                    Checkout <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    Buyurtmaga O'tish <ArrowRight className="w-4 h-4" />
                   </button>
-                  <div className="flex items-center justify-center gap-4 text-foreground/20">
-                    <CreditCard className="w-6 h-6" />
-                    <span className="text-[10px] uppercase font-bold tracking-widest">Secure Payment</span>
-                  </div>
-                </div>
-
-                {/* Promo Code */}
-                <div className="mt-10 pt-8 border-t border-foreground/5">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-foreground/40 mb-3 block ml-2">Promo Code</label>
-                  <div className="flex gap-2">
-                    <input 
-                      type="text" 
-                      placeholder="LUXURY2026" 
-                      className="bg-foreground/5 border border-transparent focus:border-brand-gold rounded-xl px-4 py-2 text-sm outline-none flex-grow transition-all"
-                    />
-                    <button className="px-4 py-2 bg-foreground/10 hover:bg-foreground/20 rounded-xl text-xs font-bold transition-all">Apply</button>
+                  <div className="flex items-center justify-center gap-3 text-foreground/20">
+                    <CreditCard className="w-5 h-5" />
+                    <span className="text-[9px] uppercase font-black tracking-widest">Kafolatlangan yetkazish</span>
                   </div>
                 </div>
               </motion.div>
             ) : (
+              /* Checkout Form Details */
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
+                className="space-y-6"
               >
-                <div className="flex items-center gap-4 mb-8">
+                <div className="flex items-center gap-4 mb-4 pb-4 border-b border-foreground/5">
                   <button 
                     onClick={() => setIsCheckout(false)}
-                    className="p-2 hover:bg-foreground/5 rounded-full transition-colors"
+                    className="p-1.5 hover:bg-foreground/5 rounded-full transition-colors text-foreground"
+                    aria-label="Back to cart summary"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
-                  <h3 className="text-2xl font-display font-bold">Checkout</h3>
+                  <h3 className="text-2xl font-editorial-title font-bold text-foreground">Tasdiqlash</h3>
                 </div>
 
-                <form onSubmit={handleCheckout} className="space-y-6">
+                <form onSubmit={handleCheckout} className="space-y-5">
                   <div>
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-foreground/40 mb-2 block ml-2">To'liq ismingiz</label>
+                    <label className="text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">Ism Sharifingiz</label>
                     <input 
                       required
                       type="text" 
                       value={formData.name}
                       onChange={(e) => setFormData({...formData, name: e.target.value})}
                       placeholder="Masalan: Alisher Navoiy" 
-                      className="bg-foreground/5 border border-transparent focus:border-brand-gold rounded-xl px-4 py-3 text-sm outline-none w-full transition-all"
+                      className="bg-foreground/5 border border-foreground/15 focus:border-brand-gold rounded-xl px-4 py-3 text-xs outline-none w-full transition-all text-foreground"
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-foreground/40 mb-2 block ml-2">Telefon raqamingiz</label>
+                    <label className="text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">Telefon Raqamingiz</label>
                     <input 
                       required
                       type="tel" 
                       value={formData.phone}
                       onChange={(e) => setFormData({...formData, phone: e.target.value})}
                       placeholder="+998 90 123 45 67" 
-                      className="bg-foreground/5 border border-transparent focus:border-brand-gold rounded-xl px-4 py-3 text-sm outline-none w-full transition-all"
+                      className="bg-foreground/5 border border-foreground/15 focus:border-brand-gold rounded-xl px-4 py-3 text-xs outline-none w-full transition-all text-foreground"
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-foreground/40 mb-2 block ml-2">Yetkazib berish manzili</label>
+                    <label className="text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">Yetkazish Manzili</label>
                     <textarea 
                       required
                       value={formData.address}
                       onChange={(e) => setFormData({...formData, address: e.target.value})}
                       placeholder="Toshkent shahar, Yunusobod tumani..." 
-                      rows={3}
-                      className="bg-foreground/5 border border-transparent focus:border-brand-gold rounded-xl px-4 py-3 text-sm outline-none w-full transition-all resize-none"
+                      rows={2}
+                      className="bg-foreground/5 border border-foreground/15 focus:border-brand-gold rounded-xl px-4 py-3 text-xs outline-none w-full transition-all text-foreground resize-none"
+                    ></textarea>
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">Maxsus Istaklar (Ixtiyoriy)</label>
+                    <textarea 
+                      value={formData.wishes}
+                      onChange={(e) => setFormData({...formData, wishes: e.target.value})}
+                      placeholder="Masalan: Mebel osti orqa fon yoritgichini ham o'rnatib bering..." 
+                      rows={2}
+                      className="bg-foreground/5 border border-foreground/15 focus:border-brand-gold rounded-xl px-4 py-3 text-xs outline-none w-full transition-all text-foreground resize-none"
                     ></textarea>
                   </div>
 
-                  <div className="pt-6 border-t border-foreground/5">
-                    <div className="flex justify-between items-center text-xl font-bold mb-6">
-                      <span>Total</span>
-                      <span className="text-brand-gold">{formatPrice(totalAmount)}</span>
+                  <div className="pt-4 border-t border-foreground/5">
+                    <div className="flex justify-between items-center text-xl font-bold mb-4">
+                      <span>Umumiy</span>
+                      <span className="price-tag text-2xl font-bold">{formatPrice(finalAmount)}</span>
                     </div>
+                    
                     <button 
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full bg-brand-gold text-black py-4 rounded-2xl font-bold hover:bg-brand-gold/90 transition-all shadow-xl shadow-brand-gold/20 flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed"
+                      className="w-full bg-brand-gold text-black py-4 rounded-xl font-extrabold text-xs uppercase tracking-hero hover:scale-102 transition-transform shadow-xl shadow-brand-gold/15 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {isSubmitting ? 'Yuborilmoqda...' : 'Buyurtmani Tasdiqlash'}
+                      {isSubmitting ? 'Yuborilmoqda...' : 'Buyurtmani Yakunlash'}
                     </button>
                   </div>
                 </form>
