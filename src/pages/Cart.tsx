@@ -147,7 +147,7 @@ ${addonsList}
   }
 
   return (
-    <div className="pt-36 pb-20 px-6 max-w-7xl mx-auto">
+    <div className="pt-36 pb-32 md:pb-44 px-6 max-w-7xl mx-auto">
       {/* Visual checkout step timeline */}
       <div className="flex items-center justify-center gap-4 md:gap-8 mb-12">
         <div className={cn("flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest", !isCheckout ? "text-brand-gold" : "text-foreground/35")}>
@@ -163,7 +163,7 @@ ${addonsList}
 
       <h1 className="text-3xl md:text-5xl font-editorial-title mb-10">Savatchadagi asarlar ({totalItems})</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 mb-16">
         {/* Left Side: Cart Items List */}
         <div className="lg:col-span-8 space-y-6">
           <AnimatePresence>
