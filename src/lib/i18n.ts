@@ -42,7 +42,7 @@ const resources = {
       "home.teaser1.desc": "Yong'oq yog'ochi va yoritish tizimi",
       "home.teaser2.title": "Oak Dining Table",
       "home.teaser2.desc": "Tabiiy eman yog'ochidan stol to'plami",
-      "home.testimonial.text": "\"Faxr Mebel uyingizga shunchaki mebel emas, haqiqiy hashamat va nafislik olib kiradi. Italiya baxmalining sijati kishini lol qoldiradi.\"",
+      "home.testimonial.text": "\"Faxr Mebel uyingizga shunchaki mebel emas, haqiqiy hashamat va nafislik olib kiradi. Italiya baxmalining sifati kishini lol qoldiradi.\"",
       "home.testimonial.name": "Elena V.",
       "home.testimonial.role": "Interyer Dizayner",
 
@@ -65,7 +65,7 @@ const resources = {
       "wood.oak.name": "Eman (Oak)",
       "wood.oak.origin": "Rossiya o'rmonlari",
       "wood.oak.type": "classic",
-      "wood.oak.description": "Ochiq qumrang va oltin tusli, namlikka o'ta chidamli va asrlar davomida xizmak qiladigan klassik tanlov.",
+      "wood.oak.description": "Ochiq qumrang va oltin tusli, namlikka o'ta chidamli va asrlar davomida xizmat qiladigan klassik tanlov.",
       "wood.birch.name": "Qayrag'och (Birch)",
       "wood.birch.origin": "Zarafshon tog'lari",
       "wood.birch.type": "eco",
@@ -221,13 +221,17 @@ const resources = {
       "shop.modal.fabricLabel": "Qoplama Matosi (Fabric Selection)",
       "shop.modal.totalPrice": "Umumiy Qiymati",
 
-      // Products translation in catalog
-      "product.1.name": "Royal Velvet Sofa",
-      "product.2.name": "Modern Oak Dining Table",
-      "product.3.name": "Minimalist Bed Frame",
-      "product.4.name": "Leather Armchair",
-      "product.5.name": "Marble Coffee Table",
-      "product.6.name": "Office Ergonomic Chair"
+      // Products translation in catalog (10 real products)
+      "product.1.name": "Havorang Chesterfield Divani",
+      "product.2.name": "Marmar Ovqatlanish Stoli",
+      "product.3.name": "Qora va Oltin Spalniy",
+      "product.4.name": "Och-Jigarrang Chesterfield",
+      "product.5.name": "LED yoritgichli TV Gorka",
+      "product.6.name": "Qirollik Oltin TV Gorka",
+      "product.7.name": "Olive Green Hashamatli Oshxona",
+      "product.8.name": "Oq va Eman Zamonaviy Oshxona",
+      "product.9.name": "Klassik Oltin Oshxona",
+      "product.10.name": "Yaltiroq Oq-Qora Oshxona"
     }
   },
   ru: {
@@ -335,7 +339,7 @@ const resources = {
       "about.story.stat2.title": "Премиум Дизайн",
       "about.story.stat2.desc": "Современный европейский минимализм",
       "about.story.workshop": "Современная Мастерская Faxr Mebel",
-      "about.timeline.teaser": "Хронологическая история",
+      "about.timeline.teaser": "Хронология истории",
       "about.timeline.title": "Наш Путь",
       "about.timeline.titleItalic": "Развития.",
       
@@ -448,13 +452,17 @@ const resources = {
       "shop.modal.fabricLabel": "Обивочная Ткань (Fabric Selection)",
       "shop.modal.totalPrice": "Общая Стоимость",
 
-      // Products translation in catalog
-      "product.1.name": "Royal Velvet Sofa",
-      "product.2.name": "Modern Oak Dining Table",
-      "product.3.name": "Minimalist Bed Frame",
-      "product.4.name": "Leather Armchair",
-      "product.5.name": "Marble Coffee Table",
-      "product.6.name": "Office Ergonomic Chair"
+      // Products translation in catalog (10 real products)
+      "product.1.name": "Голубой Диван Chesterfield",
+      "product.2.name": "Мраморный Обеденный Стол",
+      "product.3.name": "Черно-Золотой Спальный Гарнитур",
+      "product.4.name": "Бежевый Диван Chesterfield",
+      "product.5.name": "ТВ Горка с LED Подсветкой",
+      "product.6.name": "Королевская Золотая ТВ Горка",
+      "product.7.name": "Роскошная Оливковая Кухня",
+      "product.8.name": "Современная Кухня Белый и Дуб",
+      "product.9.name": "Классическая Золотая Кухня",
+      "product.10.name": "Глянцевая Черно-Белая Кухня"
     }
   },
   en: {
@@ -675,13 +683,17 @@ const resources = {
       "shop.modal.fabricLabel": "Upholstery Fabric (Fabric Selection)",
       "shop.modal.totalPrice": "Total Price",
 
-      // Products translation in catalog
-      "product.1.name": "Royal Velvet Sofa",
-      "product.2.name": "Modern Oak Dining Table",
-      "product.3.name": "Minimalist Bed Frame",
-      "product.4.name": "Leather Armchair",
-      "product.5.name": "Marble Coffee Table",
-      "product.6.name": "Office Ergonomic Chair"
+      // Products translation in catalog (10 real products)
+      "product.1.name": "Baby Blue Chesterfield Sofa",
+      "product.2.name": "Marble Dining Table Set",
+      "product.3.name": "Gold & Black Luxury Bedroom Set",
+      "product.4.name": "Beige Chesterfield Sofa",
+      "product.5.name": "Modern LED TV Wall Unit",
+      "product.6.name": "Royal Gold TV Showcase",
+      "product.7.name": "Olive Green Glossy Kitchen",
+      "product.8.name": "Modern White & Oak Kitchen",
+      "product.9.name": "Neoclassical Gold Kitchen",
+      "product.10.name": "Contemporary Glossy Kitchen"
     }
   }
 };

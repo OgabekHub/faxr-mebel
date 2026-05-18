@@ -1,35 +1,37 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowRight, Star, Shield, Award, MapPin, Clock, Phone, Send, Info, Check } from 'lucide-react';
+import { ArrowRight, Star, Shield, Award, MapPin, Clock, Phone, Send, Info, Check, QrCode, Smartphone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { formatPrice } from '../lib/utils';
 import { useCart } from '../context/CartContext';
+import { ARModal } from '../components/ARModal';
+import { BespokeModal } from '../components/BespokeModal';
 
 // Premium locally hosted generated mebel assets
 const featuredProducts = [
   {
     id: '1',
-    name: 'Royal Velvet Sofa',
+    name: 'Baby Blue Chesterfield Sofa',
     price: 12000000,
     rating: 4.9,
-    image: '/images/sofa.png',
+    image: '/images/sofa_blue.png',
     category: 'Sofa'
   },
   {
     id: '2',
-    name: 'Modern Oak Dining Table',
+    name: 'Marble Dining Table Set',
     price: 8500000,
     rating: 4.8,
-    image: '/images/dining_table.png',
+    image: '/images/sofa_brown.png',
     category: 'Dining'
   },
   {
     id: '3',
-    name: 'Minimalist Bed Frame',
+    name: 'Gold & Black Luxury Bedroom Set',
     price: 15000000,
     rating: 5.0,
-    image: '/images/bed.png',
+    image: '/images/bedroom_gold_black.png',
     category: 'Bedroom'
   }
 ];
@@ -51,6 +53,8 @@ export const Home = () => {
   const [selectedWood, setSelectedWood] = useState(woodMaterials[0]);
   const [selectedFabric, setSelectedFabric] = useState(fabricMaterials[0]);
   const [addedToast, setAddedToast] = useState<string | null>(null);
+  const [isAROpen, setIsAROpen] = useState(false);
+  const [isBespokeOpen, setIsBespokeOpen] = useState(false);
 
   const handleAddToCart = (product: any) => {
     addToCart(product);
@@ -119,12 +123,28 @@ export const Home = () => {
             <p className="text-foreground/50 text-[11px] mt-1.5 font-light italic">{t('home.featured.desc')}</p>
             <span className="price-tag text-2xl mt-4 block italic">{formatPrice(12000000)}</span>
           </div>
-          <button 
-            onClick={() => handleAddToCart(featuredProducts[0])}
-            className="mt-6 w-full py-3.5 bg-foreground/5 border border-foreground/10 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-brand-gold hover:text-black transition-all duration-300"
-          >
-            {t('common.addToCart')}
-          </button>
+          <div className="flex gap-2 mt-6">
+            <button 
+              onClick={() => handleAddToCart(featuredProducts[0])}
+              className="flex-1 py-3.5 bg-brand-gold text-black rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-brand-gold-muted transition-all duration-300 shadow-lg shadow-brand-gold/10"
+            >
+              {t('common.addToCart')}
+            </button>
+            <button 
+              onClick={() => setIsBespokeOpen(true)}
+              className="p-3.5 bg-foreground/5 border border-foreground/10 hover:border-brand-gold hover:text-brand-gold rounded-2xl flex items-center justify-center transition-all duration-300"
+              title="Bespoke Order"
+            >
+              <Smartphone className="w-4 h-4" />
+            </button>
+            <button 
+              onClick={() => setIsAROpen(true)}
+              className="p-3.5 bg-foreground/5 border border-foreground/10 hover:border-brand-gold hover:text-brand-gold rounded-2xl flex items-center justify-center transition-all duration-300"
+              title="AR View"
+            >
+              <QrCode className="w-4 h-4" />
+            </button>
+          </div>
         </motion.div>
 
         {/* Warranty Card */}
@@ -391,6 +411,25 @@ export const Home = () => {
           <Send className="w-6 h-6" />
         </a>
       </div>
+
+      {/* Luxury Modals */}
+      <ARModal 
+        isOpen={isAROpen}
+        onClose={() => setIsAROpen(false)}
+        productName={t(`product.${featuredProducts[0].id}.name`)}
+        productImage={featuredProducts[0].image}
+      />
+
+      <BespokeModal 
+        isOpen={isBespokeOpen}
+        onClose={() => setIsBespokeOpen(false)}
+        product={{
+          id: featuredProducts[0].id,
+          name: featuredProducts[0].name,
+          price: featuredProducts[0].price,
+          image: featuredProducts[0].image
+        }}
+      />
     </div>
   );
 };

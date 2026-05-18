@@ -1,19 +1,25 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, Star, ShoppingCart, Eye, Grid, List, Sparkles, X, Heart, ShieldCheck, Check } from 'lucide-react';
+import { Search, Star, ShoppingCart, Eye, Grid, List, Sparkles, X, Heart, ShieldCheck, Check, QrCode, Smartphone } from 'lucide-react';
 import { cn, formatPrice } from '../lib/utils';
 import { useCart } from '../context/CartContext';
 import { Link } from 'react-router-dom';
+import { ARModal } from '../components/ARModal';
+import { BespokeModal } from '../components/BespokeModal';
 
-// Locally hosted premium generated images and stock Unsplash items
+// Locally hosted premium generated images and stock items
 const allProducts = [
-  { id: '1', name: 'Royal Velvet Sofa', price: 12000000, rating: 4.9, category: 'Sofa', image: '/images/sofa.png', wood: 'Walnut (Yong\'oq)', fabric: 'Italian Velvet', size: '240cm x 95cm x 85cm' },
-  { id: '2', name: 'Modern Oak Dining Table', price: 8500000, rating: 4.8, category: 'Dining', image: '/images/dining_table.png', wood: 'Oak (Eman)', fabric: 'N/A', size: '180cm x 90cm x 75cm' },
-  { id: '3', name: 'Minimalist Bed Frame', price: 15000000, rating: 5.0, category: 'Bedroom', image: '/images/bed.png', wood: 'Walnut (Yong\'oq)', fabric: 'Premium Textile', size: '200cm x 220cm x 110cm' },
-  { id: '4', name: 'Leather Armchair', price: 4500000, rating: 4.7, category: 'Sofa', image: 'https://images.unsplash.com/photo-1583083527882-4bee9aba2eea?q=80&w=600', wood: 'Oak (Eman)', fabric: 'Full-grain Leather', size: '85cm x 90cm x 95cm' },
-  { id: '5', name: 'Marble Coffee Table', price: 3200000, rating: 4.6, category: 'Luxury Decor', image: 'https://images.unsplash.com/photo-1533090161767-e6ffed986c88?q=80&w=600', wood: 'Brass details', fabric: 'White Marble', size: '100cm x 60cm x 40cm' },
-  { id: '6', name: 'Office Ergonomic Chair', price: 2800000, rating: 4.9, category: 'Office', image: 'https://images.unsplash.com/photo-1505797149-4510fe941323?q=80&w=600', wood: 'Aluminium frame', fabric: 'Breathable Mesh', size: '65cm x 65cm x 120cm' },
+  { id: '1', name: 'Baby Blue Chesterfield Sofa', price: 12000000, rating: 4.9, category: 'Sofa', image: '/images/sofa_blue.png', wood: 'Oak (Eman)', fabric: 'Baby Blue Velvet', size: '280cm x 180cm x 85cm' },
+  { id: '2', name: 'Marble Dining Table Set', price: 8500000, rating: 4.8, category: 'Dining', image: '/images/sofa_brown.png', wood: 'Oak (Eman)', fabric: 'N/A', size: '220cm x 100cm x 75cm' },
+  { id: '3', name: 'Gold & Black Luxury Bedroom Set', price: 15000000, rating: 5.0, category: 'Bedroom', image: '/images/bedroom_gold_black.png', wood: 'Oak & Ebony', fabric: 'Black Tufted Velvet', size: '200cm x 220cm x 120cm' },
+  { id: '4', name: 'Beige Chesterfield Sofa', price: 13500000, rating: 4.9, category: 'Sofa', image: '/images/sofa_beige.png', wood: 'Birch (Qayrag\'och)', fabric: 'Sand Beige Velvet', size: '320cm x 200cm x 85cm' },
+  { id: '5', name: 'Modern LED TV Wall Unit', price: 9800000, rating: 4.8, category: 'Luxury Decor', image: '/images/tv_gorka_modern.png', wood: 'MDF Walnut finish', fabric: 'N/A', size: '300cm x 45cm x 210cm' },
+  { id: '6', name: 'Royal Gold TV Showcase', price: 17000000, rating: 5.0, category: 'Luxury Decor', image: '/images/tv_gorka_classic.png', wood: 'Carved Beechwood', fabric: 'Glass & Gold leaf', size: '340cm x 50cm x 230cm' },
+  { id: '7', name: 'Olive Green Glossy Kitchen', price: 24000000, rating: 4.9, category: 'Dining', image: '/images/kitchen_green.png', wood: 'MDF Gloss Lacquer', fabric: 'Black Marble Counter', size: '360cm x 60cm x 240cm' },
+  { id: '8', name: 'Modern White & Oak Kitchen', price: 21500000, rating: 4.8, category: 'Dining', image: '/images/kitchen_white_oak.png', wood: 'Natural Oak & MDF', fabric: 'White Quartz Counter', size: '320cm x 60cm x 220cm' },
+  { id: '9', name: 'Neoclassical Gold Kitchen', price: 26000000, rating: 5.0, category: 'Dining', image: '/images/kitchen_neoclassic.png', wood: 'MDF Matt lacquer & Gold', fabric: 'Black Marble Counter', size: '400cm x 60cm x 240cm' },
+  { id: '10', name: 'Contemporary Glossy Kitchen', price: 19800000, rating: 4.7, category: 'Dining', image: '/images/kitchen_glossy_white_black.png', wood: 'High Gloss Acrylic', fabric: 'Reflective Glass Backsplash', size: '300cm x 60cm x 220cm' },
 ];
 
 const categories = ['All', 'Sofa', 'Bedroom', 'Dining', 'Office', 'Luxury Decor'];
@@ -27,6 +33,8 @@ export const Shop = () => {
   const [priceRange, setPriceRange] = useState(20000000); // 20M UZS max
   const [viewType, setViewType] = useState<'grid' | 'list'>('grid');
   const [quickViewProduct, setQuickViewProduct] = useState<any | null>(null);
+  const [activeARProduct, setActiveARProduct] = useState<any | null>(null);
+  const [activeBespokeProduct, setActiveBespokeProduct] = useState<any | null>(null);
   
   // Custom bespoke wood and fabric selection inside the modal
   const [bespokeWood, setBespokeWood] = useState('Walnut (Yong\'oq)');
@@ -414,18 +422,63 @@ export const Shop = () => {
                     <span className="price-tag text-2xl font-bold">{formatPrice(quickViewProduct.price)}</span>
                   </div>
                   
-                  <button 
-                    onClick={() => handleAddToCart(quickViewProduct, true)}
-                    className="flex-grow bg-brand-gold text-black py-4 rounded-2xl font-extrabold text-xs uppercase tracking-hero hover:scale-102 transition-transform shadow-lg shadow-brand-gold/15 flex items-center justify-center gap-2"
-                  >
-                    <ShoppingCart className="w-4 h-4" /> {t('shop.product.bespokeAddToCart')}
-                  </button>
+                  <div className="flex gap-2 flex-grow">
+                    <button 
+                      onClick={() => handleAddToCart(quickViewProduct, true)}
+                      className="flex-grow bg-brand-gold text-black py-4 rounded-2xl font-extrabold text-[10px] uppercase tracking-hero hover:bg-brand-gold-muted transition-colors shadow-lg shadow-brand-gold/15 flex items-center justify-center gap-2"
+                    >
+                      <ShoppingCart className="w-4 h-4" /> {t('shop.product.bespokeAddToCart')}
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setActiveBespokeProduct(quickViewProduct);
+                        setQuickViewProduct(null);
+                      }}
+                      className="p-4 bg-foreground/5 border border-foreground/10 hover:border-brand-gold hover:text-brand-gold rounded-2xl flex items-center justify-center transition-all duration-300"
+                      title="Bespoke Order"
+                    >
+                      <Smartphone className="w-4 h-4" />
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setActiveARProduct(quickViewProduct);
+                        setQuickViewProduct(null);
+                      }}
+                      className="p-4 bg-foreground/5 border border-foreground/10 hover:border-brand-gold hover:text-brand-gold rounded-2xl flex items-center justify-center transition-all duration-300"
+                      title="AR View"
+                    >
+                      <QrCode className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
+
+      {/* Luxury Modals */}
+      {activeARProduct && (
+        <ARModal 
+          isOpen={!!activeARProduct}
+          onClose={() => setActiveARProduct(null)}
+          productName={t('product.' + activeARProduct.id + '.name')}
+          productImage={activeARProduct.image}
+        />
+      )}
+
+      {activeBespokeProduct && (
+        <BespokeModal 
+          isOpen={!!activeBespokeProduct}
+          onClose={() => setActiveBespokeProduct(null)}
+          product={{
+            id: activeBespokeProduct.id,
+            name: activeBespokeProduct.name,
+            price: activeBespokeProduct.price,
+            image: activeBespokeProduct.image
+          }}
+        />
+      )}
     </div>
   );
 };
