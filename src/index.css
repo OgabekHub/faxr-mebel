@@ -12,6 +12,12 @@
   --color-brand-gold: #C5A059;
   --color-brand-gold-muted: #A38448;
   --color-brand-bronze: #8C6A3C;
+
+  /* Map CSS custom variables to Tailwind v4 theme colors */
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --color-card-bg: var(--card-bg);
+  --color-border: var(--border);
   
   --animate-float: float 6s ease-in-out infinite;
   --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
