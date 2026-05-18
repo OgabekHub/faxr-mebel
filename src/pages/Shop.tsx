@@ -388,12 +388,12 @@ export const Shop = () => {
 
                   {/* Wood and Upholstery Selection Controls inside Modal - Side by Side Grid */}
                   <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div>
+                    <div className="flex flex-col justify-between h-full">
                       <label className="text-[9px] font-black uppercase tracking-widest text-foreground/40 block mb-2">{t('shop.modal.woodLabel')}</label>
                       <select 
                         value={bespokeWood}
                         onChange={(e) => setBespokeWood(e.target.value)}
-                        className="bg-foreground/5 border border-foreground/10 rounded-xl px-3 py-2 text-xs outline-none w-full font-bold focus:border-brand-gold transition-all text-foreground"
+                        className="bg-foreground/5 border border-foreground/10 rounded-xl px-3 py-2 text-xs outline-none w-full font-bold focus:border-brand-gold transition-all text-foreground mt-auto"
                       >
                         <option value="Walnut (Yong'oq)">Walnut (Oliy Yong'oq)</option>
                         <option value="Oak (Eman)">Oak (Klassik Eman)</option>
@@ -401,12 +401,12 @@ export const Shop = () => {
                       </select>
                     </div>
 
-                    <div>
+                    <div className="flex flex-col justify-between h-full">
                       <label className="text-[9px] font-black uppercase tracking-widest text-foreground/40 block mb-2">{t('shop.modal.fabricLabel')}</label>
                       <select 
                         value={bespokeFabric}
                         onChange={(e) => setBespokeFabric(e.target.value)}
-                        className="bg-foreground/5 border border-foreground/10 rounded-xl px-3 py-2 text-xs outline-none w-full font-bold focus:border-brand-gold transition-all text-foreground"
+                        className="bg-foreground/5 border border-foreground/10 rounded-xl px-3 py-2 text-xs outline-none w-full font-bold focus:border-brand-gold transition-all text-foreground mt-auto"
                       >
                         <option value="Italian Velvet">Italian Velvet (Baxmal)</option>
                         <option value="Full-grain Leather">Full-grain Leather (Charm)</option>

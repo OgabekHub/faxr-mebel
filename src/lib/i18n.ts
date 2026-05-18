@@ -217,8 +217,8 @@ const resources = {
       "shop.modal.artisanBlock": "PREMIUM ARTISAN BLOCK",
       "shop.modal.ratingLabel": "Rating",
       "shop.modal.customDesc": "Mebelimiz sizning xohishingizga ko'ra butunlay moslashtirilishi mumkin. Quyida ustaxonadan chiqadigan mebelingiz uchun yog'och turi va matoni tanlang:",
-      "shop.modal.woodLabel": "Daraxt Turi (Wood Selection)",
-      "shop.modal.fabricLabel": "Qoplama Matosi (Fabric Selection)",
+      "shop.modal.woodLabel": "Daraxt Turi",
+      "shop.modal.fabricLabel": "Qoplama Matosi",
       "shop.modal.totalPrice": "Umumiy Qiymati",
 
       // Products translation in catalog (10 real products)
@@ -448,8 +448,8 @@ const resources = {
       "shop.modal.artisanBlock": "PREMIUM ARTISAN BLOCK",
       "shop.modal.ratingLabel": "Рейтинг",
       "shop.modal.customDesc": "Наша мебель может быть полностью настроена под ваши пожелания. Выберите ниже тип дерева и обивки для вашей будущей мебели:",
-      "shop.modal.woodLabel": "Порода Дерева (Wood Selection)",
-      "shop.modal.fabricLabel": "Обивочная Ткань (Fabric Selection)",
+      "shop.modal.woodLabel": "Порода Дерева",
+      "shop.modal.fabricLabel": "Обивочная Ткань",
       "shop.modal.totalPrice": "Общая Стоимость",
 
       // Products translation in catalog (10 real products)
@@ -679,8 +679,8 @@ const resources = {
       "shop.modal.artisanBlock": "PREMIUM ARTISAN BLOCK",
       "shop.modal.ratingLabel": "Rating",
       "shop.modal.customDesc": "Our furniture can be completely customized according to your wishes. Choose a wood type and upholstery fabric below for your future cabinetry:",
-      "shop.modal.woodLabel": "Wood Type (Wood Selection)",
-      "shop.modal.fabricLabel": "Upholstery Fabric (Fabric Selection)",
+      "shop.modal.woodLabel": "Wood Type",
+      "shop.modal.fabricLabel": "Upholstery Fabric",
       "shop.modal.totalPrice": "Total Price",
 
       // Products translation in catalog (10 real products)
