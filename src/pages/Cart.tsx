@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, CreditCard, ChevronLeft, CheckCircle2, Gift, Award, HelpCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { formatPrice } from '../lib/utils';
+import { cn, formatPrice } from '../lib/utils';
 import { Link, useNavigate } from 'react-router-dom';
 import { sendTelegramMessage } from '../services/telegram';
 

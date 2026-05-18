@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Search, Star, ShoppingCart, Eye, Grid, List, Sparkles, X, Heart, ShieldCheck, Check } from 'lucide-react';
 import { cn, formatPrice } from '../lib/utils';
 import { useCart } from '../context/CartContext';
+import { Link } from 'react-router-dom';
 
 // Locally hosted premium generated images and stock Unsplash items
 const allProducts = [
