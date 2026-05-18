@@ -194,7 +194,8 @@ const resources = {
       
       // Filters
       "shop.filter.search": "Qidiruv",
-      "shop.filter.searchPlaceholder": "Premium asar nomi...",
+      "shop.filter.favorites": "Sevimlilar",
+      "shop.filter.searchPlaceholder": "Mahsulot nomini yozing...",
       "shop.filter.price": "Narxi",
       "shop.filter.priceRange": "gacha",
       "shop.bespoke.title": "Maxsus Buyurtma Kerakmi?",
@@ -425,7 +426,8 @@ const resources = {
       
       // Filters
       "shop.filter.search": "Поиск",
-      "shop.filter.searchPlaceholder": "Название изделия...",
+      "shop.filter.favorites": "Избранное",
+      "shop.filter.searchPlaceholder": "Введите название...",
       "shop.filter.price": "Цена",
       "shop.filter.priceRange": "до",
       "shop.bespoke.title": "Нужен Особый Заказ?",
@@ -656,6 +658,7 @@ const resources = {
       
       // Filters
       "shop.filter.search": "Search",
+      "shop.filter.favorites": "Favorites",
       "shop.filter.searchPlaceholder": "Search product name...",
       "shop.filter.price": "Price",
       "shop.filter.priceRange": "up to",

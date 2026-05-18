@@ -35,6 +35,7 @@ export const Shop = () => {
   const [quickViewProduct, setQuickViewProduct] = useState<any | null>(null);
   const [activeARProduct, setActiveARProduct] = useState<any | null>(null);
   const [activeBespokeProduct, setActiveBespokeProduct] = useState<any | null>(null);
+  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
   
   // Custom bespoke wood and fabric selection inside the modal
   const [bespokeWood, setBespokeWood] = useState('Walnut (Yong\'oq)');
@@ -69,7 +70,8 @@ export const Shop = () => {
   const filteredProducts = allProducts.filter(p => 
     (selectedCategory === 'All' || p.category === selectedCategory) &&
     t('product.' + p.id + '.name').toLowerCase().includes(searchQuery.toLowerCase()) &&
-    p.price <= priceRange
+    p.price <= priceRange &&
+    (!showOnlyFavorites || wishlist.includes(p.id))
   );
 
   return (
@@ -147,7 +149,7 @@ export const Shop = () => {
           {/* Search Box */}
           <div className="bento-card glow-tracer p-8">
             <h3 className="text-[10px] font-black uppercase tracking-hero mb-5 text-brand-gold">{t('shop.filter.search')}</h3>
-            <div className="relative group">
+            <div className="relative group mb-4">
               <input 
                 type="text" 
                 placeholder={t('shop.filter.searchPlaceholder')} 
@@ -157,6 +159,25 @@ export const Shop = () => {
               />
               <Search className="absolute right-4 top-3.5 w-4 h-4 text-foreground/20 group-hover:text-brand-gold transition-colors" />
             </div>
+
+            {/* Premium Favorites Toggle Button */}
+            <button
+              onClick={() => setShowOnlyFavorites(prev => !prev)}
+              className={cn(
+                "w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all duration-300",
+                showOnlyFavorites 
+                  ? "bg-red-500/10 border-red-500/30 text-red-500 font-bold" 
+                  : "bg-foreground/5 border-foreground/10 text-foreground/50 hover:border-brand-gold hover:text-brand-gold"
+              )}
+            >
+              <span className="text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
+                <Heart className={cn("w-3.5 h-3.5", showOnlyFavorites ? "fill-current" : "")} />
+                {t('shop.filter.favorites')} ({wishlist.length})
+              </span>
+              <span className="text-[8px] uppercase tracking-widest bg-foreground/10 px-2 py-0.5 rounded font-black">
+                {showOnlyFavorites ? "ON" : "OFF"}
+              </span>
+            </button>
           </div>
 
           {/* Price Range Filter */}
