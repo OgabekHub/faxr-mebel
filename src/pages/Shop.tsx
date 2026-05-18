@@ -364,7 +364,7 @@ export const Shop = () => {
               </button>
 
               {/* Left Side Visual Preview */}
-              <div className="w-full md:w-1/2 aspect-square rounded-3xl overflow-hidden shrink-0 relative">
+              <div className="w-full md:w-1/2 h-[320px] md:h-[420px] rounded-3xl overflow-hidden shrink-0 relative bg-foreground/5">
                 <img src={quickViewProduct.image} alt={t('product.' + quickViewProduct.id + '.name')} className="w-full h-full object-cover" />
                 <div className="absolute top-4 left-4 glass px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest text-foreground">
                   {t('shop.category.' + quickViewProduct.category)}
@@ -375,29 +375,29 @@ export const Shop = () => {
               <div className="flex-grow flex flex-col justify-between">
                 <div>
                   <span className="text-[10px] font-black uppercase tracking-widest text-brand-gold block mb-1">{t('shop.modal.artisanBlock')}</span>
-                  <h3 className="text-3xl font-editorial-title font-bold text-foreground mb-4">{t('product.' + quickViewProduct.id + '.name')}</h3>
+                  <h3 className="text-2xl font-editorial-title font-bold text-foreground mb-3">{t('product.' + quickViewProduct.id + '.name')}</h3>
                   
-                  <div className="flex items-center gap-6 text-[10px] uppercase font-bold text-foreground/45 tracking-wider mb-6 pb-4 border-b border-foreground/5">
+                  <div className="flex items-center gap-4 text-[10px] uppercase font-bold text-foreground/45 tracking-wider mb-4 pb-3 border-b border-foreground/5">
                     <span className="flex items-center gap-1"><Star className="w-3.5 h-3.5 fill-current text-brand-gold" /> {quickViewProduct.rating} {t('shop.modal.ratingLabel')}</span>
                     <span>{t('shop.product.sizeLabel')} <strong className="text-foreground">{quickViewProduct.size}</strong></span>
                   </div>
 
-                  <p className="text-xs text-foreground/50 leading-relaxed font-light italic mb-6">
+                  <p className="text-[11px] text-foreground/50 leading-relaxed font-light italic mb-5">
                     {t('shop.modal.customDesc')}
                   </p>
 
-                  {/* Wood and Upholstery Selection Controls inside Modal */}
-                  <div className="space-y-4 mb-8">
+                  {/* Wood and Upholstery Selection Controls inside Modal - Side by Side Grid */}
+                  <div className="grid grid-cols-2 gap-4 mb-6">
                     <div>
                       <label className="text-[9px] font-black uppercase tracking-widest text-foreground/40 block mb-2">{t('shop.modal.woodLabel')}</label>
                       <select 
                         value={bespokeWood}
                         onChange={(e) => setBespokeWood(e.target.value)}
-                        className="bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-2.5 text-xs outline-none w-full font-bold focus:border-brand-gold transition-all text-foreground"
+                        className="bg-foreground/5 border border-foreground/10 rounded-xl px-3 py-2 text-xs outline-none w-full font-bold focus:border-brand-gold transition-all text-foreground"
                       >
-                        <option value="Walnut (Yong'oq)">Walnut (Oliy Yong'oq Yog'ochi)</option>
-                        <option value="Oak (Eman)">Oak (Klassik Eman Yog'ochi)</option>
-                        <option value="Birch (Qayrag'och)">Birch (Eco Zarafshon Qayrag'ochi)</option>
+                        <option value="Walnut (Yong'oq)">Walnut (Oliy Yong'oq)</option>
+                        <option value="Oak (Eman)">Oak (Klassik Eman)</option>
+                        <option value="Birch (Qayrag'och)">Birch (Eco Qayrag'och)</option>
                       </select>
                     </div>
 
@@ -406,48 +406,51 @@ export const Shop = () => {
                       <select 
                         value={bespokeFabric}
                         onChange={(e) => setBespokeFabric(e.target.value)}
-                        className="bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-2.5 text-xs outline-none w-full font-bold focus:border-brand-gold transition-all text-foreground"
+                        className="bg-foreground/5 border border-foreground/10 rounded-xl px-3 py-2 text-xs outline-none w-full font-bold focus:border-brand-gold transition-all text-foreground"
                       >
-                        <option value="Italian Velvet">Italian Velvet (Hashamatli Baxmal)</option>
-                        <option value="Full-grain Leather">Full-grain Leather (Toza Italiya Charmi)</option>
-                        <option value="Premium Textile">Premium Textile (Chidamli Premium Mato)</option>
+                        <option value="Italian Velvet">Italian Velvet (Baxmal)</option>
+                        <option value="Full-grain Leather">Full-grain Leather (Charm)</option>
+                        <option value="Premium Textile">Premium Textile (Mato)</option>
                       </select>
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-6 border-t border-foreground/5 flex items-center justify-between gap-6">
-                  <div className="flex flex-col">
-                    <span className="text-[9px] uppercase font-black tracking-widest text-foreground/40">{t('shop.modal.totalPrice')}</span>
-                    <span className="price-tag text-2xl font-bold">{formatPrice(quickViewProduct.price)}</span>
-                  </div>
-                  
-                  <div className="flex gap-2 flex-grow">
+                <div className="pt-5 border-t border-foreground/5 space-y-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex flex-col">
+                      <span className="text-[9px] uppercase font-black tracking-widest text-foreground/40">{t('shop.modal.totalPrice')}</span>
+                      <span className="price-tag text-2xl font-bold">{formatPrice(quickViewProduct.price)}</span>
+                    </div>
+                    
                     <button 
                       onClick={() => handleAddToCart(quickViewProduct, true)}
-                      className="flex-grow bg-brand-gold text-black py-4 rounded-2xl font-extrabold text-[10px] uppercase tracking-hero hover:bg-brand-gold-muted transition-colors shadow-lg shadow-brand-gold/15 flex items-center justify-center gap-2"
+                      className="px-6 bg-brand-gold text-black py-3.5 rounded-2xl font-extrabold text-[10px] uppercase tracking-hero hover:bg-brand-gold-muted transition-colors shadow-lg shadow-brand-gold/15 flex items-center justify-center gap-2 whitespace-nowrap"
                     >
-                      <ShoppingCart className="w-4 h-4" /> {t('shop.product.bespokeAddToCart')}
+                      <ShoppingCart className="w-4 h-4" /> {t('common.addToCart')}
                     </button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 pt-1">
                     <button 
                       onClick={() => {
                         setActiveBespokeProduct(quickViewProduct);
                         setQuickViewProduct(null);
                       }}
-                      className="p-4 bg-foreground/5 border border-foreground/10 hover:border-brand-gold hover:text-brand-gold rounded-2xl flex items-center justify-center transition-all duration-300"
-                      title="Bespoke Order"
+                      className="py-3 px-4 bg-foreground/5 border border-foreground/10 hover:border-brand-gold hover:text-brand-gold rounded-xl flex items-center justify-center gap-2 transition-all duration-300 text-[9px] font-black uppercase tracking-wider text-foreground"
                     >
-                      <Smartphone className="w-4 h-4" />
+                      <Smartphone className="w-4 h-4 text-brand-gold" />
+                      VIP Buyurtma
                     </button>
                     <button 
                       onClick={() => {
                         setActiveARProduct(quickViewProduct);
                         setQuickViewProduct(null);
                       }}
-                      className="p-4 bg-foreground/5 border border-foreground/10 hover:border-brand-gold hover:text-brand-gold rounded-2xl flex items-center justify-center transition-all duration-300"
-                      title="AR View"
+                      className="py-3 px-4 bg-foreground/5 border border-foreground/10 hover:border-brand-gold hover:text-brand-gold rounded-xl flex items-center justify-center gap-2 transition-all duration-300 text-[9px] font-black uppercase tracking-wider text-foreground"
                     >
-                      <QrCode className="w-4 h-4" />
+                      <QrCode className="w-4 h-4 text-brand-gold" />
+                      AR Kamera
                     </button>
                   </div>
                 </div>
