@@ -30,17 +30,17 @@ export const Footer = () => {
             <span className="text-brand-gold">FAXR</span> MEBEL
           </Link>
           <p className="text-xs text-foreground/50 leading-relaxed font-light italic max-w-sm">
-            Elegansiya va hashamat uyg'unligi. Biz milliy mebelsozlik hunarmandchiligi an'analarini zamonaviy arxitektura minimalizmi bilan birlashtirib, chindan ham mukammal mebellarni yaratamiz.
+            {t('footer.desc')}
           </p>
           <div className="flex gap-3 text-foreground/30">
             <Award className="w-5 h-5 text-brand-gold" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/50">100% Qo'l mehnati & Kafolat</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/50">{t('footer.badge')}</span>
           </div>
         </div>
 
         {/* Column 2: Navigation Links */}
         <div className="md:col-span-2 space-y-4">
-          <h4 className="text-[10px] font-bold uppercase tracking-widest text-brand-gold">Navigatsiya</h4>
+          <h4 className="text-[10px] font-bold uppercase tracking-widest text-brand-gold">{t('footer.nav')}</h4>
           <ul className="space-y-2.5 text-xs font-medium text-foreground/60">
             <li><Link to="/" className="hover:text-brand-gold transition-colors">{t('nav.home')}</Link></li>
             <li><Link to="/shop" className="hover:text-brand-gold transition-colors">{t('nav.shop')}</Link></li>
@@ -51,7 +51,7 @@ export const Footer = () => {
 
         {/* Column 3: Contact & Showroom */}
         <div className="md:col-span-3 space-y-4">
-          <h4 className="text-[10px] font-bold uppercase tracking-widest text-brand-gold">Showroom</h4>
+          <h4 className="text-[10px] font-bold uppercase tracking-widest text-brand-gold">{t('footer.showroom')}</h4>
           <ul className="space-y-3.5 text-xs text-foreground/60 leading-relaxed">
             <li className="flex items-start gap-2.5">
               <MapPin className="w-4 h-4 text-brand-gold shrink-0 mt-0.5" />
@@ -70,9 +70,9 @@ export const Footer = () => {
 
         {/* Column 4: Newsletter Subscription */}
         <div className="md:col-span-3 space-y-4">
-          <h4 className="text-[10px] font-bold uppercase tracking-widest text-brand-gold">Kolleksiya Yangiliklari</h4>
+          <h4 className="text-[10px] font-bold uppercase tracking-widest text-brand-gold">{t('footer.newsletter')}</h4>
           <p className="text-[11px] text-foreground/50 leading-relaxed">
-            Yangi premium dizaynlar va eksklyuziv takliflardan birinchilardan bo'lib xabardor bo'ling.
+            {t('footer.newsletterDesc')}
           </p>
           
           <form onSubmit={handleSubscribe} className="space-y-2">
@@ -82,8 +82,8 @@ export const Footer = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Elektron manzilingiz" 
-                className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 text-xs outline-none focus:border-brand-gold transition-all italic pr-12"
+                placeholder={t('footer.emailPlaceholder')} 
+                className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 text-xs outline-none focus:border-brand-gold transition-all italic pr-12 text-foreground"
               />
               <button 
                 type="submit" 
@@ -98,7 +98,7 @@ export const Footer = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="text-[10px] text-green-500 font-bold uppercase tracking-wider"
               >
-                Obuna bo'linganligi tasdiqlandi!
+                {t('footer.subscribed')}
               </motion.p>
             )}
           </form>
@@ -107,7 +107,7 @@ export const Footer = () => {
 
       {/* Footer Bottom Bar */}
       <div className="max-w-7xl mx-auto pt-8 border-t border-foreground/5 flex flex-col md:flex-row items-center justify-between gap-6 text-[10px] uppercase tracking-widest font-semibold text-foreground/40">
-        <div>© 2026 Faxr Mebel. Barcha huquqlar himoyalangan.</div>
+        <div>{t('footer.rights')}</div>
         
         <div className="flex space-x-8">
           <a href="https://instagram.com" className="hover:text-brand-gold transition-colors flex items-center gap-1.5"><Instagram className="w-3.5 h-3.5" /> Instagram</a>

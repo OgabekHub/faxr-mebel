@@ -17,6 +17,17 @@ const resources = {
       "cta.shop": "Do'konni Ko'rish",
       "common.addToCart": "Savatga Qo'shish",
 
+      // Footer Translations
+      "footer.desc": "Elegansiya va hashamat uyg'unligi. Biz milliy mebelsozlik hunarmandchiligi an'analarini zamonaviy arxitektura minimalizmi bilan birlashtirib, chindan ham mukammal mebellarni yaratamiz.",
+      "footer.badge": "100% Qo'l mehnati & Kafolat",
+      "footer.nav": "Navigatsiya",
+      "footer.showroom": "Showroom",
+      "footer.newsletter": "Kolleksiya Yangiliklari",
+      "footer.newsletterDesc": "Yangi premium dizaynlar va eksklyuziv takliflardan birinchilardan bo'lib xabardor bo'ling.",
+      "footer.emailPlaceholder": "Elektron manzilingiz",
+      "footer.subscribed": "Obuna bo'linganligi tasdiqlandi!",
+      "footer.rights": "© 2026 Faxr Mebel. Barcha huquqlar himoyalangan.",
+
       // Home Page Translations
       "home.toast.added": "savatchaga qo'shildi!",
       "home.hero.collection": "Faxr Mebel 2026 Kolleksiyasi",
@@ -31,7 +42,7 @@ const resources = {
       "home.teaser1.desc": "Yong'oq yog'ochi va yoritish tizimi",
       "home.teaser2.title": "Oak Dining Table",
       "home.teaser2.desc": "Tabiiy eman yog'ochidan stol to'plami",
-      "home.testimonial.text": "\"Faxr Mebel uyingizga shunchaki mebel emas, haqiqiy hashamat va nafislik olib kiradi. Italiya baxmalining sifati kishini lol qoldiradi.\"",
+      "home.testimonial.text": "\"Faxr Mebel uyingizga shunchaki mebel emas, haqiqiy hashamat va nafislik olib kiradi. Italiya baxmalining sijati kishini lol qoldiradi.\"",
       "home.testimonial.name": "Elena V.",
       "home.testimonial.role": "Interyer Dizayner",
 
@@ -54,7 +65,7 @@ const resources = {
       "wood.oak.name": "Eman (Oak)",
       "wood.oak.origin": "Rossiya o'rmonlari",
       "wood.oak.type": "classic",
-      "wood.oak.description": "Ochiq qumrang va oltin tusli, namlikka o'ta chidamli va asrlar davomida xizmat qiladigan klassik tanlov.",
+      "wood.oak.description": "Ochiq qumrang va oltin tusli, namlikka o'ta chidamli va asrlar davomida xizmak qiladigan klassik tanlov.",
       "wood.birch.name": "Qayrag'och (Birch)",
       "wood.birch.origin": "Zarafshon tog'lari",
       "wood.birch.type": "eco",
@@ -121,7 +132,7 @@ const resources = {
       "about.artisan.kamola.bio": "Italiya dizayn akademiyasi bitiruvchisi. Faxr Mebel kolleksiyalarining ranglar palitrasi, estetika uyg'unligi va minimalist chiziqlarini yaratuvchisi.",
       "about.artisan.diyor.role": "Tekstil & Qoplama Mutaxassisi",
       "about.artisan.diyor.bio": "Baxmal, ipak va tabiiy charm bilan ishlash ustasi. Har bir mebel tikilish choklarining mukammalligi va mustahkamligini ta'minlaydi.",
-      "about.footer.title": "Biz uylarga shunchaki mebel emas, faxr olib kiramiz.",
+      "about.footer.title": "Biz uylarga shunchaki mebel esmas, faxr olib kiramiz.",
       "about.footer.desc": "Har bir mebel asarimiz asrlar davomida mustahkam saqlanishi va uyingizga kelgan har bir mehmonda hayrat uyg'otishi bizning oliy mukofotimizdir.",
 
       // Contact Page Translations
@@ -233,6 +244,17 @@ const resources = {
       "cta.shop": "Посмотреть Магазин",
       "common.addToCart": "Добавить в Корзину",
 
+      // Footer Translations
+      "footer.desc": "Гармония элегантности и роскоши. Мы объединяем традиции национального мебельного мастерства с современным архитектурным минимализмом для создания по-настоящему совершенной мебели.",
+      "footer.badge": "100% Ручная работа & Гарантия",
+      "footer.nav": "Навигация",
+      "footer.showroom": "Шоурум",
+      "footer.newsletter": "Новости Коллекции",
+      "footer.newsletterDesc": "Будьте первыми, кто узнает о новых премиальных проектах и эксклюзивных предложениях.",
+      "footer.emailPlaceholder": "Ваш адрес электронной почты",
+      "footer.subscribed": "Подписка успешно подтверждена!",
+      "footer.rights": "© 2026 Faxr Mebel. Все права защищены.",
+
       // Home Page Translations
       "home.toast.added": "добавлено в корзину!",
       "home.hero.collection": "Коллекция Faxr Mebel 2026",
@@ -313,7 +335,7 @@ const resources = {
       "about.story.stat2.title": "Премиум Дизайн",
       "about.story.stat2.desc": "Современный европейский минимализм",
       "about.story.workshop": "Современная Мастерская Faxr Mebel",
-      "about.timeline.teaser": "Хронология истории",
+      "about.timeline.teaser": "Хронологическая история",
       "about.timeline.title": "Наш Путь",
       "about.timeline.titleItalic": "Развития.",
       
@@ -448,6 +470,17 @@ const resources = {
       "theme.dark": "Dark Mode",
       "cta.shop": "View Shop",
       "common.addToCart": "Add to Cart",
+
+      // Footer Translations
+      "footer.desc": "A harmony of elegance and luxury. We combine the traditions of national furniture craftsmanship with modern architectural minimalism to create truly perfect furniture.",
+      "footer.badge": "100% Handmade & Warranty",
+      "footer.nav": "Navigation",
+      "footer.showroom": "Showroom",
+      "footer.newsletter": "Collection News",
+      "footer.newsletterDesc": "Be the first to know about new premium designs and exclusive offers.",
+      "footer.emailPlaceholder": "Your email address",
+      "footer.subscribed": "Subscription confirmed successfully!",
+      "footer.rights": "© 2026 Faxr Mebel. All rights reserved.",
 
       // Home Page Translations
       "home.toast.added": "added to cart!",
