@@ -265,7 +265,13 @@ const resources = {
       "auth.secure": "SSL Himoyali",
       "auth.privacy": "Maxfiylik",
       "auth.subtitle": "Hashamatli mebel tajribasi",
-      "auth.testimonial": "Faxr Mebel uyingizga shunchaki mebel emas, haqiqiy hashamat va nafislik olib kiradi. Italiya baxmalining sifati kishini lol qoldiradi."
+      "auth.testimonial": "Faxr Mebel uyingizga shunchaki mebel emas, haqiqiy hashamat va nafislik olib kiradi. Italiya baxmalining sifati kishini lol qoldiradi.",
+      "auth.error.missingFields": "Iltimos, barcha maydonlarni to'ldiring.",
+      "auth.error.invalidCredentials": "Email yoki parol noto'g'ri.",
+      "auth.error.emailInUse": "Ushbu email bilan allaqachon ro'yxatdan o'tilgan.",
+      "auth.error.weakPassword": "Parol kamida 6 ta belgidan iborat bo'lishi kerak.",
+      "auth.error.invalidEmail": "Email manzili noto'g'ri formatda.",
+      "auth.error.general": "Xatolik yuz berdi. Qaytadan urinib ko'ring."
     }
   },
   ru: {
@@ -530,7 +536,13 @@ const resources = {
       "auth.secure": "SSL Защита",
       "auth.privacy": "Конфиденциальность",
       "auth.subtitle": "Роскошный мебельный опыт",
-      "auth.testimonial": "Faxr Mebel приносит в ваш дом не просто мебель, а настоящую роскошь и изысканность. Качество итальянского бархата просто поражает."
+      "auth.testimonial": "Faxr Mebel приносит в ваш дом не просто мебель, а настоящую роскошь и изысканность. Качество итальянского бархата просто поражает.",
+      "auth.error.missingFields": "Пожалуйста, заполните все поля.",
+      "auth.error.invalidCredentials": "Неверный email или пароль.",
+      "auth.error.emailInUse": "Этот адрес электронной почты уже зарегистрирован.",
+      "auth.error.weakPassword": "Пароль должен состоять минимум из 6 символов.",
+      "auth.error.invalidEmail": "Неверный формат адреса электронной почты.",
+      "auth.error.general": "Произошла ошибка. Пожалуйста, попробуйте еще раз."
     }
   },
   en: {
@@ -795,7 +807,13 @@ const resources = {
       "auth.secure": "SSL Secured",
       "auth.privacy": "Privacy",
       "auth.subtitle": "Luxury curated furniture experience",
-      "auth.testimonial": "Faxr Mebel brings not just furniture, but real luxury and elegance to your home. The quality of Italian velvet is absolutely outstanding."
+      "auth.testimonial": "Faxr Mebel brings not just furniture, but real luxury and elegance to your home. The quality of Italian velvet is absolutely outstanding.",
+      "auth.error.missingFields": "Please fill in all fields.",
+      "auth.error.invalidCredentials": "Incorrect email or password.",
+      "auth.error.emailInUse": "This email address is already registered.",
+      "auth.error.weakPassword": "Password must be at least 6 characters long.",
+      "auth.error.invalidEmail": "Invalid email address format.",
+      "auth.error.general": "An error occurred. Please try again."
     }
   }
 };

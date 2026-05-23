@@ -44,7 +44,7 @@ const AppLayout = () => {
       {!isAuthPage && <Navbar />}
       <main className="flex-grow">
         <AnimatePresence mode="wait">
-          <Routes location={location} key={location.pathname}>
+          <Routes location={location} {...{ key: location.pathname }}>
             <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
             <Route path="/shop" element={<PageWrapper><Shop /></PageWrapper>} />
             <Route path="/auth" element={<PageWrapper><Auth /></PageWrapper>} />

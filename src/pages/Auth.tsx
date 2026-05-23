@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Mail, Lock, Send, ShieldCheck, Eye, EyeOff, ArrowRight, Sparkles, ArrowLeft } from 'lucide-react';
-import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { 
+  signInWithPopup, 
+  GoogleAuthProvider, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword 
+} from 'firebase/auth';
 import { auth } from '../lib/firebase';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -15,15 +20,51 @@ export const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [focused, setFocused] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
       navigate('/profile');
-    } catch (error) {
-      console.error('Login failed', error);
+    } catch (err: any) {
+      console.error('Login failed', err);
+      setError(err.message || t('auth.error.general'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) {
+      setError(t('auth.error.missingFields'));
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    try {
+      if (isLogin) {
+        await signInWithEmailAndPassword(auth, email, password);
+      } else {
+        await createUserWithEmailAndPassword(auth, email, password);
+      }
+      navigate('/profile');
+    } catch (err: any) {
+      console.error('Auth error', err);
+      let msg = t('auth.error.general');
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+        msg = t('auth.error.invalidCredentials');
+      } else if (err.code === 'auth/email-already-in-use') {
+        msg = t('auth.error.emailInUse');
+      } else if (err.code === 'auth/weak-password') {
+        msg = t('auth.error.weakPassword');
+      } else if (err.code === 'auth/invalid-email') {
+        msg = t('auth.error.invalidEmail');
+      }
+      setError(msg);
     } finally {
       setIsLoading(false);
     }
@@ -205,7 +246,10 @@ export const Auth = () => {
               ].map(({ key, label }) => (
                 <button
                   key={String(key)}
-                  onClick={() => setIsLogin(key)}
+                  onClick={() => {
+                    setIsLogin(key);
+                    setError(null);
+                  }}
                   className={`flex-1 py-2.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest rounded-xl transition-all duration-300 ${
                     isLogin === key
                       ? 'bg-brand-gold text-black shadow-md'
@@ -247,7 +291,22 @@ export const Auth = () => {
             </AnimatePresence>
 
             {/* ── Form ── */}
-            <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+            <form className="space-y-4" onSubmit={handleSubmit}>
+
+              {/* Error Banner */}
+              <AnimatePresence>
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl text-[11px] font-bold flex items-center gap-2"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shrink-0" />
+                    {error}
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Email input */}
               <div className="space-y-1.5">
@@ -364,7 +423,10 @@ export const Auth = () => {
             <p className="mt-6 text-center text-[10px] sm:text-[11px] text-foreground/40">
               {isLogin ? t('auth.newToFaxr') : t('auth.alreadyMember')}{' '}
               <button
-                onClick={() => setIsLogin(!isLogin)}
+                onClick={() => {
+                  setIsLogin(!isLogin);
+                  setError(null);
+                }}
                 className="text-brand-gold font-bold hover:underline underline-offset-4 decoration-brand-gold/30 transition-all"
               >
                 {isLogin ? t('auth.apply') : t('auth.login')}
