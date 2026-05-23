@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
@@ -16,34 +16,43 @@ import { Cart } from './pages/Cart';
 import { Contact } from './pages/Contact';
 import { CartProvider } from './context/CartContext';
 import './lib/i18n'; // Init i18n
-import { motion, AnimatePresence } from 'motion/react';
+import { AnimatePresence } from 'motion/react';
 
 import { About } from './pages/About';
 import { Profile } from './pages/Profile';
+
+const AppLayout = () => {
+  const location = useLocation();
+  const isAuthPage = location.pathname === '/auth';
+
+  return (
+    <div className="min-h-screen flex flex-col selection:bg-brand-gold selection:text-white">
+      {!isAuthPage && <Navbar />}
+      <main className="flex-grow">
+        <AnimatePresence mode="wait">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/shop" element={<Shop />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/profile" element={<Profile />} />
+          </Routes>
+        </AnimatePresence>
+      </main>
+      {!isAuthPage && <Footer />}
+    </div>
+  );
+};
 
 export default function App() {
   return (
     <ThemeProvider>
       <CartProvider>
         <Router>
-          <div className="min-h-screen flex flex-col selection:bg-brand-gold selection:text-white">
-            <Navbar />
-            <main className="flex-grow">
-              <AnimatePresence mode="wait">
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/shop" element={<Shop />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/admin" element={<Admin />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/cart" element={<Cart />} />
-                  <Route path="/profile" element={<Profile />} />
-                </Routes>
-              </AnimatePresence>
-            </main>
-            <Footer />
-          </div>
+          <AppLayout />
         </Router>
       </CartProvider>
     </ThemeProvider>
