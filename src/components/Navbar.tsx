@@ -24,6 +24,25 @@ export const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const location = useLocation();
 
+  // Circular Theme Wipe Switcher Coords/State
+  const [wipeActive, setWipeActive] = useState(false);
+  const [wipeCoords, setWipeCoords] = useState({ x: 0, y: 0 });
+
+  const handleThemeToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const x = e.clientX;
+    const y = e.clientY;
+    setWipeCoords({ x, y });
+    setWipeActive(true);
+
+    setTimeout(() => {
+      toggleTheme();
+    }, 420);
+
+    setTimeout(() => {
+      setWipeActive(false);
+    }, 900);
+  };
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -53,78 +72,79 @@ export const Navbar = () => {
   ];
 
   return (
-    <nav className={cn(
-      "fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-[background-color,border-color,padding,border-radius,box-shadow] duration-300 px-6 md:px-8 py-3.5 w-[92%] max-w-7xl border shadow-xl backdrop-blur-md",
-      isOpen ? "rounded-[2rem]" : "rounded-full",
-      isScrolled 
-        ? "bg-white dark:bg-[#0A0A0A] border-neutral-200 dark:border-neutral-800/80 py-3 shadow-2xl" 
-        : "bg-white/95 dark:bg-[#0D0D0D]/95 border-neutral-200/60 dark:border-neutral-800/60"
-    )}>
-      <div className="flex items-center justify-between">
-        {/* Brand Logo */}
-        <Link to="/" className="flex items-center gap-2 group shrink-0">
-          <span className="text-lg md:text-2xl font-display font-black tracking-tighter text-neutral-900 dark:text-neutral-50 transition-colors">
-            <span className="text-[#8C6A3C] dark:text-brand-gold group-hover:text-brand-gold transition-colors duration-300">FAXR</span> MEBEL
-          </span>
-        </Link>
-
-        {/* Desktop Nav Center - Perfect High-Contrast text colors */}
-        <div className="hidden md:flex items-center gap-8 lg:gap-10">
-          {navLinks.map((link) => {
-            const isActive = location.pathname === link.path;
-            return (
-              <Link 
-                key={link.path}
-                to={link.path}
-                className={cn(
-                  "text-[10px] lg:text-[11px] font-bold uppercase tracking-hero transition-all relative py-1",
-                  isActive 
-                    ? "text-neutral-950 dark:text-neutral-50 font-black" 
-                    : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-neutral-50"
-                )}
-              >
-                {link.name}
-                {isActive && (
-                  <motion.span 
-                    layoutId="activeTabUnderline"
-                    className="absolute -bottom-1.5 left-0 right-0 h-[2.5px] bg-[#8C6A3C] dark:bg-brand-gold rounded-full"
-                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                  />
-                )}
-              </Link>
-            );
-          })}
-        </div>
-
-        {/* Action Panel */}
-        <div className="flex items-center gap-3 lg:gap-4">
-          {/* Language Switcher Grid - High contrast text */}
-          <div className="hidden lg:flex bg-neutral-100 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-800 p-0.5 rounded-full text-[8px] font-black uppercase tracking-widest">
-            {languages.map((lang) => (
-              <button
-                key={lang.code}
-                onClick={() => changeLanguage(lang.code)}
-                className={cn(
-                  "px-3 py-1.5 rounded-full transition-all duration-300",
-                  i18n.language.startsWith(lang.code) 
-                    ? "bg-[#8C6A3C] dark:bg-brand-gold text-white dark:text-black shadow-sm font-bold" 
-                    : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200"
-                )}
-              >
-                {lang.name}
-              </button>
-            ))}
+    <>
+      <nav className={cn(
+        "fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-[background-color,border-color,padding,border-radius,box-shadow] duration-300 px-6 md:px-8 py-3.5 w-[92%] max-w-7xl border shadow-xl backdrop-blur-md",
+        isOpen ? "rounded-[2rem]" : "rounded-full",
+        isScrolled 
+          ? "bg-white dark:bg-[#0A0A0A] border-neutral-200 dark:border-neutral-800/80 py-3 shadow-2xl" 
+          : "bg-white/95 dark:bg-[#0D0D0D]/95 border-neutral-200/60 dark:border-neutral-800/60"
+      )}>
+        <div className="flex items-center justify-between">
+          {/* Brand Logo */}
+          <Link to="/" className="flex items-center gap-2 group shrink-0">
+            <span className="text-lg md:text-2xl font-display font-black tracking-tighter text-neutral-900 dark:text-neutral-50 transition-colors">
+              <span className="text-[#8C6A3C] dark:text-brand-gold group-hover:text-brand-gold transition-colors duration-300">FAXR</span> MEBEL
+            </span>
+          </Link>
+  
+          {/* Desktop Nav Center - Perfect High-Contrast text colors */}
+          <div className="hidden md:flex items-center gap-8 lg:gap-10">
+            {navLinks.map((link) => {
+              const isActive = location.pathname === link.path;
+              return (
+                <Link 
+                  key={link.path}
+                  to={link.path}
+                  className={cn(
+                    "text-[10px] lg:text-[11px] font-bold uppercase tracking-hero transition-all relative py-1",
+                    isActive 
+                      ? "text-neutral-950 dark:text-neutral-50 font-black" 
+                      : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-neutral-50"
+                  )}
+                >
+                  {link.name}
+                  {isActive && (
+                    <motion.span 
+                      layoutId="activeTabUnderline"
+                      className="absolute -bottom-1.5 left-0 right-0 h-[2.5px] bg-[#8C6A3C] dark:bg-brand-gold rounded-full"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                </Link>
+              );
+            })}
           </div>
-
-          <div className="flex items-center gap-1.5 lg:gap-2">
-            {/* Theme Toggle */}
-            <button 
-              onClick={toggleTheme}
-              className="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-200 transition-all duration-300 hover:scale-110"
-              aria-label="Theme toggle"
-            >
-              {theme === 'light' ? <Moon className="w-4.5 h-4.5" /> : <Sun className="w-4.5 h-4.5 text-brand-gold animate-spin-slow" />}
-            </button>
+  
+          {/* Action Panel */}
+          <div className="flex items-center gap-3 lg:gap-4">
+            {/* Language Switcher Grid - High contrast text */}
+            <div className="hidden lg:flex bg-neutral-100 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-800 p-0.5 rounded-full text-[8px] font-black uppercase tracking-widest">
+              {languages.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => changeLanguage(lang.code)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-full transition-all duration-300",
+                    i18n.language.startsWith(lang.code) 
+                      ? "bg-[#8C6A3C] dark:bg-brand-gold text-white dark:text-black shadow-sm font-bold" 
+                      : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200"
+                  )}
+                >
+                  {lang.name}
+                </button>
+              ))}
+            </div>
+  
+            <div className="flex items-center gap-1.5 lg:gap-2">
+              {/* Theme Toggle */}
+              <button 
+                onClick={handleThemeToggle}
+                className="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-200 transition-all duration-300 hover:scale-110"
+                aria-label="Theme toggle"
+              >
+                {theme === 'light' ? <Moon className="w-4.5 h-4.5" /> : <Sun className="w-4.5 h-4.5 text-brand-gold animate-spin-slow" />}
+              </button>
 
             {/* Redesigned Premium Highlighted Shopping Cart (Minimal Circle + pulsing Badge) */}
             <Link 
@@ -223,5 +243,17 @@ export const Navbar = () => {
         )}
       </AnimatePresence>
     </nav>
+    {wipeActive && (
+      <div 
+        className="circular-transition-overlay animate-circular-wipe"
+        style={{ 
+          // @ts-ignore
+          '--wipe-x': `${wipeCoords.x}px`,
+          // @ts-ignore
+          '--wipe-y': `${wipeCoords.y}px`
+        }}
+      />
+    )}
+    </>
   );
 };

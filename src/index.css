@@ -188,6 +188,7 @@ body::before {
 }
 
 /* Custom Range Slider */
+/* Custom Range Slider */
 input[type="range"] {
   -webkit-appearance: none;
   width: 100%;
@@ -208,3 +209,119 @@ input[type="range"]::-webkit-slider-thumb {
 input[type="range"]::-webkit-slider-thumb:hover {
   transform: scale(1.2);
 }
+
+/* Premium Cursor Spotlight (Hover Glow) */
+.bento-spotlight {
+  position: relative;
+  overflow: hidden;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 2rem;
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.5s ease;
+}
+
+.bento-spotlight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    450px circle at var(--mouse-x, 0px) var(--mouse-y, 0px),
+    var(--gold-glow) 0%,
+    transparent 80%
+  );
+  opacity: 0;
+  transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.bento-spotlight::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: radial-gradient(
+    250px circle at var(--mouse-x, 0px) var(--mouse-y, 0px),
+    rgba(197, 160, 89, 0.65) 0%,
+    rgba(197, 160, 89, 0.05) 50%,
+    transparent 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  z-index: 10;
+}
+
+.bento-spotlight:hover::before,
+.bento-spotlight:hover::after {
+  opacity: 1;
+}
+
+.bento-spotlight:hover {
+  transform: translateY(-5px);
+  border-color: rgba(197, 160, 89, 0.25);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* Ken Burns (Zoom) effect for background sliders */
+.animate-ken-burns {
+  animation: kenBurns 12s cubic-bezier(0.25, 1, 0.5, 1) infinite alternate;
+}
+
+@keyframes kenBurns {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  100% {
+    transform: scale(1.08) translate(-1%, -0.5%);
+  }
+}
+
+/* Luxury page transition animation qobiqlari */
+.page-transition-container {
+  will-change: transform, opacity;
+}
+
+/* Custom premium scrollbar variants */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Circular transition clip animation helper */
+.circular-transition-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  background-color: var(--background);
+  pointer-events: none;
+  clip-path: circle(0% at 50% 50%);
+}
+
+.animate-circular-wipe {
+  animation: circularWipe 0.85s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+}
+
+@keyframes circularWipe {
+  0% {
+    clip-path: circle(0% at var(--wipe-x, 50%) var(--wipe-y, 50%));
+  }
+  50% {
+    clip-path: circle(100% at var(--wipe-x, 50%) var(--wipe-y, 50%));
+  }
+  100% {
+    clip-path: circle(150% at var(--wipe-x, 50%) var(--wipe-y, 50%));
+  }
+}
+

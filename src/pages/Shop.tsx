@@ -7,6 +7,7 @@ import { useCart } from '../context/CartContext';
 import { Link } from 'react-router-dom';
 import { ARModal } from '../components/ARModal';
 import { BespokeModal } from '../components/BespokeModal';
+import { BentoSpotlight } from '../components/BentoSpotlight';
 
 // Locally hosted premium generated images and stock items
 const allProducts = [
@@ -230,62 +231,64 @@ export const Shop = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     key={product.id}
-                    className="bento-card glow-tracer group flex flex-col justify-between"
+                    className="flex flex-col"
                   >
-                    <div className="relative aspect-[4/5] overflow-hidden rounded-t-[1.8rem]">
-                      <img 
-                        src={product.image} 
-                        alt={t('product.' + product.id + '.name')} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
-                      />
-                      
-                      {/* Floating actions */}
-                      <div className="absolute top-4 right-4 flex flex-col gap-2">
-                        <button 
-                          onClick={() => toggleWishlist(product.id)}
-                          className={cn(
-                            "p-2.5 rounded-full transition-all duration-300 shadow-md",
-                            wishlist.includes(product.id) ? "bg-red-500 text-white" : "glass text-foreground hover:scale-110"
-                          )}
-                        >
-                          <Heart className="w-3.5 h-3.5 fill-current" />
-                        </button>
-                        <button 
-                          onClick={() => setQuickViewProduct(product)}
-                          className="p-2.5 glass text-foreground rounded-full shadow-md hover:scale-110 transition-transform"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                      
-                      <div className="absolute top-4 left-4 glass px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest text-foreground">
-                        {t('shop.category.' + product.category)}
-                      </div>
-                    </div>
-                    
-                    <div className="p-6 flex flex-col flex-grow justify-between">
-                      <div className="mb-4">
-                        <div className="flex items-center justify-between gap-2">
-                           <h3 className="text-base font-bold tracking-tight text-foreground">{t('product.' + product.id + '.name')}</h3>
-                           <div className="flex items-center gap-1 text-brand-gold text-[10px] font-bold shrink-0">
-                             <Star className="w-3 h-3 fill-current" /> {product.rating}
-                           </div>
+                    <BentoSpotlight className="group flex-grow flex flex-col justify-between">
+                      <div className="relative aspect-[4/5] overflow-hidden rounded-t-[1.8rem]">
+                        <img 
+                          src={product.image} 
+                          alt={t('product.' + product.id + '.name')} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                        />
+                        
+                        {/* Floating actions */}
+                        <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
+                          <button 
+                            onClick={() => toggleWishlist(product.id)}
+                            className={cn(
+                              "p-2.5 rounded-full transition-all duration-300 shadow-md",
+                              wishlist.includes(product.id) ? "bg-red-500 text-white" : "glass text-foreground hover:scale-110"
+                            )}
+                          >
+                            <Heart className="w-3.5 h-3.5 fill-current" />
+                          </button>
+                          <button 
+                            onClick={() => setQuickViewProduct(product)}
+                            className="p-2.5 glass text-foreground rounded-full shadow-md hover:scale-110 transition-transform"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                          </button>
                         </div>
-                        <p className="text-[10px] text-foreground/45 leading-relaxed italic line-clamp-2 mt-2">
-                          {t('shop.product.materialLabel')} {product.wood} | {product.fabric}
-                        </p>
+                        
+                        <div className="absolute top-4 left-4 glass px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest text-foreground">
+                          {t('shop.category.' + product.category)}
+                        </div>
                       </div>
                       
-                      <div className="flex items-center justify-between pt-4 border-t border-foreground/5">
-                        <span className="price-tag text-xl font-bold">{formatPrice(product.price)}</span>
-                        <button 
-                          onClick={() => handleAddToCart(product)}
-                          className="bg-brand-gold text-black p-3.5 rounded-xl hover:scale-110 active:scale-95 transition-all shadow-md shadow-brand-gold/15"
-                        >
-                          <ShoppingCart className="w-4 h-4" />
-                        </button>
+                      <div className="p-6 flex flex-col flex-grow justify-between">
+                        <div className="mb-4">
+                          <div className="flex items-center justify-between gap-2">
+                             <h3 className="text-base font-bold tracking-tight text-foreground">{t('product.' + product.id + '.name')}</h3>
+                             <div className="flex items-center gap-1 text-brand-gold text-[10px] font-bold shrink-0">
+                               <Star className="w-3 h-3 fill-current" /> {product.rating}
+                             </div>
+                          </div>
+                          <p className="text-[10px] text-foreground/45 leading-relaxed italic line-clamp-2 mt-2">
+                            {t('shop.product.materialLabel')} {product.wood} | {product.fabric}
+                          </p>
+                        </div>
+                        
+                        <div className="flex items-center justify-between pt-4 border-t border-foreground/5">
+                          <span className="price-tag text-xl font-bold">{formatPrice(product.price)}</span>
+                          <button 
+                            onClick={() => handleAddToCart(product)}
+                            className="bg-brand-gold text-black p-3.5 rounded-xl hover:scale-110 active:scale-95 transition-all shadow-md shadow-brand-gold/15"
+                          >
+                            <ShoppingCart className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
-                    </div>
+                    </BentoSpotlight>
                   </motion.div>
                 ))}
               </AnimatePresence>
