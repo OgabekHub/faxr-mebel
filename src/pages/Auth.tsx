@@ -78,8 +78,8 @@ export const Auth = () => {
   ];
 
   return (
-    /* fixed inset-0 — sahifa to'liq viewport ni egallaydi, scroll bo'lmaydi */
-    <div className="fixed inset-0 bg-background flex overflow-hidden">
+    /* h-screen w-full — sahifa to'liq viewport ni egallaydi, scroll bo'lmaydi */
+    <div className="h-screen w-full bg-background flex overflow-hidden">
 
       {/* ═══════════════════════════════════════
           LEFT PANEL — Branding (only lg+)
