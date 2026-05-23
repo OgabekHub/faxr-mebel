@@ -60,7 +60,7 @@ export const BentoSpotlight: React.FC<BentoSpotlightProps> = ({ children, classN
       }}
       className={`bento-spotlight ${className}`}
     >
-      <div style={{ transform: 'translateZ(10px)', transformStyle: 'preserve-3d' }} className="h-full w-full flex flex-col">
+      <div style={{ transform: 'translateZ(0px)', transformStyle: 'preserve-3d', position: 'relative', zIndex: 15 }} className="h-full w-full flex flex-col">
         {children}
       </div>
     </motion.div>
