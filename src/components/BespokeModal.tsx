@@ -220,14 +220,42 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
                       </p>
                     </div>
 
-                    {/* Simulated Telegram Packet */}
-                    <div className="bg-black/95 text-emerald-400 p-6 rounded-2xl font-mono text-[10px] overflow-x-auto shadow-inner border border-white/5 relative group">
-                      <span className="absolute top-4 right-4 text-[8px] bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-full uppercase font-bold tracking-widest flex items-center gap-1.5 animate-pulse">
-                        <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span>
-                        Telegram Sent
-                      </span>
-                      <h4 className="text-white/60 mb-2 border-b border-white/10 pb-1.5 uppercase font-bold">Encrypted JSON Dispatch</h4>
-                      <pre className="leading-relaxed whitespace-pre-wrap">{getBespokeJSON()}</pre>
+                    {/* Premium VIP Receipt */}
+                    <div className="bg-foreground/[0.03] border border-foreground/5 rounded-[2rem] p-6 relative">
+                      <div className="flex justify-between items-center mb-4 pb-3 border-b border-foreground/5">
+                        <span className="text-[10px] uppercase font-black tracking-widest text-brand-gold">VIP Buyurtma Tafsilotlari</span>
+                        <span className="text-[8px] uppercase tracking-widest font-black bg-brand-gold/10 text-brand-gold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                          <span className="w-1 h-1 bg-brand-gold rounded-full animate-pulse"></span>
+                          Yuborildi
+                        </span>
+                      </div>
+
+                      <div className="space-y-3 text-[11px] leading-relaxed">
+                        <div className="flex justify-between">
+                          <span className="text-foreground/45 uppercase tracking-wider font-semibold">Buyurtma ID</span>
+                          <span className="text-foreground font-mono font-bold">BESPOKE-{Math.floor(1000 + Math.random() * 9000)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-foreground/45 uppercase tracking-wider font-semibold">O'lchamlar</span>
+                          <span className="text-foreground font-bold">{length}cm x {width}cm</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-foreground/45 uppercase tracking-wider font-semibold">Yog'och / Mato</span>
+                          <span className="text-foreground font-bold uppercase">{wood.toUpperCase()} / {fabric.toUpperCase()}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-foreground/45 uppercase tracking-wider font-semibold">Mijoz</span>
+                          <span className="text-foreground font-bold">{userName}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-foreground/45 uppercase tracking-wider font-semibold">Telefon</span>
+                          <span className="text-foreground font-bold">{userPhone}</span>
+                        </div>
+                        <div className="pt-3 border-t border-dashed border-foreground/10 flex justify-between items-end">
+                          <span className="text-[10px] uppercase font-black tracking-widest text-foreground">Jami qiymati:</span>
+                          <span className="text-base font-editorial-title gold-foil-text font-bold">{formatPrice(finalPrice)}</span>
+                        </div>
+                      </div>
                     </div>
 
                     <button 
