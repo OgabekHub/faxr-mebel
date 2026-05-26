@@ -138,7 +138,7 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
                 
                 {/* Steps Header indicator */}
                 {!submitted && (
-                  <div className="flex items-center gap-2 mb-6">
+                  <div className="flex items-center gap-2 mb-6 pr-12">
                     {[1, 2, 3].map((s) => (
                       <div 
                         key={s} 
