@@ -8,7 +8,6 @@ import { useCart } from '../context/CartContext';
 import { ARModal } from '../components/ARModal';
 import { BespokeModal } from '../components/BespokeModal';
 import { BentoSpotlight } from '../components/BentoSpotlight';
-import { FurnitureConfigurator } from '../components/FurnitureConfigurator';
 
 // Immersive Hero slides data
 const heroSlides = [
@@ -370,8 +369,6 @@ export const Home = () => {
         </BentoSpotlight>
 
       </div>
-
-      <FurnitureConfigurator onAddedToCart={(name) => { setAddedToast(name); setTimeout(() => setAddedToast(null), 3000); }} />
 
       {/* Featured Products Section */}
       <section className="py-12">
