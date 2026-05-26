@@ -1,300 +1,58 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useCallback, Suspense, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
-import { ShoppingBag, RotateCcw, Maximize2, Minimize2, Check, Zap, Info } from 'lucide-react';
+import {
+  ShoppingBag, RotateCcw, Check, Zap, Info, ChevronDown, ChevronUp,
+  Move3d, Maximize2, Minimize2,
+} from 'lucide-react';
 import { formatPrice } from '../lib/utils';
 import { useCart } from '../context/CartContext';
+import { FurnitureScene } from './configurator/FurnitureScene';
 
 // ─── Furniture Types ──────────────────────────────────────────────
 const furnitureTypes = [
-  {
-    id: 'sofa',
-    labelUz: 'Divan',
-    labelRu: 'Диван',
-    labelEn: 'Sofa',
-    image: '/images/sofa_beige.png',
-    basePrice: 12_000_000,
-    dims: '240 × 95 × 85 cm',
-  },
-  {
-    id: 'bedroom',
-    labelUz: 'Yotoqxona',
-    labelRu: 'Спальня',
-    labelEn: 'Bedroom',
-    image: '/images/bedroom_gold_black.png',
-    basePrice: 18_500_000,
-    dims: '200 × 200 × 120 cm',
-  },
-  {
-    id: 'dining',
-    labelUz: 'Ovqat xonasi',
-    labelRu: 'Столовая',
-    labelEn: 'Dining',
-    image: '/images/dining_table.png',
-    basePrice: 8_500_000,
-    dims: '180 × 90 × 76 cm',
-  },
-  {
-    id: 'kitchen',
-    labelUz: 'Oshxona',
-    labelRu: 'Кухня',
-    labelEn: 'Kitchen',
-    image: '/images/kitchen_neoclassic.png',
-    basePrice: 22_000_000,
-    dims: 'Linear: 3.6 m set',
-  },
-  {
-    id: 'tv',
-    labelUz: 'TV Unit',
-    labelRu: 'ТВ Тумба',
-    labelEn: 'TV Unit',
-    image: '/images/tv_gorka_modern.png',
-    basePrice: 6_500_000,
-    dims: '220 × 45 × 55 cm',
-  },
+  { id: 'sofa',    labelUz: 'Divan',         labelRu: 'Диван',       labelEn: 'Sofa',     basePrice: 12_000_000, dims: '240 × 95 × 85 cm' },
+  { id: 'bedroom', labelUz: 'Yotoqxona',     labelRu: 'Спальня',     labelEn: 'Bedroom',  basePrice: 18_500_000, dims: '200 × 200 × 120 cm' },
+  { id: 'dining',  labelUz: 'Ovqat xonasi',  labelRu: 'Столовая',    labelEn: 'Dining',   basePrice: 8_500_000,  dims: '180 × 90 × 76 cm' },
+  { id: 'kitchen', labelUz: 'Oshxona',       labelRu: 'Кухня',       labelEn: 'Kitchen',  basePrice: 22_000_000, dims: 'Linear: 3.6 m' },
+  { id: 'tv',      labelUz: 'TV Unit',       labelRu: 'ТВ Тумба',    labelEn: 'TV Unit',  basePrice: 6_500_000,  dims: '220 × 45 × 55 cm' },
 ];
 
-// ─── Fabric / Upholstery Options ──────────────────────────────────
+// ─── Fabrics ──────────────────────────────────────────────────────
 const fabrics = [
-  {
-    id: 'velvet-emerald',
-    nameUz: 'Zumrad Baxmal',
-    nameRu: 'Изумрудный Бархат',
-    nameEn: 'Emerald Velvet',
-    hex: '#064E3B',
-    // CSS filter values for mix-blend-multiply overlay
-    hue: 160,
-    sat: 90,
-    brightness: 0.55,
-    opacity: 0.60,
-    priceAdd: 1_500_000,
-    specUz: 'Martindale: 50,000 sikl',
-    specRu: 'Мартиндейл: 50,000 циклов',
-    specEn: 'Martindale: 50,000 rubs',
-    tag: 'Velvet',
-    tagColor: '#064E3B',
-  },
-  {
-    id: 'velvet-navy',
-    nameUz: 'Tungi Ko\'k Baxmal',
-    nameRu: 'Ночной Синий Бархат',
-    nameEn: 'Midnight Navy',
-    hex: '#1E3A8A',
-    hue: 220,
-    sat: 80,
-    brightness: 0.45,
-    opacity: 0.60,
-    priceAdd: 1_500_000,
-    specUz: 'Martindale: 50,000 sikl',
-    specRu: 'Мартиндейл: 50,000 циклов',
-    specEn: 'Martindale: 50,000 rubs',
-    tag: 'Velvet',
-    tagColor: '#1E3A8A',
-  },
-  {
-    id: 'velvet-crimson',
-    nameUz: 'Qirol Qizil Baxmal',
-    nameRu: 'Королевский Малиновый',
-    nameEn: 'Imperial Crimson',
-    hex: '#7F1D1D',
-    hue: 0,
-    sat: 85,
-    brightness: 0.45,
-    opacity: 0.55,
-    priceAdd: 1_700_000,
-    specUz: 'Martindale: 45,000 sikl',
-    specRu: 'Мартиндейл: 45,000 циклов',
-    specEn: 'Martindale: 45,000 rubs',
-    tag: 'Velvet',
-    tagColor: '#7F1D1D',
-  },
-  {
-    id: 'velvet-purple',
-    nameUz: 'Qirollik Binafsha',
-    nameRu: 'Королевский Пурпур',
-    nameEn: 'Royal Mauve',
-    hex: '#4C1D95',
-    hue: 270,
-    sat: 75,
-    brightness: 0.45,
-    opacity: 0.55,
-    priceAdd: 1_800_000,
-    specUz: 'Martindale: 45,000 sikl',
-    specRu: 'Мартиндейл: 45,000 циклов',
-    specEn: 'Martindale: 45,000 rubs',
-    tag: 'Velvet',
-    tagColor: '#4C1D95',
-  },
-  {
-    id: 'leather-cognac',
-    nameUz: 'Konyak Charm',
-    nameRu: 'Коньячная Кожа',
-    nameEn: 'Cognac Leather',
-    hex: '#92400E',
-    hue: 30,
-    sat: 70,
-    brightness: 0.50,
-    opacity: 0.48,
-    priceAdd: 2_500_000,
-    specUz: 'Full-grain Italiya charmi',
-    specRu: 'Полнозернистая итальянская кожа',
-    specEn: 'Full-grain Italian hide',
-    tag: 'Leather',
-    tagColor: '#92400E',
-  },
-  {
-    id: 'leather-obsidian',
-    nameUz: 'Obsidian Nappa',
-    nameRu: 'Обсидиановая Наппа',
-    nameEn: 'Obsidian Nappa',
-    hex: '#111827',
-    hue: 210,
-    sat: 15,
-    brightness: 0.18,
-    opacity: 0.75,
-    priceAdd: 2_800_000,
-    specUz: 'Mikro-teshikli aeration',
-    specRu: 'Микроперфорированная кожа',
-    specEn: 'Micro-perforated aeration',
-    tag: 'Leather',
-    tagColor: '#374151',
-  },
-  {
-    id: 'linen-sand',
-    nameUz: 'Qumloq Zig\'ir',
-    nameRu: 'Песочный Лён',
-    nameEn: 'Sand Linen',
-    hex: '#D4C5B0',
-    hue: 38,
-    sat: 30,
-    brightness: 0.95,
-    opacity: 0.25,
-    priceAdd: 900_000,
-    specUz: 'Ekologik toza tolalar',
-    specRu: 'Экологичные волокна',
-    specEn: 'Eco-friendly natural fibers',
-    tag: 'Linen',
-    tagColor: '#D4C5B0',
-  },
-  {
-    id: 'linen-slate',
-    nameUz: 'Slate Zig\'ir',
-    nameRu: 'Сланцевый Лён',
-    nameEn: 'Slate Linen',
-    hex: '#475569',
-    hue: 210,
-    sat: 20,
-    brightness: 0.55,
-    opacity: 0.45,
-    priceAdd: 1_000_000,
-    specUz: 'Tabiiy zig\'ir tolasi',
-    specRu: 'Натуральный лён',
-    specEn: 'Natural linen weave',
-    tag: 'Linen',
-    tagColor: '#475569',
-  },
+  { id: 'velvet-emerald', nameUz: 'Zumrad Baxmal',    nameRu: 'Изумрудный Бархат',   nameEn: 'Emerald Velvet',  hex: '#1A5C3A', priceAdd: 1_500_000, tag: 'Velvet', specUz: 'Martindale: 50,000 sikl', specRu: 'Мартиндейл: 50,000 циклов', specEn: 'Martindale: 50,000 rubs' },
+  { id: 'velvet-navy',    nameUz: 'Moviy Baxmal',     nameRu: 'Синий Бархат',        nameEn: 'Navy Velvet',     hex: '#1B2F6E', priceAdd: 1_500_000, tag: 'Velvet', specUz: 'Martindale: 50,000 sikl', specRu: 'Мартиндейл: 50,000 циклов', specEn: 'Martindale: 50,000 rubs' },
+  { id: 'velvet-crimson', nameUz: 'Qizil Baxmal',     nameRu: 'Малиновый Бархат',    nameEn: 'Crimson Velvet',  hex: '#7F1D1D', priceAdd: 1_700_000, tag: 'Velvet', specUz: 'Martindale: 45,000 sikl', specRu: 'Мартиндейл: 45,000 циклов', specEn: 'Martindale: 45,000 rubs' },
+  { id: 'velvet-purple',  nameUz: 'Binafsha Baxmal',  nameRu: 'Пурпурный Бархат',    nameEn: 'Royal Mauve',     hex: '#4C1D95', priceAdd: 1_800_000, tag: 'Velvet', specUz: 'Martindale: 45,000 sikl', specRu: 'Мартиндейл: 45,000 циклов', specEn: 'Martindale: 45,000 rubs' },
+  { id: 'leather-cognac', nameUz: 'Konyak Charm',     nameRu: 'Коньячная Кожа',      nameEn: 'Cognac Leather',  hex: '#92400E', priceAdd: 2_500_000, tag: 'Leather', specUz: 'Full-grain Italiya charmi', specRu: 'Полнозернистая итальянская кожа', specEn: 'Full-grain Italian hide' },
+  { id: 'leather-black',  nameUz: 'Qora Charm',       nameRu: 'Чёрная Кожа',         nameEn: 'Black Leather',   hex: '#1C1C1E', priceAdd: 2_800_000, tag: 'Leather', specUz: 'Mikro-teshikli aeration', specRu: 'Микроперфорированная кожа', specEn: 'Micro-perforated aeration' },
+  { id: 'linen-sand',     nameUz: 'Qumloq Zig\'ir',  nameRu: 'Песочный Лён',        nameEn: 'Sand Linen',      hex: '#C8B89A', priceAdd: 900_000,   tag: 'Linen',   specUz: 'Ekologik toza tolalar',    specRu: 'Экологичные волокна', specEn: 'Eco-friendly fibers' },
+  { id: 'linen-slate',    nameUz: 'Slate Zig\'ir',    nameRu: 'Сланцевый Лён',       nameEn: 'Slate Linen',     hex: '#64748B', priceAdd: 1_000_000, tag: 'Linen',   specUz: 'Tabiiy zig\'ir tolasi',    specRu: 'Натуральный лён', specEn: 'Natural linen weave' },
 ];
 
-// ─── Wood Options ─────────────────────────────────────────────────
+// ─── Woods ────────────────────────────────────────────────────────
 const woods = [
-  {
-    id: 'walnut',
-    nameUz: 'Qora Yong\'oq',
-    nameRu: 'Американский Орех',
-    nameEn: 'Black Walnut',
-    color: '#3D2314',
-    swatchGrad: 'linear-gradient(135deg, #5C3D2E 0%, #3D2314 50%, #2A1A0E 100%)',
-    priceAdd: 800_000,
-    originUz: 'Shimoliy Amerika',
-    originRu: 'Северная Америка',
-    originEn: 'North America',
-    gradeUz: 'A-sinf qattiq yog\'och',
-    gradeRu: 'Класс А твёрдой породы',
-    gradeEn: 'Grade-A Hardwood',
-  },
-  {
-    id: 'oak',
-    nameUz: 'Yevropa Emani',
-    nameRu: 'Европейский Дуб',
-    nameEn: 'European Oak',
-    color: '#C8A46E',
-    swatchGrad: 'linear-gradient(135deg, #E8C88E 0%, #C8A46E 50%, #A8844E 100%)',
-    priceAdd: 600_000,
-    originUz: 'Fransiya',
-    originRu: 'Франция',
-    originEn: 'France',
-    gradeUz: 'Namlikka chidamli',
-    gradeRu: 'Влагостойкий дуб',
-    gradeEn: 'Moisture-resistant oak',
-  },
-  {
-    id: 'beech',
-    nameUz: 'Kavkaz Buki',
-    nameRu: 'Кавказский Бук',
-    nameEn: 'Caucasian Beech',
-    color: '#9E7A50',
-    swatchGrad: 'linear-gradient(135deg, #BE9A70 0%, #9E7A50 50%, #7E5A30 100%)',
-    priceAdd: 500_000,
-    originUz: 'Kavkaz tog\'lari',
-    originRu: 'Кавказские горы',
-    originEn: 'Caucasus Mts.',
-    gradeUz: 'Egishga qulay',
-    gradeRu: 'Гибкая порода',
-    gradeEn: 'Steamed pliable',
-  },
-  {
-    id: 'pine',
-    nameUz: 'Skandinav Qarag\'ayi',
-    nameRu: 'Скандинавская Сосна',
-    nameEn: 'Scandinavian Pine',
-    color: '#D4B896',
-    swatchGrad: 'linear-gradient(135deg, #F4D8B6 0%, #D4B896 50%, #B49876 100%)',
-    priceAdd: 300_000,
-    originUz: 'Skandinaviya',
-    originRu: 'Скандинавия',
-    originEn: 'Scandinavia',
-    gradeUz: 'Engil va chidamli',
-    gradeRu: 'Лёгкая и прочная',
-    gradeEn: 'Light & durable',
-  },
+  { id: 'walnut', nameUz: 'Qora Yong\'oq', nameRu: 'Черный Орех',   nameEn: 'Black Walnut', hex: '#3D2314', swatchGrad: 'linear-gradient(135deg,#5C3D2E,#3D2314)', priceAdd: 800_000, originUz: 'Shimoliy Amerika', originRu: 'Северная Америка', originEn: 'North America' },
+  { id: 'oak',    nameUz: 'Yevropa Emani', nameRu: 'Европейский Дуб',nameEn: 'European Oak', hex: '#C8A46E', swatchGrad: 'linear-gradient(135deg,#E8C88E,#C8A46E)',  priceAdd: 600_000, originUz: 'Fransiya', originRu: 'Франция', originEn: 'France' },
+  { id: 'beech',  nameUz: 'Kavkaz Buki',   nameRu: 'Кавказский Бук', nameEn: 'Caucasian Beech', hex: '#9E7A50', swatchGrad: 'linear-gradient(135deg,#BE9A70,#9E7A50)', priceAdd: 500_000, originUz: 'Kavkaz', originRu: 'Кавказ', originEn: 'Caucasus' },
+  { id: 'pine',   nameUz: 'Qarag\'ay',     nameRu: 'Сосна',          nameEn: 'Scandinavian Pine', hex: '#D4B896', swatchGrad: 'linear-gradient(135deg,#F4D8B6,#D4B896)', priceAdd: 300_000, originUz: 'Skandinaviya', originRu: 'Скандинавия', originEn: 'Scandinavia' },
 ];
 
-// ─── Finish Options ───────────────────────────────────────────────
+// ─── Finishes ─────────────────────────────────────────────────────
 const finishes = [
-  {
-    id: 'matte',
-    nameUz: 'Matt',
-    nameRu: 'Матовый',
-    nameEn: 'Matte',
-    icon: '◼',
-    priceAdd: 0,
-  },
-  {
-    id: 'satin',
-    nameUz: 'Satin',
-    nameRu: 'Сатиновый',
-    nameEn: 'Satin',
-    icon: '◈',
-    priceAdd: 400_000,
-  },
-  {
-    id: 'gloss',
-    nameUz: 'Porloq',
-    nameRu: 'Глянцевый',
-    nameEn: 'High Gloss',
-    icon: '◆',
-    priceAdd: 700_000,
-  },
+  { id: 'matte', nameUz: 'Matt',    nameRu: 'Матовый',    nameEn: 'Matte',      icon: '◼', priceAdd: 0 },
+  { id: 'satin', nameUz: 'Satin',   nameRu: 'Сатиновый',  nameEn: 'Satin',      icon: '◈', priceAdd: 400_000 },
+  { id: 'gloss', nameUz: 'Porloq',  nameRu: 'Глянцевый',  nameEn: 'High Gloss', icon: '◆', priceAdd: 700_000 },
 ];
 
-// ─── Size Options ─────────────────────────────────────────────────
+// ─── Sizes ────────────────────────────────────────────────────────
 const sizes = [
-  { id: 'S', labelUz: 'Standart', labelRu: 'Стандарт', labelEn: 'Standard', multiplier: 1.0 },
-  { id: 'M', labelUz: 'Katta', labelRu: 'Большой', labelEn: 'Large', multiplier: 1.15 },
-  { id: 'XL', labelUz: 'O\'ta Katta', labelRu: 'Очень Большой', labelEn: 'Extra Large', multiplier: 1.35 },
+  { id: 'S',  labelUz: 'Standart',   labelRu: 'Стандарт',        labelEn: 'Standard',     multiplier: 1.00 },
+  { id: 'M',  labelUz: 'Katta',      labelRu: 'Большой',         labelEn: 'Large',         multiplier: 1.15 },
+  { id: 'XL', labelUz: 'O\'ta Katta',labelRu: 'Очень Большой',   labelEn: 'Extra Large',   multiplier: 1.35 },
 ];
 
-// ─── Component ───────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────
 interface FurnitureConfiguratorProps {
   onAddedToCart?: (name: string) => void;
 }
@@ -304,113 +62,60 @@ export const FurnitureConfigurator: React.FC<FurnitureConfiguratorProps> = ({ on
   const { addToCart } = useCart();
   const lang = i18n.language || 'uz';
 
-  // ── Selections
-  const [activeFurniture, setActiveFurniture] = useState(furnitureTypes[0]);
-  const [activeFabric, setActiveFabric] = useState(fabrics[0]);
-  const [activeWood, setActiveWood] = useState(woods[0]);
-  const [activeFinish, setActiveFinish] = useState(finishes[0]);
-  const [activeSize, setActiveSize] = useState(sizes[0]);
-
-  // ── UI state
-  const [isRotating, setIsRotating] = useState(false);
-  const [rotationAngle, setRotationAngle] = useState(0);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [addedToCart, setAddedToCart] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [showDimensions, setShowDimensions] = useState(false);
-
-  const rotationRef = useRef<number | null>(null);
-  const imgRef = useRef<HTMLImageElement>(null);
-
-  // ── Price calculation
-  const totalPrice = Math.round(
-    (activeFurniture.basePrice + activeFabric.priceAdd + activeWood.priceAdd + activeFinish.priceAdd)
-    * activeSize.multiplier
-  );
-
-  // ── 360° rotation animation
-  const toggleRotation = useCallback(() => {
-    if (isRotating) {
-      if (rotationRef.current) cancelAnimationFrame(rotationRef.current);
-      setIsRotating(false);
-      setRotationAngle(0);
-    } else {
-      setIsRotating(true);
-    }
-  }, [isRotating]);
-
-  useEffect(() => {
-    if (!isRotating) return;
-    let lastTime: number | null = null;
-    const animate = (time: number) => {
-      if (lastTime !== null) {
-        const delta = time - lastTime;
-        setRotationAngle(prev => (prev + delta * 0.035) % 360);
-      }
-      lastTime = time;
-      rotationRef.current = requestAnimationFrame(animate);
-    };
-    rotationRef.current = requestAnimationFrame(animate);
-    return () => {
-      if (rotationRef.current) cancelAnimationFrame(rotationRef.current);
-    };
-  }, [isRotating]);
-
-  // Reset image loaded when furniture type changes
-  useEffect(() => {
-    setImageLoaded(false);
-  }, [activeFurniture]);
-
-  // ── Name helpers
-  const name = (o: { nameUz: string; nameRu: string; nameEn: string }) =>
+  const n  = (o: { nameUz: string; nameRu: string; nameEn: string }) =>
     lang.startsWith('ru') ? o.nameRu : lang.startsWith('uz') ? o.nameUz : o.nameEn;
-
-  const label = (o: { labelUz: string; labelRu: string; labelEn: string }) =>
+  const lb = (o: { labelUz: string; labelRu: string; labelEn: string }) =>
     lang.startsWith('ru') ? o.labelRu : lang.startsWith('uz') ? o.labelUz : o.labelEn;
 
-  // ── CSS Filter for fabric color tinting
-  // We use a sepia + hue-rotate approach to colorize while keeping texture
-  const getFabricFilter = (fabric: typeof fabrics[0]) => {
-    return `sepia(1) saturate(${fabric.sat}%) hue-rotate(${fabric.hue}deg) brightness(${fabric.brightness})`;
-  };
+  // ── Selections
+  const [furniture, setFurniture] = useState(furnitureTypes[0]);
+  const [fabric,    setFabric]    = useState(fabrics[0]);
+  const [wood,      setWood]      = useState(woods[0]);
+  const [finish,    setFinish]    = useState(finishes[0]);
+  const [size,      setSize]      = useState(sizes[0]);
+
+  // ── UI
+  const [addedToCart,   setAddedToCart]   = useState(false);
+  const [isFullscreen,  setIsFullscreen]  = useState(false);
+  const [showDims,      setShowDims]      = useState(false);
+  const [showBreakdown, setShowBreakdown] = useState(false);
+  const [webGLFailed,   setWebGLFailed]   = useState(false);
+  const [hint,          setHint]          = useState(true);
+
+  // Hide orbit hint after 4s
+  useEffect(() => { const t = setTimeout(() => setHint(false), 4000); return () => clearTimeout(t); }, []);
+
+  // ── Price
+  const base    = furniture.basePrice;
+  const total   = Math.round((base + fabric.priceAdd + wood.priceAdd + finish.priceAdd) * size.multiplier);
+  const sizeAdd = Math.round((base + fabric.priceAdd + wood.priceAdd + finish.priceAdd) * (size.multiplier - 1));
 
   // ── Add to cart
-  const handleAddToCart = () => {
-    const furnitureName = name(activeFurniture as any) || activeFurniture.labelEn;
-    const fabricName = name(activeFabric);
-    const woodName = name(activeWood);
-    const finishName = name(activeFinish as any) || activeFinish.nameEn;
-    const sizeName = label(activeSize);
-
-    const customProduct = {
-      id: `${activeFurniture.id}-${activeFabric.id}-${activeWood.id}-${activeFinish.id}-${activeSize.id}-${Date.now()}`,
-      name: `${furnitureName} (${fabricName} / ${woodName} / ${finishName} / ${sizeName})`,
-      price: totalPrice,
-      image: activeFurniture.image,
-      category: activeFurniture.id,
+  const handleAddToCart = useCallback(() => {
+    const prod = {
+      id:       `${furniture.id}-${fabric.id}-${wood.id}-${finish.id}-${size.id}-${Date.now()}`,
+      name:     `${lb(furniture)} (${n(fabric)} / ${n(wood)} / ${n(finish as any) || finish.nameEn} / ${lb(size)})`,
+      price:    total,
+      image:    `/images/configurator/${furniture.id}_${fabric.id.split('-')[1] ?? fabric.id}.png`,
+      category: furniture.id,
     };
-
-    addToCart(customProduct);
+    addToCart(prod);
     setAddedToCart(true);
-    onAddedToCart?.(customProduct.name);
+    onAddedToCart?.(prod.name);
     setTimeout(() => setAddedToCart(false), 3000);
-  };
+  }, [furniture, fabric, wood, finish, size, total, addToCart, onAddedToCart]);
 
-  const sectionTitle = lang.startsWith('ru')
-    ? 'Интерактивный'
-    : lang.startsWith('uz')
-    ? 'Interaktiv'
-    : 'Interactive';
+  const sectionTitle    = lang.startsWith('ru') ? 'Интерактивный' : lang.startsWith('uz') ? 'Interaktiv' : 'Interactive';
+  const sectionTitleGold = lang.startsWith('ru') ? 'Конструктор' : lang.startsWith('uz') ? 'Konstruktor' : 'Customizer';
 
-  const sectionTitleGold = lang.startsWith('ru')
-    ? 'Конструктор'
-    : lang.startsWith('uz')
-    ? 'Konstruktor'
-    : 'Customizer';
+  const canvasWrapCls = isFullscreen
+    ? 'fixed inset-0 z-[60] bg-black rounded-none'
+    : 'relative w-full rounded-2xl overflow-hidden bg-foreground/[0.03] border border-foreground/5 shadow-inner';
 
   return (
     <section className="py-16 border-t border-foreground/5 relative">
-      {/* Section Header */}
+
+      {/* ── Section header ── */}
       <div className="text-center mb-12">
         <span className="text-brand-gold uppercase tracking-hero text-[10px] font-black block">
           {t('materials.teaser')}
@@ -421,496 +126,362 @@ export const FurnitureConfigurator: React.FC<FurnitureConfiguratorProps> = ({ on
         </h2>
         <p className="text-xs text-foreground/55 max-w-xl mx-auto mt-4 font-light leading-relaxed">
           {lang.startsWith('ru')
-            ? 'Выберите мебель, материал и отделку — конфигуратор немедленно покажет результат и рассчитает итоговую стоимость.'
+            ? 'Выберите мебель, материал и отделку — 3D-конфигуратор покажет результат в реальном времени.'
             : lang.startsWith('uz')
-            ? 'Mebel turini, material va qoplamani tanlang — konfigurator natijani darhol ko\'rsatadi va narxni hisoblaydi.'
-            : 'Select furniture type, material & finish — the configurator shows the result instantly and calculates the exact price.'}
+            ? 'Mebel turini, material va qoplamani tanlang — 3D konfigurator natijani real vaqtda ko\'rsatadi.'
+            : 'Select furniture, material & finish — the 3D configurator shows the result in real time.'}
         </p>
       </div>
 
-      {/* Furniture Type Tabs */}
-      <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 mb-8 justify-center flex-wrap">
+      {/* ── Furniture type tabs ── */}
+      <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-3 mb-8 justify-center flex-wrap">
         {furnitureTypes.map(ft => (
           <motion.button
             key={ft.id}
-            whileTap={{ scale: 0.96 }}
-            onClick={() => setActiveFurniture(ft)}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setFurniture(ft)}
             className={`px-5 py-2.5 rounded-full text-[9px] font-black uppercase tracking-widest whitespace-nowrap transition-all duration-300 border ${
-              activeFurniture.id === ft.id
+              furniture.id === ft.id
                 ? 'bg-brand-gold text-black border-brand-gold shadow-lg shadow-brand-gold/20'
-                : 'bg-foreground/5 text-foreground/60 border-foreground/10 hover:border-brand-gold/40 hover:text-foreground'
+                : 'bg-foreground/5 text-foreground/55 border-foreground/10 hover:border-brand-gold/40 hover:text-foreground'
             }`}
           >
-            {label(ft)}
+            {lb(ft)}
           </motion.button>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-        {/* ── LEFT: Live Visualizer ─────────────────────── */}
-        <div className={`${isFullscreen ? 'fixed inset-0 z-50 rounded-none bg-black p-6' : 'lg:col-span-7'} flex flex-col justify-between bento-card p-6 md:p-8 relative overflow-hidden`}>
+        {/* ══════════════════════════════════════════════════
+            LEFT — 3D Viewer
+        ══════════════════════════════════════════════════ */}
+        <div className={`${isFullscreen ? '' : 'lg:col-span-7'} flex flex-col gap-4`}>
 
-          {/* Header */}
-          <div className="flex justify-between items-center mb-5">
+          {/* Viewer header */}
+          <div className="flex justify-between items-center">
             <div>
               <span className="text-[9px] uppercase font-black tracking-widest text-brand-gold">
-                {lang.startsWith('ru') ? 'Визуализация' : lang.startsWith('uz') ? 'Vizualizatsiya' : 'Live Preview'}
+                {lang.startsWith('ru') ? '3D Визуализация' : lang.startsWith('uz') ? '3D Vizualizatsiya' : '3D Preview'}
               </span>
-              <h3 className="text-xl font-bold font-editorial-title text-foreground mt-0.5">
-                <AnimatePresence mode="wait">
-                  <motion.span
-                    key={activeFurniture.id}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -6 }}
-                    transition={{ duration: 0.25 }}
-                    className="inline-block"
-                  >
-                    {label(activeFurniture)} — {name(activeFabric)}
-                  </motion.span>
-                </AnimatePresence>
-              </h3>
+              <AnimatePresence mode="wait">
+                <motion.h3
+                  key={`${furniture.id}-${fabric.id}`}
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -5 }}
+                  className="text-xl font-bold font-editorial-title text-foreground mt-0.5"
+                >
+                  {lb(furniture)} — {n(fabric)}
+                </motion.h3>
+              </AnimatePresence>
             </div>
             <div className="flex gap-2">
-              {/* Rotation toggle */}
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={toggleRotation}
-                className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 border ${
-                  isRotating
-                    ? 'bg-brand-gold text-black border-brand-gold'
-                    : 'bg-foreground/5 text-foreground/60 border-foreground/10 hover:border-brand-gold/30'
+              <button
+                onClick={() => setShowDims(v => !v)}
+                className={`w-9 h-9 rounded-full flex items-center justify-center transition-all border ${
+                  showDims ? 'bg-brand-gold text-black border-brand-gold' : 'bg-foreground/5 text-foreground/55 border-foreground/10 hover:border-brand-gold/30'
                 }`}
-                title="360° Rotation"
-              >
-                <RotateCcw className="w-4 h-4" />
-              </motion.button>
-              {/* Dimensions toggle */}
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setShowDimensions(v => !v)}
-                className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 border ${
-                  showDimensions
-                    ? 'bg-brand-gold text-black border-brand-gold'
-                    : 'bg-foreground/5 text-foreground/60 border-foreground/10 hover:border-brand-gold/30'
-                }`}
-                title="Show dimensions"
+                title="Dimensions"
               >
                 <Info className="w-4 h-4" />
-              </motion.button>
-              {/* Fullscreen */}
-              <motion.button
-                whileTap={{ scale: 0.9 }}
+              </button>
+              <button
                 onClick={() => setIsFullscreen(v => !v)}
-                className="w-9 h-9 rounded-full bg-foreground/5 text-foreground/60 border border-foreground/10 hover:border-brand-gold/30 flex items-center justify-center transition-all duration-300"
+                className="w-9 h-9 rounded-full bg-foreground/5 text-foreground/55 border border-foreground/10 hover:border-brand-gold/30 flex items-center justify-center transition-all"
                 title="Fullscreen"
               >
                 {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-              </motion.button>
+              </button>
             </div>
           </div>
 
-          {/* Preview Container */}
-          <div className="relative flex-grow rounded-2xl overflow-hidden bg-foreground/[0.03] border border-foreground/5 shadow-inner flex items-center justify-center min-h-[320px]">
-            
-            {/* Background ambient gradient matching fabric color */}
-            <div
-              className="absolute inset-0 transition-all duration-1000 pointer-events-none"
-              style={{
-                background: `radial-gradient(ellipse at 50% 80%, ${activeFabric.hex}22 0%, transparent 70%)`,
-              }}
-            />
+          {/* ── 3D Canvas ── */}
+          <div className={canvasWrapCls} style={{ height: isFullscreen ? '100dvh' : '420px' }}>
 
-            {/* Furniture Image with animated CSS filter tinting */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeFurniture.id}
-                initial={{ opacity: 0, scale: 0.97 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.97 }}
-                transition={{ duration: 0.45, ease: [0.25, 1, 0.5, 1] }}
-                className="relative w-full h-full flex items-center justify-center p-8"
-                style={{
-                  transform: `rotateY(${Math.sin(rotationAngle * Math.PI / 180) * 18}deg) rotateX(${Math.cos(rotationAngle * Math.PI / 180) * 3}deg)`,
-                  perspective: '1000px',
-                  transition: isRotating ? 'none' : 'transform 0.6s ease',
-                }}
-              >
-                {/* Base image */}
-                <img
-                  ref={imgRef}
-                  src={activeFurniture.image}
-                  alt={label(activeFurniture)}
-                  className="w-full h-full object-contain select-none pointer-events-none drop-shadow-2xl"
-                  style={{ maxHeight: isFullscreen ? '70vh' : '300px' }}
-                  onLoad={() => setImageLoaded(true)}
-                  draggable={false}
-                />
+            {!webGLFailed ? (
+              <FurnitureScene
+                furnitureId={furniture.id}
+                fabricColor={fabric.hex}
+                woodColor={wood.hex}
+                finishId={finish.id}
+                className="w-full h-full"
+              />
+            ) : (
+              /* Fallback: pre-rendered image */
+              <img
+                src={`/images/configurator/${furniture.id}_${fabric.id.split('-')[1] ?? 'default'}.png`}
+                onError={e => { (e.target as HTMLImageElement).src = `/images/sofa_beige.png`; }}
+                alt={lb(furniture)}
+                className="w-full h-full object-contain p-8"
+              />
+            )}
 
-                {/* Color tinting overlay using CSS mix-blend-multiply */}
-                <AnimatePresence>
-                  <motion.div
-                    key={activeFabric.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: activeFabric.opacity }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.7 }}
-                    className="absolute inset-0 pointer-events-none rounded-2xl"
-                    style={{
-                      backgroundColor: activeFabric.hex,
-                      mixBlendMode: 'multiply',
-                    }}
-                  />
-                </AnimatePresence>
-
-                {/* Finish sheen overlay */}
-                {activeFinish.id === 'gloss' && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="absolute inset-0 pointer-events-none rounded-2xl"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(255,255,255,0.25) 0%, transparent 50%, rgba(255,255,255,0.08) 100%)',
-                      mixBlendMode: 'screen',
-                    }}
-                  />
-                )}
-                {activeFinish.id === 'satin' && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="absolute inset-0 pointer-events-none rounded-2xl"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%)',
-                      mixBlendMode: 'screen',
-                    }}
-                  />
-                )}
-              </motion.div>
-            </AnimatePresence>
-
-            {/* Dimensions badge */}
+            {/* Orbit hint */}
             <AnimatePresence>
-              {showDimensions && (
+              {hint && (
                 <motion.div
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  className="absolute top-4 left-4 glass px-3 py-2 rounded-xl border border-white/10 text-[9px] font-black uppercase tracking-wider text-foreground/80"
+                  exit={{ opacity: 0, y: 8 }}
+                  className="absolute bottom-4 left-1/2 -translate-x-1/2 glass px-4 py-2 rounded-full border border-white/10 flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-foreground/70 pointer-events-none"
                 >
-                  📐 {activeFurniture.dims}
+                  <Move3d className="w-3.5 h-3.5 text-brand-gold" />
+                  {lang.startsWith('ru') ? 'Тяните для поворота · Прокрутите для зума' : lang.startsWith('uz') ? 'Aylantiring · Kattalashtiring' : 'Drag to orbit · Scroll to zoom'}
                 </motion.div>
               )}
             </AnimatePresence>
 
-            {/* Wood legs indicator */}
-            <div className="absolute bottom-4 left-4 glass px-4 py-2 rounded-full border border-white/10 flex items-center gap-2.5 shadow-lg">
-              <span className="text-[8px] uppercase font-black tracking-widest text-foreground/55">
-                {lang.startsWith('ru') ? 'Дерево:' : lang.startsWith('uz') ? 'Yog\'och:' : 'Wood:'}
-              </span>
-              <span
-                className="w-3 h-3 rounded-full border border-white/20 shadow-inner flex-shrink-0"
-                style={{ background: activeWood.swatchGrad }}
-              />
-              <span className="text-[9px] font-black text-foreground uppercase tracking-widest">
-                {name(activeWood).split(' ')[0]}
-              </span>
+            {/* Dimensions badge */}
+            <AnimatePresence>
+              {showDims && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="absolute top-4 left-4 glass px-3 py-2 rounded-xl border border-white/10 text-[9px] font-black text-foreground/80"
+                >
+                  📐 {furniture.dims}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Material badge */}
+            <div className="absolute top-4 right-4 glass px-3 py-1.5 rounded-full border border-brand-gold/20 flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full border border-white/20 flex-shrink-0" style={{ backgroundColor: fabric.hex }} />
+              <span className="text-[8px] font-black text-brand-gold uppercase tracking-widest">{n(fabric).split(' ')[0]}</span>
             </div>
 
-            {/* Rotating badge */}
-            {isRotating && (
-              <div className="absolute top-4 right-4 glass px-3 py-1.5 rounded-full border border-brand-gold/30 text-[8px] font-black text-brand-gold uppercase tracking-widest flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-brand-gold animate-pulse" />
-                360°
-              </div>
+            {/* Fullscreen close */}
+            {isFullscreen && (
+              <button
+                onClick={() => setIsFullscreen(false)}
+                className="absolute top-5 right-5 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-all z-10"
+              >
+                <Minimize2 className="w-5 h-5" />
+              </button>
             )}
           </div>
 
-          {/* Configuration Summary */}
-          <div className="mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-5 border-t border-foreground/5">
-            <div className="space-y-1 min-w-0">
-              <div className="text-[8px] uppercase font-black tracking-widest text-foreground/40">
-                {lang.startsWith('ru') ? 'Активная конфигурация' : lang.startsWith('uz') ? 'Faol konfiguratsiya' : 'Active Configuration'}
+          {/* Config summary bar */}
+          <div className="bento-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="space-y-0.5 min-w-0">
+              <div className="text-[8px] uppercase font-black tracking-widest text-foreground/35">
+                {lang.startsWith('ru') ? 'Конфигурация' : lang.startsWith('uz') ? 'Konfiguratsiya' : 'Configuration'}
               </div>
               <div className="text-xs font-bold text-foreground truncate">
-                <span className="text-brand-gold">{name(activeFabric)}</span>
-                {' + '}
-                <span>{name(activeWood)}</span>
-                {' + '}
-                <span className="text-foreground/60">{name(activeFinish as any) || activeFinish.nameEn}</span>
-                {' · '}
-                <span className="text-foreground/60">{label(activeSize)}</span>
+                <span className="text-brand-gold">{n(fabric)}</span>
+                {' + '}<span>{n(wood).split(' ')[0]}</span>
+                {' · '}<span className="text-foreground/50">{n(finish as any) || finish.nameEn}</span>
+                {' · '}<span className="text-foreground/50">{lb(size)}</span>
               </div>
             </div>
-            <div className="text-right shrink-0">
-              <div className="text-[8px] uppercase font-black tracking-widest text-foreground/40">
-                {lang.startsWith('ru') ? 'Итоговая цена' : lang.startsWith('uz') ? 'Jami narx' : 'Total Price'}
+            <div className="shrink-0 text-right">
+              <div className="text-[8px] uppercase font-black tracking-widest text-foreground/35">
+                {lang.startsWith('ru') ? 'Итого' : lang.startsWith('uz') ? 'Jami' : 'Total'}
               </div>
               <AnimatePresence mode="wait">
-                <motion.span
-                  key={totalPrice}
-                  initial={{ opacity: 0, y: -8 }}
+                <motion.div
+                  key={total}
+                  initial={{ opacity: 0, y: -6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 8 }}
-                  className="price-tag text-2xl font-bold block"
+                  exit={{ opacity: 0, y: 6 }}
+                  className="price-tag text-2xl font-bold"
                 >
-                  {formatPrice(totalPrice)}
-                </motion.span>
+                  {formatPrice(total)}
+                </motion.div>
               </AnimatePresence>
             </div>
           </div>
-
-          {/* Fullscreen close overlay */}
-          {isFullscreen && (
-            <button
-              onClick={() => setIsFullscreen(false)}
-              className="absolute top-6 right-6 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-all"
-            >
-              <Minimize2 className="w-5 h-5" />
-            </button>
-          )}
         </div>
 
-        {/* ── RIGHT: Selector Panel ─────────────────────── */}
-        <div className="lg:col-span-5 flex flex-col bento-card p-6 md:p-8 gap-6">
+        {/* ══════════════════════════════════════════════════
+            RIGHT — Selector Panel
+        ══════════════════════════════════════════════════ */}
+        <div className={`${isFullscreen ? 'hidden' : 'lg:col-span-5'} flex flex-col bento-card p-6 md:p-8 gap-6`}>
 
-          {/* 1. Fabric Picker */}
+          {/* 1. Fabric */}
           <div>
             <span className="text-[9px] uppercase font-black tracking-hero text-brand-gold block mb-3">
-              1. {lang.startsWith('ru') ? 'Материал обивки' : lang.startsWith('uz') ? 'Qoplama material' : 'Upholstery'}
+              1. {lang.startsWith('ru') ? 'Обивка / Материал' : lang.startsWith('uz') ? 'Qoplama material' : 'Upholstery'}
             </span>
 
-            {/* Color swatches */}
             <div className="grid grid-cols-8 gap-1.5 mb-3">
-              {fabrics.map(fabric => {
-                const isActive = activeFabric.id === fabric.id;
-                return (
-                  <motion.button
-                    key={fabric.id}
-                    whileTap={{ scale: 0.88 }}
-                    onClick={() => setActiveFabric(fabric)}
-                    className={`aspect-square rounded-full transition-all duration-300 relative flex items-center justify-center ${
-                      isActive
-                        ? 'ring-2 ring-brand-gold ring-offset-2 dark:ring-offset-black scale-110'
-                        : 'hover:scale-105 hover:ring-1 hover:ring-brand-gold/40 ring-offset-1'
-                    }`}
-                    style={{ backgroundColor: fabric.hex }}
-                    title={name(fabric)}
-                  >
-                    {isActive && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="w-2 h-2 bg-white rounded-full shadow-md"
-                      />
-                    )}
-                  </motion.button>
-                );
-              })}
+              {fabrics.map(f => (
+                <motion.button
+                  key={f.id}
+                  whileTap={{ scale: 0.85 }}
+                  onClick={() => setFabric(f)}
+                  title={n(f)}
+                  className={`aspect-square rounded-full transition-all duration-300 relative flex items-center justify-center ${
+                    fabric.id === f.id
+                      ? 'ring-2 ring-brand-gold ring-offset-2 dark:ring-offset-black scale-110'
+                      : 'hover:scale-105 hover:ring-1 hover:ring-brand-gold/50 ring-offset-1'
+                  }`}
+                  style={{ backgroundColor: f.hex }}
+                >
+                  {fabric.id === f.id && (
+                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-2 h-2 bg-white rounded-full shadow" />
+                  )}
+                </motion.button>
+              ))}
             </div>
 
-            {/* Fabric detail card */}
             <AnimatePresence mode="wait">
               <motion.div
-                key={activeFabric.id}
-                initial={{ opacity: 0, y: 5 }}
+                key={fabric.id}
+                initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
                 className="bg-foreground/[0.03] p-3.5 rounded-xl border border-foreground/5 flex items-start gap-3"
               >
-                <div
-                  className="w-10 h-10 rounded-lg flex-shrink-0 shadow-inner border border-white/10"
-                  style={{
-                    backgroundColor: activeFabric.hex,
-                    boxShadow: `0 2px 12px ${activeFabric.hex}55`,
-                  }}
-                />
+                <div className="w-10 h-10 rounded-lg flex-shrink-0 border border-white/10 shadow-inner" style={{ backgroundColor: fabric.hex }} />
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-xs font-black text-foreground truncate">{name(activeFabric)}</span>
-                    <span
-                      className="text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider text-white"
-                      style={{ backgroundColor: activeFabric.tagColor }}
-                    >
-                      {activeFabric.tag}
+                    <span className="text-xs font-black text-foreground truncate">{n(fabric)}</span>
+                    <span className="text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase text-white" style={{ backgroundColor: fabric.hex }}>
+                      {fabric.tag}
                     </span>
                   </div>
-                  <p className="text-[10px] text-foreground/45 italic leading-relaxed">
-                    {lang.startsWith('ru') ? activeFabric.specRu : lang.startsWith('uz') ? activeFabric.specUz : activeFabric.specEn}
+                  <p className="text-[10px] text-foreground/40 italic leading-relaxed">
+                    {lang.startsWith('ru') ? fabric.specRu : lang.startsWith('uz') ? fabric.specUz : fabric.specEn}
                   </p>
-                  <span className="text-[9px] font-black text-brand-gold mt-1 block">
-                    +{formatPrice(activeFabric.priceAdd)}
-                  </span>
+                  <span className="text-[9px] font-black text-brand-gold mt-0.5 block">+{formatPrice(fabric.priceAdd)}</span>
                 </div>
               </motion.div>
             </AnimatePresence>
           </div>
 
-          {/* 2. Wood Picker */}
+          {/* 2. Wood */}
           <div>
             <span className="text-[9px] uppercase font-black tracking-hero text-brand-gold block mb-3">
-              2. {lang.startsWith('ru') ? 'Материал каркаса' : lang.startsWith('uz') ? 'Ramka materiali' : 'Frame & Legs Wood'}
+              2. {lang.startsWith('ru') ? 'Дерево каркаса' : lang.startsWith('uz') ? 'Ramka yog\'ochi' : 'Frame Wood'}
             </span>
-
             <div className="grid grid-cols-2 gap-2">
-              {woods.map(wood => {
-                const isActive = activeWood.id === wood.id;
-                return (
-                  <motion.button
-                    key={wood.id}
-                    whileTap={{ scale: 0.96 }}
-                    onClick={() => setActiveWood(wood)}
-                    className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-300 border text-left ${
-                      isActive
-                        ? 'border-brand-gold bg-brand-gold/5 shadow-sm'
-                        : 'border-foreground/8 bg-foreground/[0.02] hover:border-brand-gold/30'
-                    }`}
-                  >
-                    <div
-                      className="w-8 h-8 rounded-lg flex-shrink-0 border border-white/10"
-                      style={{ background: wood.swatchGrad, boxShadow: '0 1px 4px rgba(0,0,0,0.3)' }}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="text-[9px] font-black text-foreground uppercase tracking-wide truncate">
-                        {name(wood).split(' ')[0]}
-                      </div>
-                      <div className="text-[8px] text-foreground/45 truncate">
-                        {lang.startsWith('ru') ? wood.originRu : lang.startsWith('uz') ? wood.originUz : wood.originEn}
-                      </div>
+              {woods.map(w => (
+                <motion.button
+                  key={w.id}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={() => setWood(w)}
+                  className={`flex items-center gap-3 p-3 rounded-xl transition-all border text-left ${
+                    wood.id === w.id
+                      ? 'border-brand-gold bg-brand-gold/5 shadow-sm'
+                      : 'border-foreground/8 bg-foreground/[0.02] hover:border-brand-gold/30'
+                  }`}
+                >
+                  <div className="w-8 h-8 rounded-lg flex-shrink-0 border border-white/10 shadow" style={{ background: w.swatchGrad }} />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[9px] font-black text-foreground uppercase tracking-wide truncate">{n(w).split(' ')[0]}</div>
+                    <div className="text-[8px] text-foreground/40 truncate">
+                      {lang.startsWith('ru') ? w.originRu : lang.startsWith('uz') ? w.originUz : w.originEn}
                     </div>
-                    {isActive && <Check className="w-3.5 h-3.5 text-brand-gold flex-shrink-0" />}
-                  </motion.button>
-                );
-              })}
+                  </div>
+                  {wood.id === w.id && <Check className="w-3.5 h-3.5 text-brand-gold flex-shrink-0" />}
+                </motion.button>
+              ))}
             </div>
-
-            {/* Wood detail */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeWood.id}
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="mt-2 bg-foreground/[0.03] p-3 rounded-xl border border-foreground/5 flex justify-between text-[9px]"
-              >
-                <div>
-                  <span className="text-foreground/40 uppercase tracking-wider block">
-                    {lang.startsWith('ru') ? 'Класс' : lang.startsWith('uz') ? 'Sinf' : 'Grade'}
-                  </span>
-                  <strong className="text-foreground font-black">
-                    {lang.startsWith('ru') ? activeWood.gradeRu : lang.startsWith('uz') ? activeWood.gradeUz : activeWood.gradeEn}
-                  </strong>
-                </div>
-                <div className="text-right">
-                  <span className="text-foreground/40 uppercase tracking-wider block">
-                    {lang.startsWith('ru') ? 'Надбавка' : lang.startsWith('uz') ? 'Qo\'shimcha narx' : 'Price add'}
-                  </span>
-                  <strong className="text-brand-gold font-black">+{formatPrice(activeWood.priceAdd)}</strong>
-                </div>
-              </motion.div>
-            </AnimatePresence>
           </div>
 
-          {/* 3. Finish Picker */}
+          {/* 3. Finish */}
           <div>
             <span className="text-[9px] uppercase font-black tracking-hero text-brand-gold block mb-3">
               3. {lang.startsWith('ru') ? 'Отделка поверхности' : lang.startsWith('uz') ? 'Sirt qoplama' : 'Surface Finish'}
             </span>
             <div className="flex gap-2">
-              {finishes.map(finish => {
-                const isActive = activeFinish.id === finish.id;
-                return (
-                  <motion.button
-                    key={finish.id}
-                    whileTap={{ scale: 0.94 }}
-                    onClick={() => setActiveFinish(finish)}
-                    className={`flex-1 py-3 px-2 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all duration-300 flex flex-col items-center gap-1.5 border ${
-                      isActive
-                        ? 'bg-brand-gold text-black border-brand-gold shadow-lg shadow-brand-gold/15'
-                        : 'bg-foreground/5 text-foreground/60 border-foreground/10 hover:border-brand-gold/30'
-                    }`}
-                  >
-                    <span className="text-base leading-none">{finish.icon}</span>
-                    <span>
-                      {lang.startsWith('ru') ? finish.nameRu : lang.startsWith('uz') ? finish.nameUz : finish.nameEn}
+              {finishes.map(f => (
+                <motion.button
+                  key={f.id}
+                  whileTap={{ scale: 0.94 }}
+                  onClick={() => setFinish(f)}
+                  className={`flex-1 py-3 px-2 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all flex flex-col items-center gap-1 border ${
+                    finish.id === f.id
+                      ? 'bg-brand-gold text-black border-brand-gold shadow-lg shadow-brand-gold/15'
+                      : 'bg-foreground/5 text-foreground/55 border-foreground/10 hover:border-brand-gold/30'
+                  }`}
+                >
+                  <span className="text-base leading-none">{f.icon}</span>
+                  <span>{lang.startsWith('ru') ? f.nameRu : lang.startsWith('uz') ? f.nameUz : f.nameEn}</span>
+                  {f.priceAdd > 0 && (
+                    <span className={`text-[7px] font-black ${finish.id === f.id ? 'text-black/60' : 'text-brand-gold'}`}>
+                      +{formatPrice(f.priceAdd)}
                     </span>
-                    {finish.priceAdd > 0 && (
-                      <span className={`text-[7px] font-black ${isActive ? 'text-black/60' : 'text-brand-gold'}`}>
-                        +{formatPrice(finish.priceAdd)}
-                      </span>
-                    )}
-                  </motion.button>
-                );
-              })}
+                  )}
+                </motion.button>
+              ))}
             </div>
           </div>
 
-          {/* 4. Size Picker */}
+          {/* 4. Size */}
           <div>
             <span className="text-[9px] uppercase font-black tracking-hero text-brand-gold block mb-3">
               4. {lang.startsWith('ru') ? 'Размер' : lang.startsWith('uz') ? 'O\'lcham' : 'Size'}
             </span>
             <div className="flex gap-2">
-              {sizes.map(size => {
-                const isActive = activeSize.id === size.id;
-                return (
-                  <motion.button
-                    key={size.id}
-                    whileTap={{ scale: 0.94 }}
-                    onClick={() => setActiveSize(size)}
-                    className={`flex-1 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-300 border ${
-                      isActive
-                        ? 'bg-foreground text-background border-foreground'
-                        : 'bg-foreground/5 text-foreground/60 border-foreground/10 hover:border-brand-gold/30'
-                    }`}
-                  >
-                    {size.id}
-                    <span className="block text-[7px] mt-0.5 font-normal normal-case tracking-normal">
-                      {label(size)}
-                    </span>
-                  </motion.button>
-                );
-              })}
+              {sizes.map(s => (
+                <motion.button
+                  key={s.id}
+                  whileTap={{ scale: 0.94 }}
+                  onClick={() => setSize(s)}
+                  className={`flex-1 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${
+                    size.id === s.id
+                      ? 'bg-foreground text-background border-foreground'
+                      : 'bg-foreground/5 text-foreground/55 border-foreground/10 hover:border-brand-gold/30'
+                  }`}
+                >
+                  {s.id}
+                  <span className="block text-[7px] mt-0.5 font-normal normal-case tracking-normal">{lb(s)}</span>
+                </motion.button>
+              ))}
             </div>
           </div>
 
-          {/* Price Breakdown */}
-          <div className="bg-foreground/[0.03] rounded-xl p-4 border border-foreground/5 space-y-2">
-            <div className="text-[8px] uppercase font-black tracking-widest text-foreground/40 mb-3">
+          {/* Price Breakdown toggle */}
+          <div className="bg-foreground/[0.03] rounded-xl border border-foreground/5 overflow-hidden">
+            <button
+              onClick={() => setShowBreakdown(v => !v)}
+              className="w-full flex justify-between items-center px-4 py-3 text-[9px] font-black uppercase tracking-widest text-foreground/50 hover:text-foreground transition-colors"
+            >
               {lang.startsWith('ru') ? 'Детализация цены' : lang.startsWith('uz') ? 'Narx tafsiloti' : 'Price Breakdown'}
-            </div>
-            {[
-              { label: lang.startsWith('ru') ? 'Базовая цена' : lang.startsWith('uz') ? 'Asosiy narx' : 'Base price', val: activeFurniture.basePrice },
-              { label: lang.startsWith('ru') ? 'Обивка' : lang.startsWith('uz') ? 'Qoplama' : 'Upholstery', val: activeFabric.priceAdd },
-              { label: lang.startsWith('ru') ? 'Дерево' : lang.startsWith('uz') ? 'Yog\'och' : 'Wood', val: activeWood.priceAdd },
-              { label: lang.startsWith('ru') ? 'Отделка' : lang.startsWith('uz') ? 'Qoplam' : 'Finish', val: activeFinish.priceAdd },
-            ].map(item => (
-              <div key={item.label} className="flex justify-between text-[9px]">
-                <span className="text-foreground/55">{item.label}</span>
-                <span className="font-black text-foreground">{formatPrice(item.val)}</span>
-              </div>
-            ))}
-            {activeSize.multiplier > 1 && (
-              <div className="flex justify-between text-[9px]">
-                <span className="text-foreground/55">
-                  {lang.startsWith('ru') ? 'Надбавка за размер' : lang.startsWith('uz') ? 'O\'lcham narxi' : 'Size premium'} (×{activeSize.multiplier})
-                </span>
-                <span className="font-black text-brand-gold">
-                  +{formatPrice(Math.round((activeFurniture.basePrice + activeFabric.priceAdd + activeWood.priceAdd + activeFinish.priceAdd) * (activeSize.multiplier - 1)))}
-                </span>
-              </div>
-            )}
-            <div className="flex justify-between text-[10px] pt-2 border-t border-foreground/5">
-              <span className="font-black uppercase tracking-wider">
-                {lang.startsWith('ru') ? 'Итого' : lang.startsWith('uz') ? 'Jami' : 'Total'}
-              </span>
-              <span className="font-black text-brand-gold">{formatPrice(totalPrice)}</span>
-            </div>
+              {showBreakdown ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            </button>
+
+            <AnimatePresence>
+              {showBreakdown && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="px-4 pb-4 space-y-2 border-t border-foreground/5"
+                >
+                  {[
+                    { label: lang.startsWith('ru') ? 'Базовая цена' : lang.startsWith('uz') ? 'Asosiy narx' : 'Base price',      val: base },
+                    { label: lang.startsWith('ru') ? 'Обивка'       : lang.startsWith('uz') ? 'Qoplama'     : 'Upholstery',       val: fabric.priceAdd },
+                    { label: lang.startsWith('ru') ? 'Дерево'       : lang.startsWith('uz') ? 'Yog\'och'    : 'Wood',             val: wood.priceAdd },
+                    { label: lang.startsWith('ru') ? 'Отделка'      : lang.startsWith('uz') ? 'Qoplam'      : 'Finish',           val: finish.priceAdd },
+                  ].map(item => (
+                    <div key={item.label} className="flex justify-between text-[9px] mt-2">
+                      <span className="text-foreground/50">{item.label}</span>
+                      <span className="font-black text-foreground">{formatPrice(item.val)}</span>
+                    </div>
+                  ))}
+                  {size.multiplier > 1 && (
+                    <div className="flex justify-between text-[9px]">
+                      <span className="text-foreground/50">
+                        {lang.startsWith('ru') ? 'Надбавка за размер' : lang.startsWith('uz') ? 'O\'lcham narxi' : 'Size premium'} (×{size.multiplier})
+                      </span>
+                      <span className="font-black text-brand-gold">+{formatPrice(sizeAdd)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-[10px] pt-2 border-t border-foreground/5">
+                    <span className="font-black uppercase tracking-wider">{lang.startsWith('ru') ? 'Итого' : lang.startsWith('uz') ? 'Jami' : 'Total'}</span>
+                    <span className="font-black text-brand-gold">{formatPrice(total)}</span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-          {/* Add to Cart Button */}
+          {/* Add to Cart */}
           <motion.button
             whileTap={{ scale: 0.98 }}
             onClick={handleAddToCart}
@@ -923,41 +494,28 @@ export const FurnitureConfigurator: React.FC<FurnitureConfiguratorProps> = ({ on
           >
             <AnimatePresence mode="wait">
               {addedToCart ? (
-                <motion.span
-                  key="done"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="flex items-center gap-2"
-                >
+                <motion.span key="done" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
                   <Check className="w-4 h-4" />
-                  {lang.startsWith('ru') ? 'Добавлено в корзину!' : lang.startsWith('uz') ? 'Savatga qo\'shildi!' : 'Added to Cart!'}
+                  {lang.startsWith('ru') ? 'Добавлено!' : lang.startsWith('uz') ? 'Qo\'shildi!' : 'Added!'}
                 </motion.span>
               ) : (
-                <motion.span
-                  key="add"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="flex items-center gap-2"
-                >
+                <motion.span key="add" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
                   <ShoppingBag className="w-4 h-4" />
                   {lang.startsWith('ru') ? 'Добавить в корзину' : lang.startsWith('uz') ? 'Savatga qo\'shish' : 'Add to Cart'}
-                  {' · '}
-                  {formatPrice(totalPrice)}
+                  {' · '}{formatPrice(total)}
                 </motion.span>
               )}
             </AnimatePresence>
           </motion.button>
 
-          {/* Express delivery note */}
-          <div className="flex items-center gap-2 text-[8px] text-foreground/40 font-bold uppercase tracking-widest justify-center">
+          {/* Delivery note */}
+          <div className="flex items-center gap-2 text-[8px] text-foreground/35 font-bold uppercase tracking-widest justify-center">
             <Zap className="w-3 h-3 text-brand-gold" />
             {lang.startsWith('ru')
-              ? 'Производство 15–30 рабочих дней · Бесплатная доставка по Ташкенту'
+              ? 'Производство 15–30 дней · Бесплатная доставка по Ташкенту'
               : lang.startsWith('uz')
-              ? 'Ishlab chiqarish 15–30 ish kuni · Toshkent bo\'yicha bepul yetkazib berish'
-              : 'Crafted in 15–30 working days · Free delivery in Tashkent'}
+              ? 'Ishlab chiqarish 15–30 kun · Toshkent bo\'yicha bepul yetkazib berish'
+              : 'Crafted in 15–30 days · Free delivery in Tashkent'}
           </div>
         </div>
       </div>
