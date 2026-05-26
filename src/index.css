@@ -113,6 +113,11 @@ body::before {
   overflow: hidden;
 }
 
+.bento-card.bg-brand-gold {
+  background: var(--color-brand-gold);
+}
+
+
 /* Golden Glow Tracer border */
 .glow-tracer {
   position: relative;
@@ -219,6 +224,11 @@ input[type="range"]::-webkit-slider-thumb:hover {
   border-radius: 2rem;
   transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.5s ease;
 }
+
+.bento-spotlight.bg-brand-gold {
+  background: var(--color-brand-gold);
+}
+
 
 .bento-spotlight::before {
   content: '';
