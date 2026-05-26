@@ -140,7 +140,7 @@ export const Navbar = () => {
               {/* Theme Toggle */}
               <button 
                 onClick={handleThemeToggle}
-                className="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-200 transition-all duration-300 hover:scale-110"
+                className="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-200 transition-[transform,background-color] duration-300 hover:scale-110 transform-gpu"
                 aria-label="Theme toggle"
               >
                 {theme === 'light' ? <Moon className="w-4.5 h-4.5" /> : <Sun className="w-4.5 h-4.5 text-brand-gold animate-spin-slow" />}
@@ -150,7 +150,7 @@ export const Navbar = () => {
             <Link 
               to="/cart" 
               className={cn(
-                "flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 hover:scale-110 border relative",
+                "flex items-center justify-center w-10 h-10 rounded-full transition-[transform,background-color,border-color,box-shadow] duration-300 hover:scale-110 transform-gpu border relative",
                 totalItems > 0
                   ? "bg-[#8C6A3C] dark:bg-brand-gold border-[#8C6A3C] dark:border-brand-gold text-white dark:text-black font-extrabold shadow-md shadow-brand-gold/15"
                   : "bg-neutral-100 dark:bg-neutral-800/60 border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700"
@@ -169,7 +169,7 @@ export const Navbar = () => {
             <Link 
               to={isLoggedIn ? "/profile" : "/auth"} 
               className={cn(
-                "p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all duration-300 hover:scale-110",
+                "p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-[transform,background-color,color] duration-300 hover:scale-110 transform-gpu",
                 location.pathname === "/profile" || location.pathname === "/auth" 
                   ? "text-[#8C6A3C] dark:text-brand-gold" 
                   : "text-neutral-700 dark:text-neutral-200"

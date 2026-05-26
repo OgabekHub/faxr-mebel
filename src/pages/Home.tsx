@@ -662,7 +662,7 @@ export const Home = () => {
             <motion.div 
               key={product.id}
               whileHover={{ y: -8 }}
-              className="bento-card glow-tracer p-6 group"
+              className="bento-card glow-tracer p-6 group flex flex-col h-full"
             >
               <div className="relative aspect-square rounded-[1.8rem] overflow-hidden mb-6">
                 <img src={product.image} alt={t(`product.${product.id}.name`)} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" />
@@ -678,12 +678,12 @@ export const Home = () => {
                     <Star className="w-3 h-3 fill-current" /> {product.rating}
                   </div>
                 </div>
-                <span className="price-tag text-lg font-bold">{formatPrice(product.price)}</span>
+                <span className="price-tag text-lg font-bold shrink-0 ml-2">{formatPrice(product.price)}</span>
               </div>
               
               <button 
                 onClick={() => handleAddToCart(product)}
-                className="w-full mt-2 py-3 bg-foreground/5 hover:bg-brand-gold hover:text-black rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-300 border border-foreground/5"
+                className="w-full mt-auto py-3 bg-foreground/5 hover:bg-brand-gold hover:text-black rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-300 border border-foreground/5"
               >
                 {t('common.addToCart')}
               </button>

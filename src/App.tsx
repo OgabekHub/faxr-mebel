@@ -38,6 +38,8 @@ const PageWrapper = ({ children }: { children: React.ReactNode }) => {
 const AppLayout = () => {
   const location = useLocation();
   const isAuthPage = location.pathname === '/auth';
+  const isCartPage = location.pathname === '/cart';
+  const isFooterHidden = isAuthPage || isCartPage;
 
   return (
     <div className="min-h-screen flex flex-col selection:bg-brand-gold selection:text-white">
@@ -56,7 +58,7 @@ const AppLayout = () => {
           </Routes>
         </AnimatePresence>
       </main>
-      {!isAuthPage && <Footer />}
+      {!isFooterHidden && <Footer />}
     </div>
   );
 };

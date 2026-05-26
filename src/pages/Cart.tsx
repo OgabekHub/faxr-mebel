@@ -87,7 +87,7 @@ ${addonsList}
 
   if (isSuccess) {
     return (
-      <div className="pt-44 pb-20 px-6 max-w-7xl mx-auto text-center h-screen flex flex-col items-center justify-center">
+      <div className="pt-32 px-6 max-w-7xl mx-auto text-center h-[calc(100vh-8rem)] flex flex-col items-center justify-center overflow-hidden">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -122,7 +122,7 @@ ${addonsList}
 
   if (cart.length === 0) {
     return (
-      <div className="pt-44 pb-20 px-6 max-w-7xl mx-auto text-center h-screen flex flex-col items-center justify-center">
+      <div className="pt-32 px-6 max-w-7xl mx-auto text-center h-[calc(100vh-8rem)] flex flex-col items-center justify-center overflow-hidden">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -147,7 +147,7 @@ ${addonsList}
   }
 
   return (
-    <div className="pt-36 pb-32 md:pb-44 px-6 max-w-7xl mx-auto">
+    <div className="pt-32 pb-24 px-6 max-w-7xl mx-auto min-h-[calc(100vh-9rem)]">
       {/* Visual checkout step timeline */}
       <div className="flex items-center justify-center gap-4 md:gap-8 mb-12">
         <div className={cn("flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest", !isCheckout ? "text-brand-gold" : "text-foreground/35")}>
