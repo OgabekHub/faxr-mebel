@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, ArrowRight, ArrowLeft, Ruler, Sparkles, Send, ShieldCheck, CheckCircle2, MessageSquareCode } from 'lucide-react';
 import { formatPrice } from '../lib/utils';
 import { createPortal } from 'react-dom';
+import { sendTelegramMessage } from '../services/telegram';
+
 
 
 interface BespokeModalProps {
@@ -44,15 +46,36 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
   const handleNext = () => setStep(step + 1);
   const handlePrev = () => setStep(step - 1);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!userName || !userPhone) return;
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+
+    const message = `
+👑 <b>YANGI VIP CONCIERGE BUYURTMA</b> 👑
+
+🎨 <b>Mahsulot:</b> ${t('product.' + product.id + '.name')}
+📐 <b>O'lchamlari:</b> ${length}cm x ${width}cm
+🪵 <b>Yog'och turi:</b> ${wood.toUpperCase()}
+🧵 <b>Mato turi:</b> ${fabric.toUpperCase()}
+🚚 <b>Yetkazish darajasi:</b> ${delivery === 'luxe' ? '🌟 LUXE CONCIERGE' : 'STANDARD'}
+
+👤 <b>Mijoz:</b> ${userName}
+📱 <b>Telefon:</b> ${userPhone}
+
+💰 <b>Taxminiy VIP narx:</b> <b>${formatPrice(finalPrice)}</b>
+📅 <b>Sana:</b> ${new Date().toLocaleString('uz-UZ')}
+`;
+
+    const result = await sendTelegramMessage(message);
+    setIsSubmitting(false);
+
+    if (result.success) {
       setSubmitted(true);
-    }, 2500);
+    } else {
+      alert("Xatolik yuz berdi. Iltimos, ma'lumotlarni tekshiring va qayta urinib ko'ring.");
+    }
   };
 
   const getBespokeJSON = () => {
