@@ -8,6 +8,7 @@ import { useCart } from '../context/CartContext';
 import { ARModal } from '../components/ARModal';
 import { BespokeModal } from '../components/BespokeModal';
 import { BentoSpotlight } from '../components/BentoSpotlight';
+import { FurnitureConfigurator } from '../components/FurnitureConfigurator';
 
 // Immersive Hero slides data
 const heroSlides = [
@@ -42,22 +43,6 @@ const heroSlides = [
   }
 ];
 
-// Configurator assets
-const configuratorFabrics = [
-  { id: 'velvet-emerald', nameUz: 'Italiya Zumrad Baxmali', nameRu: 'Итальянский Изумрудный Бархат', nameEn: 'Italian Emerald Velvet', color: '#064E3B', blendColor: 'rgba(5, 122, 85, 0.42)', type: 'Velvet', specUz: 'Martindale: 50,000 ishqalanish', specRu: 'Мартиндейл: 50,000 циклов', specEn: 'Martindale: 50,000 rubs' },
-  { id: 'velvet-navy', nameUz: 'Tungi Moviy Baxmal', nameRu: 'Полуночно-Синий Бархат', nameEn: 'Midnight Navy Velvet', color: '#1E3A8A', blendColor: 'rgba(30, 58, 138, 0.45)', type: 'Velvet', specUz: 'Martindale: 50,000 ishqalanish', specRu: 'Мартиндейл: 50,000 циклов', specEn: 'Martindale: 50,000 rubs' },
-  { id: 'velvet-crimson', nameUz: 'Qirol To\'q Qizil Baxmali', nameRu: 'Королевский Малиновый Бархат', nameEn: 'Imperial Crimson Velvet', color: '#7F1D1D', blendColor: 'rgba(127, 29, 29, 0.45)', type: 'Velvet', specUz: 'Martindale: 45,000 ishqalanish', specRu: 'Мартиндейл: 45,000 циклов', specEn: 'Martindale: 45,000 rubs' },
-  { id: 'leather-cognac', nameUz: 'Konyak Rangli Natural Charm', nameRu: 'Коньячная Натуральная Кожа', nameEn: 'Cognac Full-Grain Leather', color: '#78350F', blendColor: 'rgba(120, 53, 15, 0.38)', type: 'Leather', specUz: 'Premium Italiya Charmi', specRu: 'Премиум Итальянская Кожа', specEn: 'Premium Italian Grain' },
-  { id: 'leather-obsidian', nameUz: 'Obsidian Nappa Charmi', nameRu: 'Обсидиановая Кожа Наппа', nameEn: 'Obsidian Nappa Leather', color: '#111827', blendColor: 'rgba(17, 24, 39, 0.65)', type: 'Leather', specUz: 'Mikro-teshikli aeratsiya', specRu: 'Микроперфорированная кожа', specEn: 'Micro-perforated aeration' },
-  { id: 'linen-sand', nameUz: 'Tabiiy Qum Rang Zig\'ir', nameRu: 'Натуральный Песочный Лён', nameEn: 'Natural Sand Linen', color: '#D6C5B3', blendColor: 'rgba(214, 197, 179, 0.12)', type: 'Linen', specUz: 'Ekologik toza zig\'ir tolasi', specRu: 'Экологичный чистый лён', specEn: 'Eco-friendly natural fibers' },
-];
-
-const configuratorWoods = [
-  { id: 'walnut', nameUz: 'Amerika Qora Yong\'og\'i', nameRu: 'Американский Черный Орех', nameEn: 'American Black Walnut', color: '#402C1B', originUz: 'Shimoliy Amerika', originRu: 'Северная Америка', originEn: 'North America', typeUz: 'Oliy navli qattiq yog\'och', typeRu: 'Твердолиственная порода', typeEn: 'High-grade hardwood' },
-  { id: 'oak', nameUz: 'Yevropa Oq Emani', nameRu: 'Европейский Белый Дуб', nameEn: 'European White Oak', color: '#BFA37A', originUz: 'Fransiya', originRu: 'Франция', originEn: 'France', typeUz: 'Yellashga chidamli eman', typeRu: 'Устойчивый к влаге дуб', typeEn: 'Moisture-resistant oak' },
-  { id: 'beech', nameUz: 'Kavkaz Buk Yog\'og\'i', nameRu: 'Кавказский Бук', nameEn: 'Caucasian Beechwood', color: '#8C6A3C', originUz: 'Kavkaz tog\'lari', originRu: 'Кавказские горы', originEn: 'Caucasus Mountains', typeUz: 'Egishga qulay mustahkam', typeRu: 'Легко гнущийся прочный бук', typeEn: 'Steamed pliable beech' },
-];
-
 // Premium locally hosted generated mebel assets
 const featuredProducts = [
   {
@@ -86,43 +71,9 @@ const featuredProducts = [
   }
 ];
 
-const woodMaterials = [
-  { id: 'walnut', color: 'bg-[#402C1B]', texture: 'https://images.unsplash.com/photo-1541123437800-1bb1317badc2?q=80&w=400' },
-  { id: 'oak', color: 'bg-[#BFA37A]', texture: 'https://images.unsplash.com/photo-1533090161767-e6ffed986c88?q=80&w=400' },
-  { id: 'birch', color: 'bg-[#EBDCB9]', texture: 'https://images.unsplash.com/photo-1604014237800-1c9102c219da?q=80&w=400' }
-];
-
-const fabricMaterials = [
-  { id: 'velvet', color: 'bg-emerald-800' },
-  { id: 'leather', color: 'bg-amber-950' }
-];
-
 export const Home = () => {
   const { t, i18n } = useTranslation();
   const { addToCart } = useCart();
-  const [selectedWood, setSelectedWood] = useState(woodMaterials[0]);
-  const [selectedFabric, setSelectedFabric] = useState(fabricMaterials[0]);
-
-  // Customizer States
-  const [activeConfigFabric, setActiveConfigFabric] = useState(configuratorFabrics[0]);
-  const [activeConfigWood, setActiveConfigWood] = useState(configuratorWoods[0]);
-
-  const handleAddCustomToCart = () => {
-    const customId = `1-custom-${Date.now()}`;
-    const fabricName = i18n.language.startsWith('ru') ? activeConfigFabric.nameRu : i18n.language.startsWith('uz') ? activeConfigFabric.nameUz : activeConfigFabric.nameEn;
-    const woodName = i18n.language.startsWith('ru') ? activeConfigWood.nameRu : i18n.language.startsWith('uz') ? activeConfigWood.nameUz : activeConfigWood.nameEn;
-    
-    const customProduct = {
-      id: customId,
-      name: `${t('product.1.name')} (Bespoke: ${fabricName} / ${woodName})`,
-      price: 12000000 + 1500000, // custom luxury upholstery markup
-      image: '/images/sofa_beige.png',
-      category: 'Sofa'
-    };
-    addToCart(customProduct);
-    setAddedToast(customProduct.name);
-    setTimeout(() => setAddedToast(null), 3000);
-  };
 
   const [addedToast, setAddedToast] = useState<string | null>(null);
   const [isAROpen, setIsAROpen] = useState(false);
@@ -420,229 +371,7 @@ export const Home = () => {
 
       </div>
 
-      <section className="py-16 border-t border-foreground/5 relative">
-        <div className="text-center mb-12">
-          <span className="text-brand-gold uppercase tracking-hero text-[10px] font-black block">{t('materials.teaser')}</span>
-          <h2 className="text-3xl md:text-5xl font-editorial-title mt-2">
-            {i18n.language.startsWith('ru') ? 'Интерактивный' : i18n.language.startsWith('uz') ? 'Interaktiv' : 'Interactive'}{' '}
-            <span className="font-bold italic gold-foil-text">
-              {i18n.language.startsWith('ru') ? 'Конструктор' : i18n.language.startsWith('uz') ? 'Konstruktor' : 'Customizer'}
-            </span>
-          </h2>
-          <p className="text-xs text-foreground/55 max-w-xl mx-auto mt-4 font-light leading-relaxed">
-            {i18n.language.startsWith('ru') 
-              ? 'Выберите изысканные материалы и создайте мебель своей мечты. Наш интерактивный конструктор поможет визуализировать ваше решение в один клик.' 
-              : i18n.language.startsWith('uz') 
-              ? 'Noyob materiallarni tanlang va orzuingizdagi mebelni yarating. Interaktiv konstruktorimiz birgina bosish orqali natijani ko\'rishga yordam beradi.' 
-              : 'Select exquisite materials and craft your dream furniture piece. Our customizer visualizes your dynamic choices in real-time.'}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-stretch">
-          
-          {/* Left Column: Live Visualizer Preview */}
-          <div className="lg:col-span-7 flex flex-col justify-between bento-card p-6 md:p-8 relative min-h-[420px] bg-foreground/[0.02]">
-            
-            {/* Visualizer Header */}
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <span className="text-[9px] uppercase font-black tracking-widest text-brand-gold">{t('materials.wood.texture')}</span>
-                <h3 className="text-xl font-bold font-editorial-title text-foreground">
-                  {i18n.language.startsWith('ru') ? 'Визуализация софы' : i18n.language.startsWith('uz') ? 'Sofa Vizualizatsiyasi' : 'Sofa Visualizer'}
-                </h3>
-              </div>
-              <div className="glass px-4 py-1.5 rounded-full text-[9px] font-black text-brand-gold uppercase tracking-widest border border-brand-gold/20">
-                Live 3D-Lite
-              </div>
-            </div>
-
-            {/* Sofa preview container with colored overlay tinting */}
-            <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden bg-foreground/[0.03] flex items-center justify-center p-8 border border-foreground/5 shadow-inner">
-              
-              {/* Main sofa image (using neutral beige base for best color-tinting overlay) */}
-              <img 
-                src="/images/sofa_beige.png" 
-                alt="Sofa Configurator Base" 
-                className="w-full h-full object-contain mix-blend-normal transition-all duration-700 select-none pointer-events-none drop-shadow-2xl" 
-              />
-              
-              {/* Dynamic Color Blend Layer */}
-              <div 
-                className="absolute inset-0 transition-all duration-1000 pointer-events-none mix-blend-multiply opacity-65"
-                style={{ 
-                  backgroundColor: activeConfigFabric.blendColor,
-                }}
-              />
-              
-              {/* Floating wood legs indicator */}
-              <div className="absolute bottom-4 left-4 glass px-4 py-2 rounded-full border border-white/10 flex items-center gap-2.5 shadow-lg">
-                <span className="text-[8px] uppercase font-black tracking-widest text-foreground/55">
-                  {i18n.language.startsWith('ru') ? 'Материал ножек:' : i18n.language.startsWith('uz') ? 'Oyoqlari:' : 'Legs Wood:'}
-                </span>
-                <span className="w-3 h-3 rounded-full border border-white/30" style={{ backgroundColor: activeConfigWood.color }} />
-                <span className="text-[9px] font-black text-foreground uppercase tracking-widest">
-                  {i18n.language.startsWith('ru') ? activeConfigWood.nameRu.split(' ')[0] : i18n.language.startsWith('uz') ? activeConfigWood.nameUz.split(' ')[0] : activeConfigWood.nameEn.split(' ')[0]}
-                </span>
-              </div>
-            </div>
-
-            {/* Selection Summary */}
-            <div className="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-6 border-t border-foreground/5">
-              <div className="space-y-1">
-                <div className="text-[8px] uppercase font-black tracking-widest text-foreground/40">
-                  {i18n.language.startsWith('ru') ? 'Выбранная конфигурация' : i18n.language.startsWith('uz') ? 'Tanlangan konfiguratsiya' : 'Active Specification'}
-                </div>
-                <div className="text-xs font-bold text-foreground">
-                  <span className="text-brand-gold">
-                    {i18n.language.startsWith('ru') ? activeConfigFabric.nameRu : i18n.language.startsWith('uz') ? activeConfigFabric.nameUz : activeConfigFabric.nameEn}
-                  </span>
-                  {' + '}
-                  <span>
-                    {i18n.language.startsWith('ru') ? activeConfigWood.nameRu : i18n.language.startsWith('uz') ? activeConfigWood.nameUz : activeConfigWood.nameEn}
-                  </span>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-[8px] uppercase font-black tracking-widest text-foreground/40">
-                  {i18n.language.startsWith('ru') ? 'Ориентировочная цена' : i18n.language.startsWith('uz') ? 'Taxminiy narxi' : 'Estimated Price'}
-                </div>
-                <span className="price-tag text-xl font-bold">{formatPrice(12000000 + 1500000)}</span>
-              </div>
-            </div>
-
-          </div>
-
-          {/* Right Column: Customizer Selector Options */}
-          <div className="lg:col-span-5 flex flex-col justify-between bento-card p-6 md:p-8">
-            <div className="space-y-6">
-              
-              {/* Fabric Picker Section */}
-              <div>
-                <span className="text-[9px] uppercase font-black tracking-hero text-brand-gold block mb-3">
-                  1. {i18n.language.startsWith('ru') ? 'Выберите ткань / материал' : i18n.language.startsWith('uz') ? 'Mato / materialni tanlang' : 'Select Upholstery'}
-                </span>
-                
-                <div className="grid grid-cols-6 gap-2">
-                  {configuratorFabrics.map((fabric) => {
-                    const isActive = activeConfigFabric.id === fabric.id;
-                    return (
-                      <button
-                        key={fabric.id}
-                        onClick={() => setActiveConfigFabric(fabric)}
-                        className={`aspect-square rounded-full transition-all duration-300 relative flex items-center justify-center ${
-                          isActive ? 'ring-2 ring-brand-gold ring-offset-2 dark:ring-offset-black scale-110' : 'hover:scale-105'
-                        }`}
-                        style={{ backgroundColor: fabric.color }}
-                        title={i18n.language.startsWith('ru') ? fabric.nameRu : i18n.language.startsWith('uz') ? fabric.nameUz : fabric.nameEn}
-                      >
-                        {isActive && (
-                          <div className="w-2.5 h-2.5 bg-white dark:bg-black rounded-full shadow-md" />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div className="mt-3 bg-foreground/[0.03] p-3.5 rounded-xl border border-foreground/5">
-                  <div className="text-xs font-black text-foreground">
-                    {i18n.language.startsWith('ru') ? activeConfigFabric.nameRu : i18n.language.startsWith('uz') ? activeConfigFabric.nameUz : activeConfigFabric.nameEn}
-                  </div>
-                  <div className="text-[10px] text-foreground/45 mt-1 italic leading-relaxed">
-                    {i18n.language.startsWith('ru') ? activeConfigFabric.specRu : i18n.language.startsWith('uz') ? activeConfigFabric.specUz : activeConfigFabric.specEn}
-                  </div>
-                </div>
-              </div>
-
-              {/* Wood Picker Section */}
-              <div>
-                <span className="text-[9px] uppercase font-black tracking-hero text-brand-gold block mb-3">
-                  2. {i18n.language.startsWith('ru') ? 'Материал деревянных деталей' : i18n.language.startsWith('uz') ? 'Yog\'och materialini tanlang' : 'Legs & Frame Wood'}
-                </span>
-
-                <div className="flex gap-2">
-                  {configuratorWoods.map((wood) => {
-                    const isActive = activeConfigWood.id === wood.id;
-                    return (
-                      <button
-                        key={wood.id}
-                        onClick={() => setActiveConfigWood(wood)}
-                        className={`flex-1 py-3 px-2.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 ${
-                          isActive 
-                            ? 'bg-brand-gold text-black shadow-lg shadow-brand-gold/15' 
-                            : 'bg-foreground/5 text-foreground/60 hover:bg-foreground/10'
-                        }`}
-                      >
-                        <span className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: wood.color }} />
-                        {i18n.language.startsWith('ru') ? wood.nameRu.split(' ')[0] : i18n.language.startsWith('uz') ? wood.nameUz.split(' ')[0] : wood.nameEn.split(' ')[0]}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div className="mt-3 space-y-2.5 bg-foreground/[0.03] p-3.5 rounded-xl border border-foreground/5 text-[10px]">
-                  <div className="flex justify-between">
-                    <span className="text-foreground/45 uppercase tracking-wider">
-                      {i18n.language.startsWith('ru') ? 'Тип дерева' : i18n.language.startsWith('uz') ? 'Yog\'och turi' : 'Hardness Type'}
-                    </span>
-                    <strong className="text-foreground font-black">
-                      {i18n.language.startsWith('ru') ? activeConfigWood.typeRu : i18n.language.startsWith('uz') ? activeConfigWood.typeUz : activeConfigWood.typeEn}
-                    </strong>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-foreground/45 uppercase tracking-wider">
-                      {i18n.language.startsWith('ru') ? 'Место происхождения' : i18n.language.startsWith('uz') ? 'Kelib chiqishi' : 'Wood Origin'}
-                    </span>
-                    <strong className="text-brand-gold font-black">
-                      {i18n.language.startsWith('ru') ? activeConfigWood.originRu : i18n.language.startsWith('uz') ? activeConfigWood.originUz : activeConfigWood.originEn}
-                    </strong>
-                  </div>
-                </div>
-              </div>
-
-              {/* Durability Stats Dashboard */}
-              <div className="pt-4 border-t border-foreground/5">
-                <span className="text-[9px] uppercase font-black tracking-hero text-foreground/40 block mb-3">
-                  {i18n.language.startsWith('ru') ? 'Технические Показатели' : i18n.language.startsWith('uz') ? 'Texnik Ko\'rsatkichlar' : 'Artisan Craftsmanship Specs'}
-                </span>
-                
-                <div className="space-y-3.5">
-                  <div>
-                    <div className="flex justify-between text-[9px] font-black uppercase tracking-wider text-foreground/60 mb-1">
-                      <span>{i18n.language.startsWith('ru') ? 'Стойкость обивки' : i18n.language.startsWith('uz') ? 'Mato chidamliligi' : 'Abrasion Resistance'}</span>
-                      <span className="text-brand-gold">98%</span>
-                    </div>
-                    <div className="h-1 bg-foreground/5 rounded-full overflow-hidden">
-                      <div className="h-full bg-brand-gold w-[98%] transition-all duration-1000" />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-[9px] font-black uppercase tracking-wider text-foreground/60 mb-1">
-                      <span>{i18n.language.startsWith('ru') ? 'Гарантия сборки' : i18n.language.startsWith('uz') ? 'Yig\'ish sifati kafolati' : 'Lifetime Joinery Warranty'}</span>
-                      <span className="text-brand-gold">100%</span>
-                    </div>
-                    <div className="h-1 bg-foreground/5 rounded-full overflow-hidden">
-                      <div className="h-full bg-brand-gold w-full transition-all duration-1000" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Custom order action */}
-            <div className="mt-8 pt-6 border-t border-foreground/5">
-              <button
-                onClick={handleAddCustomToCart}
-                className="w-full bg-brand-gold hover:bg-brand-gold-muted text-black py-4 rounded-xl font-extrabold text-[10px] uppercase tracking-hero transition-all duration-300 shadow-xl shadow-brand-gold/15 flex items-center justify-center gap-2 hover:scale-[1.01]"
-              >
-                {i18n.language.startsWith('ru') ? 'Добавить эту софу в корзину' : i18n.language.startsWith('uz') ? 'Savatga ushbu konfiguratsiyani qo\'shish' : 'Add custom sofa to cart'}
-              </button>
-            </div>
-
-          </div>
-
-        </div>
-      </section>
+      <FurnitureConfigurator onAddedToCart={(name) => { setAddedToast(name); setTimeout(() => setAddedToast(null), 3000); }} />
 
       {/* Featured Products Section */}
       <section className="py-12">
