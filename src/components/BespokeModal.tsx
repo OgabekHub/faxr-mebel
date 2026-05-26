@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, ArrowRight, ArrowLeft, Ruler, Sparkles, Send, ShieldCheck, CheckCircle2, MessageSquareCode } from 'lucide-react';
 import { formatPrice } from '../lib/utils';
 import { createPortal } from 'react-dom';
 import { sendTelegramMessage } from '../services/telegram';
+
 
 
 
@@ -34,6 +35,22 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  // Reset modal state on open
+  useEffect(() => {
+    if (isOpen) {
+      setStep(1);
+      setLength(250);
+      setWidth(100);
+      setWood('walnut');
+      setFabric('velvet');
+      setDelivery('luxe');
+      setUserName('');
+      setUserPhone('');
+      setIsSubmitting(false);
+      setSubmitted(false);
+    }
+  }, [isOpen]);
 
   // Calculate customized premium markup price based on volume
   const volumeMultiplier = (length * width) / 25000;
