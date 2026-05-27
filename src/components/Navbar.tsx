@@ -27,11 +27,14 @@ export const Navbar = () => {
   // Circular Theme Wipe Switcher Coords/State
   const [wipeActive, setWipeActive] = useState(false);
   const [wipeCoords, setWipeCoords] = useState({ x: 0, y: 0 });
+  const [targetTheme, setTargetTheme] = useState<'light' | 'dark' | null>(null);
 
   const handleThemeToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
     const x = e.clientX;
     const y = e.clientY;
     setWipeCoords({ x, y });
+    const nextTheme = theme === 'light' ? 'dark' : 'light';
+    setTargetTheme(nextTheme);
     setWipeActive(true);
 
     setTimeout(() => {
@@ -40,6 +43,7 @@ export const Navbar = () => {
 
     setTimeout(() => {
       setWipeActive(false);
+      setTargetTheme(null);
     }, 900);
   };
 
@@ -242,7 +246,10 @@ export const Navbar = () => {
     </nav>
     {wipeActive && (
       <div 
-        className="circular-transition-overlay animate-circular-wipe"
+        className={cn(
+          "circular-transition-overlay animate-circular-wipe",
+          targetTheme === 'dark' ? "bg-[#050505]" : "bg-[#F9F9F6]"
+        )}
         style={{ 
           // @ts-ignore
           '--wipe-x': `${wipeCoords.x}px`,

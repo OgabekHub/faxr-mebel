@@ -314,24 +314,30 @@ input[type="range"]::-webkit-slider-thumb:hover {
   right: 0;
   bottom: 0;
   z-index: 9999;
-  background-color: var(--background);
   pointer-events: none;
   clip-path: circle(0% at 50% 50%);
 }
 
 .animate-circular-wipe {
-  animation: circularWipe 0.85s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+  animation: circularWipe 0.9s cubic-bezier(0.76, 0, 0.24, 1) forwards;
 }
 
 @keyframes circularWipe {
   0% {
     clip-path: circle(0% at var(--wipe-x, 50%) var(--wipe-y, 50%));
+    opacity: 1;
   }
   50% {
     clip-path: circle(100% at var(--wipe-x, 50%) var(--wipe-y, 50%));
+    opacity: 1;
+  }
+  65% {
+    clip-path: circle(150% at var(--wipe-x, 50%) var(--wipe-y, 50%));
+    opacity: 1;
   }
   100% {
     clip-path: circle(150% at var(--wipe-x, 50%) var(--wipe-y, 50%));
+    opacity: 0;
   }
 }
 
