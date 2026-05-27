@@ -477,6 +477,7 @@ export const Home = () => {
         onClose={() => setIsAROpen(false)}
         productName={t(`product.${featuredProducts[0].id}.name`)}
         productImage={featuredProducts[0].image}
+        productId={featuredProducts[0].id}
       />
 
       <BespokeModal 

@@ -20,6 +20,7 @@ import { AnimatePresence, motion } from 'motion/react';
 
 import { About } from './pages/About';
 import { Profile } from './pages/Profile';
+import { ARView } from './pages/ARView';
 
 const PageWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -65,6 +66,7 @@ const AppLayout = () => {
             <Route path="/contact" element={<PageWrapper><Contact /></PageWrapper>} />
             <Route path="/cart" element={<PageWrapper><Cart /></PageWrapper>} />
             <Route path="/profile" element={<PageWrapper><Profile /></PageWrapper>} />
+            <Route path="/ar/:productId" element={<ARView />} />
           </Routes>
         </AnimatePresence>
       </main>

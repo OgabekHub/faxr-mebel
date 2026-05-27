@@ -496,6 +496,7 @@ export const Shop = () => {
           onClose={() => setActiveARProduct(null)}
           productName={t('product.' + activeARProduct.id + '.name')}
           productImage={activeARProduct.image}
+          productId={String(activeARProduct.id)}
         />
       )}
 

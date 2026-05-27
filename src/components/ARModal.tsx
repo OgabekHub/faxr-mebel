@@ -1,41 +1,69 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Camera, Sparkles, QrCode, Smartphone, Check } from 'lucide-react';
+import { X, Smartphone, Check, ExternalLink, RotateCcw, Info } from 'lucide-react';
 import { createPortal } from 'react-dom';
+import { QRCodeSVG } from 'qrcode.react';
 
+const APP_URL = import.meta.env.VITE_APP_URL || 'https://faxr-mebel.vercel.app';
 
 interface ARModalProps {
   isOpen: boolean;
   onClose: () => void;
   productName: string;
   productImage: string;
+  productId?: string;
 }
 
-export const ARModal: React.FC<ARModalProps> = ({ isOpen, onClose, productName, productImage }) => {
+export const ARModal: React.FC<ARModalProps> = ({
+  isOpen,
+  onClose,
+  productName,
+  productImage,
+  productId = '1',
+}) => {
   const { t } = useTranslation();
-  const [scanning, setScanning] = useState(true);
-  const [dots, setDots] = useState<number[]>([]);
+  const [modelScriptLoaded, setModelScriptLoaded] = useState(false);
+  const [modelLoaded, setModelLoaded] = useState(false);
+  const [qrCopied, setQrCopied] = useState(false);
 
+  const arUrl = `${APP_URL}/ar/${productId}`;
+
+  // Reset model state when modal reopens
   useEffect(() => {
     if (isOpen) {
-      setScanning(true);
-      // Generate some random positions for AR tracking dots
-      const newDots = Array.from({ length: 18 }, () => Math.floor(Math.random() * 100));
-      setDots(newDots);
-
-      const timer = setTimeout(() => {
-        setScanning(false);
-      }, 3500);
-
-      return () => clearTimeout(timer);
+      setModelLoaded(false);
     }
   }, [isOpen]);
+
+  // Dynamically load model-viewer script once
+  useEffect(() => {
+    if (document.querySelector('script[data-model-viewer]')) {
+      setModelScriptLoaded(true);
+      return;
+    }
+    const script = document.createElement('script');
+    script.type = 'module';
+    script.src = 'https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js';
+    script.setAttribute('data-model-viewer', 'true');
+    script.onload = () => setModelScriptLoaded(true);
+    document.head.appendChild(script);
+  }, []);
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(arUrl);
+      setQrCopied(true);
+      setTimeout(() => setQrCopied(false), 2500);
+    } catch {
+      // fallback
+    }
+  };
 
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -50,7 +78,7 @@ export const ARModal: React.FC<ARModalProps> = ({ isOpen, onClose, productName, 
             className="w-full max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden bg-background border border-foreground/10 rounded-[2rem] md:rounded-[3rem] shadow-2xl relative"
           >
             {/* Close Button */}
-            <button 
+            <button
               onClick={onClose}
               className="absolute top-6 right-6 z-50 w-10 h-10 rounded-full bg-black/40 md:bg-foreground/5 hover:bg-black/60 md:hover:bg-foreground/10 flex items-center justify-center border border-white/10 md:border-foreground/10 text-white md:text-foreground transition-all duration-300"
             >
@@ -58,110 +86,161 @@ export const ARModal: React.FC<ARModalProps> = ({ isOpen, onClose, productName, 
             </button>
 
             <div className="grid grid-cols-1 md:grid-cols-12 min-h-[500px]">
-              
-              {/* Left Side: AR Viewport Simulation */}
-              <div className="md:col-span-7 bg-black relative flex flex-col justify-between p-8 overflow-hidden min-h-[350px]">
-                {/* Background Camera Feed Simulation */}
-                <div className="absolute inset-0 bg-cover bg-center opacity-40 brightness-75 scale-105" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=1000')` }}></div>
-                
-                {/* Mebel placed in room */}
-                {!scanning && (
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.7, y: 80 }}
-                    animate={{ opacity: 1, scale: 1, y: 40 }}
-                    className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none"
-                  >
-                    <img 
-                      src={productImage} 
-                      alt={productName} 
-                      className="w-80 object-contain drop-shadow-[0_35px_35px_rgba(0,0,0,0.8)] filter brightness-95 contrast-105"
+
+              {/* Left Side: 3D Model Viewer */}
+              <div className="md:col-span-7 bg-[#0A0A0A] relative flex flex-col overflow-hidden min-h-[360px] md:min-h-[500px]">
+
+                {/* Loading overlay */}
+                {!modelLoaded && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-[#0A0A0A]">
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }}
+                      className="w-10 h-10 border-2 border-brand-gold/20 border-t-brand-gold rounded-full mb-4"
                     />
-                  </motion.div>
+                    <p className="text-[8px] uppercase tracking-[0.3em] text-white/30 font-black">
+                      3D Model yuklanmoqda...
+                    </p>
+                  </div>
                 )}
 
-                {/* Top overlay */}
-                <div className="relative z-10 flex items-center gap-2">
-                  <div className="px-3.5 py-1.5 rounded-full bg-black/60 border border-white/20 backdrop-blur flex items-center gap-2 text-white">
-                    <span className="w-2.5 h-2.5 rounded-full bg-brand-gold animate-ping"></span>
-                    <span className="text-[9px] uppercase tracking-widest font-black">Live AR Room Scanner</span>
+                {/* model-viewer */}
+                {modelScriptLoaded && (
+                  // @ts-ignore
+                  <model-viewer
+                    src="/models/SheenChair.glb"
+                    alt={productName}
+                    camera-controls
+                    auto-rotate
+                    auto-rotate-delay={1000}
+                    rotation-per-second="20deg"
+                    shadow-intensity="1"
+                    shadow-softness="0.7"
+                    exposure="1.05"
+                    loading="eager"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      minHeight: '360px',
+                      background: 'transparent',
+                      '--poster-color': 'transparent',
+                    }}
+                    onLoad={() => setModelLoaded(true)}
+                    interaction-prompt="none"
+                  />
+                )}
+
+                {/* Top overlay badges */}
+                <div className="absolute top-5 left-5 z-10 flex items-center gap-2 pointer-events-none">
+                  <div className="px-3 py-1.5 rounded-full bg-black/60 border border-white/10 backdrop-blur flex items-center gap-2 text-white">
+                    <span className="w-2 h-2 rounded-full bg-brand-gold animate-pulse" />
+                    <span className="text-[8px] uppercase tracking-[0.25em] font-black">3D LIVE VIEW</span>
                   </div>
                 </div>
 
-                {/* Scanning indicator */}
-                {scanning ? (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center z-20 bg-black/35 backdrop-blur-[2px]">
-                    {/* Scanning radar line */}
-                    <motion.div 
-                      animate={{ y: [-150, 150] }}
-                      transition={{ repeat: Infinity, duration: 2.2, ease: "linear" }}
-                      className="w-full h-1 bg-gradient-to-r from-transparent via-brand-gold to-transparent shadow-[0_0_15px_#BFA37A] absolute left-0"
-                    />
-                    {/* Mock feature points */}
-                    <div className="absolute inset-0 grid grid-cols-6 grid-rows-6 p-12 gap-8 pointer-events-none">
-                      {dots.map((dot, idx) => (
-                        <motion.div 
-                          key={idx}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: [0, 0.8, 0] }}
-                          transition={{ delay: idx * 0.1, repeat: Infinity, duration: 1.5 }}
-                          className="w-1.5 h-1.5 bg-brand-gold rounded-full self-center justify-self-center shadow-[0_0_8px_#BFA37A]"
-                        />
-                      ))}
+                {/* Bottom: 3D control hint */}
+                {modelLoaded && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="absolute bottom-4 left-4 right-4 pointer-events-none"
+                  >
+                    <div className="flex items-center justify-center gap-3 text-white/25">
+                      <span className="text-[7px] uppercase tracking-widest font-bold">↕ Kattalashtirish</span>
+                      <span className="w-px h-2.5 bg-white/10" />
+                      <RotateCcw className="w-2.5 h-2.5" />
+                      <span className="text-[7px] uppercase tracking-widest font-bold">Aylantirish</span>
                     </div>
-                    <Camera className="w-10 h-10 text-brand-gold animate-pulse mb-3" />
-                    <span className="text-[10px] uppercase tracking-hero text-white font-black">{t('contact.form.submitting')}</span>
-                  </div>
-                ) : (
-                  /* Success tracking feedback */
-                  <div className="absolute bottom-8 left-8 right-8 z-10 flex justify-between items-end">
-                    <div className="flex gap-2">
-                      <div className="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500 flex items-center justify-center text-emerald-400">
-                        <Check className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <h4 className="text-[10px] uppercase font-black text-white tracking-wider">Surface Anchored</h4>
-                        <p className="text-[9px] text-white/50 font-light italic">Placed: {productName}</p>
-                      </div>
-                    </div>
-                  </div>
+                  </motion.div>
                 )}
               </div>
 
-              {/* Right Side: QR Code scan information */}
-              <div className="md:col-span-5 p-8 flex flex-col justify-between">
-                <div>
-                  <span className="text-brand-gold uppercase tracking-hero text-[10px] font-black block">Kengaytirilgan Borliq</span>
-                  <h3 className="text-2xl font-editorial-title font-bold mt-2 pr-6">AR texnologiyasi orqali ko'rish</h3>
-                  <p className="text-[11px] text-foreground/50 leading-relaxed font-light mt-3">
-                    Ushbu premium mebelni uyingizga qanchalik mos kelishini aniqlash uchun kameradan foydalaning. Mobil kamerangizni QR kod ustiga olib boring.
+              {/* Right Side: QR Code + Info */}
+              <div className="md:col-span-5 p-7 flex flex-col justify-between">
+                <div className="pr-12 md:pr-0">
+                  <span className="text-brand-gold uppercase tracking-[0.3em] text-[9px] font-black block">
+                    Kengaytirilgan Borliq
+                  </span>
+                  <h3 className="text-xl font-bold mt-2 leading-tight">
+                    Mebelni O'z Xonangizda Ko'ring
+                  </h3>
+                  <p className="text-[10px] text-foreground/45 leading-relaxed font-light mt-2">
+                    Telefoningiz kamerasini quyidagi QR-kodga qarating va mebelni haqiqiy xonangizga 3D formatida joylashtiring.
                   </p>
                 </div>
 
-                {/* QR Code Graphic and Instructions */}
-                <div className="bg-foreground/5 border border-foreground/5 rounded-[2rem] p-6 my-6 flex flex-col items-center gap-4 text-center">
-                  <div className="w-36 h-36 bg-white p-3 rounded-2xl shadow-xl flex items-center justify-center relative group overflow-hidden">
-                    {/* Golden luxury QR visual */}
-                    <QrCode className="w-full h-full text-black" />
-                    <div className="absolute inset-0 bg-brand-gold/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[1px]">
-                      <Sparkles className="w-8 h-8 text-brand-gold" />
+                {/* QR Code Section */}
+                <div className="bg-foreground/5 border border-foreground/5 rounded-[1.75rem] p-5 my-4 flex flex-col items-center gap-4 text-center">
+
+                  {/* QR Code */}
+                  <div className="relative group">
+                    <div className="w-40 h-40 bg-white p-3 rounded-2xl shadow-xl flex items-center justify-center overflow-hidden">
+                      <QRCodeSVG
+                        value={arUrl}
+                        size={136}
+                        level="M"
+                        includeMargin={false}
+                        fgColor="#050505"
+                        bgColor="#FFFFFF"
+                      />
                     </div>
+                    {/* Gold corner accents */}
+                    <div className="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-brand-gold rounded-tl-lg" />
+                    <div className="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-brand-gold rounded-tr-lg" />
+                    <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-brand-gold rounded-bl-lg" />
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-brand-gold rounded-br-lg" />
                   </div>
 
+                  {/* Scan label */}
                   <div>
-                    <div className="flex items-center justify-center gap-2 text-brand-gold">
+                    <div className="flex items-center justify-center gap-1.5 text-brand-gold">
                       <Smartphone className="w-3.5 h-3.5" />
-                      <span className="text-[9px] uppercase font-black tracking-widest">Kamerani Yaqinlashtiring</span>
+                      <span className="text-[9px] uppercase font-black tracking-widest">
+                        Kamerani Yaqinlashtiring
+                      </span>
                     </div>
-                    <p className="text-[9px] text-foreground/45 mt-1 font-semibold italic">iOS & Android tizimlarini to'liq qo'llab-quvvatlaydi</p>
+                    <p className="text-[8px] text-foreground/35 mt-1 font-medium italic">
+                      iOS & Android qurilmalarida ishlaydi
+                    </p>
+                  </div>
+
+                  {/* Info note */}
+                  <div className="flex items-start gap-2 bg-brand-gold/5 border border-brand-gold/15 rounded-xl p-2.5 text-left">
+                    <Info className="w-3 h-3 text-brand-gold shrink-0 mt-0.5" />
+                    <p className="text-[8px] text-foreground/50 leading-relaxed">
+                      QR kodni skaner qilgach, "O'z xonangizda ko'ring" tugmasini bosing
+                    </p>
                   </div>
                 </div>
 
-                <button 
-                  onClick={onClose}
-                  className="w-full py-4 bg-brand-gold text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-gold-muted transition-all duration-300 shadow-xl shadow-brand-gold/15"
-                >
-                  Tushunarli / Yopish
-                </button>
+                {/* Action buttons */}
+                <div className="space-y-2.5">
+                  {/* Copy link */}
+                  <button
+                    onClick={handleCopyLink}
+                    className="w-full py-3 flex items-center justify-center gap-2 bg-foreground/5 border border-foreground/10 hover:border-brand-gold/40 rounded-2xl text-[9px] font-black uppercase tracking-widest text-foreground/60 hover:text-brand-gold transition-all duration-300"
+                  >
+                    {qrCopied ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-emerald-400" />
+                        <span className="text-emerald-400">Havola nusxalandi!</span>
+                      </>
+                    ) : (
+                      <>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        Havolani nusxalash
+                      </>
+                    )}
+                  </button>
+
+                  {/* Close / OK */}
+                  <button
+                    onClick={onClose}
+                    className="w-full py-3.5 bg-brand-gold text-black rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-brand-gold-muted transition-all duration-300 shadow-xl shadow-brand-gold/15"
+                  >
+                    Tushunarli / Yopish
+                  </button>
+                </div>
               </div>
 
             </div>
@@ -172,4 +251,3 @@ export const ARModal: React.FC<ARModalProps> = ({ isOpen, onClose, productName, 
     document.body
   );
 };
-
