@@ -47,12 +47,12 @@ export const ARModal: React.FC<ARModalProps> = ({ isOpen, onClose, productName, 
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.95, y: 20 }}
             transition={{ type: 'spring', damping: 25 }}
-            className="w-full max-w-4xl bg-background border border-foreground/10 rounded-[3rem] overflow-hidden shadow-2xl relative"
+            className="w-full max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden bg-background border border-foreground/10 rounded-[2rem] md:rounded-[3rem] shadow-2xl relative"
           >
             {/* Close Button */}
             <button 
               onClick={onClose}
-              className="absolute top-6 right-6 z-10 w-10 h-10 rounded-full bg-foreground/5 hover:bg-foreground/10 flex items-center justify-center border border-foreground/10 text-foreground transition-all duration-300"
+              className="absolute top-6 right-6 z-50 w-10 h-10 rounded-full bg-black/40 md:bg-foreground/5 hover:bg-black/60 md:hover:bg-foreground/10 flex items-center justify-center border border-white/10 md:border-foreground/10 text-white md:text-foreground transition-all duration-300"
             >
               <X className="w-5 h-5" />
             </button>

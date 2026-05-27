@@ -128,12 +128,12 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.95, y: 20 }}
             transition={{ type: 'spring', damping: 25 }}
-            className="w-full max-w-4xl bg-background border border-foreground/10 rounded-[3rem] overflow-hidden shadow-2xl relative"
+            className="w-full max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden bg-background border border-foreground/10 rounded-[2rem] md:rounded-[3rem] shadow-2xl relative"
           >
             {/* Close Button */}
             <button 
               onClick={onClose}
-              className="absolute top-6 right-6 z-10 w-10 h-10 rounded-full bg-foreground/5 hover:bg-foreground/10 flex items-center justify-center border border-foreground/10 text-foreground transition-all duration-300"
+              className="absolute top-6 right-6 z-50 w-10 h-10 rounded-full bg-foreground/5 hover:bg-foreground/10 flex items-center justify-center border border-foreground/10 text-foreground transition-all duration-300"
             >
               <X className="w-5 h-5" />
             </button>
@@ -141,8 +141,8 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
             <div className="grid grid-cols-1 md:grid-cols-12 min-h-[500px]">
               
               {/* Left Column: Live Bespoke Product Overview */}
-              <div className="md:col-span-5 bg-foreground/5 border-r border-foreground/10 p-8 flex flex-col justify-between">
-                <div>
+              <div className="md:col-span-5 bg-foreground/5 border-b md:border-b-0 md:border-r border-foreground/10 p-8 flex flex-col justify-between">
+                <div className="pr-12 md:pr-0">
                   <span className="text-brand-gold uppercase tracking-hero text-[10px] font-black block">Concierge Desk</span>
                   <h3 className="text-2xl font-editorial-title font-bold mt-2">{t('product.' + product.id + '.name')}</h3>
                   <p className="text-[9px] text-foreground/45 uppercase tracking-hero font-extrabold mt-1">Bespoke Manufacturing</p>
