@@ -35,6 +35,16 @@ const PageWrapper = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
+
 const AppLayout = () => {
   const location = useLocation();
   const isAuthPage = location.pathname === '/auth';
@@ -68,6 +78,7 @@ export default function App() {
     <ThemeProvider>
       <CartProvider>
         <Router>
+          <ScrollToTop />
           <AppLayout />
         </Router>
       </CartProvider>

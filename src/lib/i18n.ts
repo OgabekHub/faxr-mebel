@@ -16,6 +16,7 @@ const resources = {
       "theme.dark": "Tungi rejim",
       "cta.shop": "Do'konni Ko'rish",
       "common.addToCart": "Savatga Qo'shish",
+      "common.seeAll": "Barchasini Ko'rish",
 
       // Footer Translations
       "footer.desc": "Elegansiya va hashamat uyg'unligi. Biz milliy mebelsozlik hunarmandchiligi an'analarini zamonaviy arxitektura minimalizmi bilan birlashtirib, chindan ham mukammal mebellarni yaratamiz.",
@@ -287,6 +288,7 @@ const resources = {
       "theme.dark": "Темная тема",
       "cta.shop": "Посмотреть Магазин",
       "common.addToCart": "Добавить в Корзину",
+      "common.seeAll": "Посмотреть Все",
 
       // Footer Translations
       "footer.desc": "Гармония элегантности и роскоши. Мы объединяем традиции национального мебельного мастерства с современным архитектурным минимализмом для создания по-настоящему совершенной мебели.",
@@ -558,6 +560,7 @@ const resources = {
       "theme.dark": "Dark Mode",
       "cta.shop": "View Shop",
       "common.addToCart": "Add to Cart",
+      "common.seeAll": "See All",
 
       // Footer Translations
       "footer.desc": "A harmony of elegance and luxury. We combine the traditions of national furniture craftsmanship with modern architectural minimalism to create truly perfect furniture.",
