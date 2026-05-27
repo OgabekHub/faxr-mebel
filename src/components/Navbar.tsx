@@ -74,8 +74,7 @@ export const Navbar = () => {
   return (
     <>
       <nav className={cn(
-        "fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-[background-color,border-color,padding,border-radius,box-shadow] duration-300 px-6 md:px-8 py-3.5 w-[92%] max-w-7xl border shadow-xl backdrop-blur-md",
-        isOpen ? "rounded-[2rem]" : "rounded-full",
+        "fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-[background-color,border-color,padding,border-radius,box-shadow] duration-300 px-6 md:px-8 py-3.5 w-[92%] max-w-7xl border shadow-xl backdrop-blur-md rounded-full",
         isScrolled 
           ? "bg-white dark:bg-[#0A0A0A] border-neutral-200 dark:border-neutral-800/80 py-3 shadow-2xl" 
           : "bg-white/95 dark:bg-[#0D0D0D]/95 border-neutral-200/60 dark:border-neutral-800/60"
@@ -195,48 +194,46 @@ export const Navbar = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.4, ease: "easeInOut" }}
-            className="md:hidden overflow-hidden w-full"
+            initial={{ opacity: 0, y: -15, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -15, scale: 0.95 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="absolute top-[calc(100%+0.75rem)] left-0 right-0 md:hidden bg-white/95 dark:bg-[#0D0D0D]/95 border border-neutral-200 dark:border-neutral-800/80 rounded-[2rem] shadow-2xl backdrop-blur-md p-6 overflow-hidden flex flex-col gap-5"
           >
-            <div className="flex flex-col pt-4 pb-2 gap-5 border-t border-neutral-100 dark:border-neutral-800/60 mt-4">
-              {navLinks.map((link) => (
-                <Link 
-                  key={link.path}
-                  to={link.path}
-                  onClick={() => setIsOpen(false)}
-                  className={cn(
-                    "text-xs font-bold uppercase tracking-hero border-b border-neutral-100 dark:border-neutral-800 pb-3.5 transition-colors",
-                    location.pathname === link.path 
-                      ? "text-[#8C6A3C] dark:text-brand-gold font-extrabold" 
-                      : "text-neutral-800 dark:text-neutral-200 hover:text-brand-gold"
-                  )}
-                >
-                  {link.name}
-                </Link>
-              ))}
-              
-              {/* Language Switcher in Mobile Drawer */}
-              <div className="flex justify-between items-center pt-2">
-                <span className="text-[10px] uppercase font-bold tracking-widest text-neutral-400">Language</span>
-                <div className="flex gap-2">
-                  {languages.map((lang) => (
-                    <button
-                      key={lang.code}
-                      onClick={() => changeLanguage(lang.code)}
-                      className={cn(
-                        "px-3 py-1.5 rounded-full text-[9px] font-black tracking-widest uppercase transition-all",
-                        i18n.language.startsWith(lang.code) 
-                          ? "bg-[#8C6A3C] dark:bg-brand-gold text-white dark:text-black font-bold" 
-                          : "bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400"
-                      )}
-                    >
-                      {lang.name}
-                    </button>
-                  ))}
-                </div>
+            {navLinks.map((link) => (
+              <Link 
+                key={link.path}
+                to={link.path}
+                onClick={() => setIsOpen(false)}
+                className={cn(
+                  "text-xs font-bold uppercase tracking-hero border-b border-neutral-100 dark:border-neutral-800 pb-3.5 transition-colors",
+                  location.pathname === link.path 
+                    ? "text-[#8C6A3C] dark:text-brand-gold font-extrabold" 
+                    : "text-neutral-800 dark:text-neutral-200 hover:text-brand-gold"
+                )}
+              >
+                {link.name}
+              </Link>
+            ))}
+            
+            {/* Language Switcher in Mobile Drawer */}
+            <div className="flex justify-between items-center pt-2">
+              <span className="text-[10px] uppercase font-bold tracking-widest text-neutral-400">Language</span>
+              <div className="flex gap-2">
+                {languages.map((lang) => (
+                  <button
+                    key={lang.code}
+                    onClick={() => changeLanguage(lang.code)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-full text-[9px] font-black tracking-widest uppercase transition-all",
+                      i18n.language.startsWith(lang.code) 
+                        ? "bg-[#8C6A3C] dark:bg-brand-gold text-white dark:text-black font-bold" 
+                        : "bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400"
+                    )}
+                  >
+                    {lang.name}
+                  </button>
+                ))}
               </div>
             </div>
           </motion.div>
