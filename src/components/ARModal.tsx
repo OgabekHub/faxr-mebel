@@ -50,6 +50,28 @@ export const ARModal: React.FC<ARModalProps> = ({
     document.head.appendChild(script);
   }, []);
 
+  // Robust native event listener for model-viewer load
+  useEffect(() => {
+    if (!modelScriptLoaded) return;
+    
+    const mv = document.getElementById(`mv-${productId}`);
+    if (mv) {
+      const handleLoad = () => setModelLoaded(true);
+      const handleError = (e: any) => {
+        console.error('ARModal: model-viewer failed to load', e);
+        setModelLoaded(true); // Remove loader on error to prevent infinite spin
+      };
+      
+      mv.addEventListener('load', handleLoad);
+      mv.addEventListener('error', handleError);
+      
+      return () => {
+        mv.removeEventListener('load', handleLoad);
+        mv.removeEventListener('error', handleError);
+      };
+    }
+  }, [modelScriptLoaded, isOpen, productId]);
+
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(arUrl);
@@ -92,13 +114,13 @@ export const ARModal: React.FC<ARModalProps> = ({
 
                 {/* Loading overlay */}
                 {!modelLoaded && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-[#0A0A0A]">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-[#0A0A0A]/60 pointer-events-none backdrop-blur-sm">
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }}
-                      className="w-10 h-10 border-2 border-brand-gold/20 border-t-brand-gold rounded-full mb-4"
+                      className="w-10 h-10 border-2 border-brand-gold/20 border-t-brand-gold rounded-full mb-4 shadow-[0_0_15px_rgba(197,160,89,0.3)]"
                     />
-                    <p className="text-[8px] uppercase tracking-[0.3em] text-white/30 font-black">
+                    <p className="text-[8px] uppercase tracking-[0.3em] text-white/60 font-black drop-shadow-md">
                       3D Model yuklanmoqda...
                     </p>
                   </div>
@@ -108,6 +130,7 @@ export const ARModal: React.FC<ARModalProps> = ({
                 {modelScriptLoaded && (
                   // @ts-ignore
                   <model-viewer
+                    id={`mv-${productId}`}
                     src="/models/SheenChair.glb"
                     alt={productName}
                     camera-controls

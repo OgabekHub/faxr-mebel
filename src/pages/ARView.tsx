@@ -45,6 +45,27 @@ export const ARView: React.FC = () => {
     return () => {};
   }, []);
 
+  // Robustly handle model load events (custom elements often need native listeners on mobile)
+  useEffect(() => {
+    const mv = modelViewerRef.current;
+    if (mv) {
+      const handleLoad = () => setIsModelLoaded(true);
+      const handleError = (e: any) => {
+        console.error('model-viewer failed to load the model:', e);
+        // Fallback: remove loading state so user isn't stuck forever, even if model failed
+        setIsModelLoaded(true);
+      };
+
+      mv.addEventListener('load', handleLoad);
+      mv.addEventListener('error', handleError);
+
+      return () => {
+        mv.removeEventListener('load', handleLoad);
+        mv.removeEventListener('error', handleError);
+      };
+    }
+  }, [modelScriptLoaded]);
+
   // AR qo'llab-quvvatlashini tekshirish
   useEffect(() => {
     const checkARSupport = () => {
@@ -130,13 +151,13 @@ export const ARView: React.FC = () => {
       <div className="flex-1 relative min-h-[55vh]">
         {/* Loading overlay */}
         {!isModelLoaded && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-[#050505]">
+          <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-[#050505]/60 pointer-events-none backdrop-blur-sm">
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }}
-              className="w-12 h-12 border-2 border-brand-gold/20 border-t-brand-gold rounded-full mb-4"
+              className="w-12 h-12 border-2 border-brand-gold/20 border-t-brand-gold rounded-full mb-4 shadow-[0_0_15px_rgba(197,160,89,0.3)]"
             />
-            <p className="text-[9px] uppercase tracking-[0.3em] text-white/40 font-black">
+            <p className="text-[9px] uppercase tracking-[0.3em] text-white/60 font-black drop-shadow-md">
               3D Model yuklanmoqda...
             </p>
           </div>
