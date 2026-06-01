@@ -3,24 +3,28 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
-import { Home } from './pages/Home';
-import { Shop } from './pages/Shop';
-import { Auth } from './pages/Auth';
-import { Admin } from './pages/Admin';
-import { Cart } from './pages/Cart';
-import { Contact } from './pages/Contact';
 import { CartProvider } from './context/CartContext';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { HelmetProvider } from 'react-helmet-async';
 import './lib/i18n'; // Init i18n
 import { AnimatePresence, motion } from 'motion/react';
 
-import { About } from './pages/About';
-import { Profile } from './pages/Profile';
-import { ARView } from './pages/ARView';
+// Lazy load pages for code-splitting
+const Home = React.lazy(() => import('./pages/Home').then(m => ({ default: m.Home })));
+const Shop = React.lazy(() => import('./pages/Shop').then(m => ({ default: m.Shop })));
+const Auth = React.lazy(() => import('./pages/Auth').then(m => ({ default: m.Auth })));
+const Admin = React.lazy(() => import('./pages/Admin').then(m => ({ default: m.Admin })));
+const Cart = React.lazy(() => import('./pages/Cart').then(m => ({ default: m.Cart })));
+const Contact = React.lazy(() => import('./pages/Contact').then(m => ({ default: m.Contact })));
+const About = React.lazy(() => import('./pages/About').then(m => ({ default: m.About })));
+const Profile = React.lazy(() => import('./pages/Profile').then(m => ({ default: m.Profile })));
+const ARView = React.lazy(() => import('./pages/ARView').then(m => ({ default: m.ARView })));
 
 const PageWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -46,6 +50,13 @@ const ScrollToTop = () => {
   return null;
 };
 
+// Loading Fallback for Suspense
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="w-8 h-8 border-4 border-brand-gold/30 border-t-brand-gold rounded-full animate-spin"></div>
+  </div>
+);
+
 const AppLayout = () => {
   const location = useLocation();
   const isAuthPage = location.pathname === '/auth';
@@ -57,17 +68,22 @@ const AppLayout = () => {
       {!isAuthPage && <Navbar />}
       <main className="flex-grow">
         <AnimatePresence mode="wait">
-          <Routes location={location} {...{ key: location.pathname }}>
-            <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
-            <Route path="/shop" element={<PageWrapper><Shop /></PageWrapper>} />
-            <Route path="/auth" element={<PageWrapper><Auth /></PageWrapper>} />
-            <Route path="/admin" element={<PageWrapper><Admin /></PageWrapper>} />
-            <Route path="/about" element={<PageWrapper><About /></PageWrapper>} />
-            <Route path="/contact" element={<PageWrapper><Contact /></PageWrapper>} />
-            <Route path="/cart" element={<PageWrapper><Cart /></PageWrapper>} />
-            <Route path="/profile" element={<PageWrapper><Profile /></PageWrapper>} />
-            <Route path="/ar/:productId" element={<ARView />} />
-          </Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes location={location} {...{ key: location.pathname }}>
+              <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
+              <Route path="/shop" element={<PageWrapper><Shop /></PageWrapper>} />
+              <Route path="/auth" element={<PageWrapper><Auth /></PageWrapper>} />
+              
+              {/* Protected Routes */}
+              <Route path="/admin" element={<ProtectedRoute><PageWrapper><Admin /></PageWrapper></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute><PageWrapper><Profile /></PageWrapper></ProtectedRoute>} />
+              
+              <Route path="/about" element={<PageWrapper><About /></PageWrapper>} />
+              <Route path="/contact" element={<PageWrapper><Contact /></PageWrapper>} />
+              <Route path="/cart" element={<PageWrapper><Cart /></PageWrapper>} />
+              <Route path="/ar/:productId" element={<ARView />} />
+            </Routes>
+          </Suspense>
         </AnimatePresence>
       </main>
       {!isFooterHidden && <Footer />}
@@ -77,16 +93,17 @@ const AppLayout = () => {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <CartProvider>
-        <Router>
-          <ScrollToTop />
-          <AppLayout />
-        </Router>
-      </CartProvider>
-    </ThemeProvider>
+    <HelmetProvider>
+      <ErrorBoundary>
+        <ThemeProvider>
+          <CartProvider>
+            <Router>
+              <ScrollToTop />
+              <AppLayout />
+            </Router>
+          </CartProvider>
+        </ThemeProvider>
+      </ErrorBoundary>
+    </HelmetProvider>
   );
 }
-
-
-

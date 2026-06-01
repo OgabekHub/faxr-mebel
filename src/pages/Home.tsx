@@ -8,6 +8,7 @@ import { useCart } from '../context/CartContext';
 import { ARModal } from '../components/ARModal';
 import { BespokeModal } from '../components/BespokeModal';
 import { BentoSpotlight } from '../components/BentoSpotlight';
+import { SEO } from '../components/SEO';
 
 // Immersive Hero slides data
 const heroSlides = [
@@ -138,6 +139,7 @@ export const Home = () => {
 
   return (
     <div className="flex flex-col pt-32 px-6 gap-16 max-w-7xl mx-auto mb-20 overflow-hidden">
+      <SEO title={t('nav.home')} />
       
       {/* Toast Notification */}
       <AnimatePresence>

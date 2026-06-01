@@ -9,6 +9,7 @@ import { ARModal } from '../components/ARModal';
 import { BespokeModal } from '../components/BespokeModal';
 import { BentoSpotlight } from '../components/BentoSpotlight';
 import { createPortal } from 'react-dom';
+import { SEO } from '../components/SEO';
 
 
 // Locally hosted premium generated images and stock items
@@ -79,6 +80,7 @@ export const Shop = () => {
 
   return (
     <div className="pt-36 pb-20 px-6 max-w-7xl mx-auto min-h-screen">
+      <SEO title={t('nav.shop')} />
       
       {/* Mini notification toast */}
       <AnimatePresence>
