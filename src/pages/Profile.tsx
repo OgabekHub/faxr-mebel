@@ -1,35 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { User, LogOut, Heart, Shield, ShoppingBag, Send, Award, Clock, CheckCircle } from 'lucide-react';
-import { auth } from '../lib/firebase';
+import { auth, db } from '../lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { formatPrice } from '../lib/utils';
 import { useTranslation } from 'react-i18next';
 import { useWishlist } from '../context/WishlistContext';
-
-// Premium mock wishlist and order history
-const mockWishlist = [
-  { id: '1', name: 'Royal Velvet Sofa', price: 12000000, image: '/images/sofa.png', category: 'Sofa' },
-  { id: '3', name: 'Minimalist Bed Frame', price: 15000000, image: '/images/bed.png', category: 'Bedroom' }
-];
-
-const mockActiveOrder = {
-  id: 'ORD-2026-904',
-  date: '2026-05-15',
-  total: 12650000,
-  item: 'Royal Velvet Sofa',
-  wood: 'Walnut (Yong\'oq)',
-  fabric: 'Italiya Baxmali',
-  packaging: 'Yog\'och quti',
-  steps: [
-    { label: 'Buyurtma qabul qilindi', desc: 'Sizning to\'lovingiz tasdiqlandi va buyurtma ro\'yxatga olindi.', status: 'completed' },
-    { label: 'Yog\'och saralanmoqda', desc: 'Ustaxonamizdan oliy navli Yong\'oq yog\'ochi ajratib olindi.', status: 'completed' },
-    { label: 'Usta qo\'lida sayqallanmoqda', desc: 'Bosh duradgor Rustamali mebelni qo\'lda tayyorlamoqda.', status: 'active' },
-    { label: 'Sifat nazorati', desc: 'Mebel choklari va yuklama chidamliligi tekshiriladi.', status: 'pending' },
-    { label: 'Yetkazib berish va o\'rnatish', desc: 'Bepul yetkazib berilib, xonadoningizga yig\'ib beriladi.', status: 'pending' }
-  ]
-};
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 
 export const Profile = () => {
   const { t } = useTranslation();
@@ -39,23 +17,78 @@ export const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'orders' | 'wishlist'>('orders');
 
+  // Real Orders State
+  const [orders, setOrders] = useState<any[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    let unsubscribeOrders: (() => void) | undefined;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
         setUser(firebaseUser);
+
+        // Listen to orders matching current user's UID
+        const q = query(
+          collection(db, 'orders'),
+          where('userId', '==', firebaseUser.uid)
+        );
+
+        unsubscribeOrders = onSnapshot(q, (snapshot) => {
+          const fetchedOrders = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+          
+          // Sort by date (newest first)
+          fetchedOrders.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          
+          setOrders(fetchedOrders);
+          if (fetchedOrders.length > 0) {
+            setSelectedOrderId(prev => prev || fetchedOrders[0].id);
+          }
+          setOrdersLoading(false);
+        }, (error) => {
+          console.error("Firestore orders query failed:", error);
+          setOrdersLoading(false);
+        });
+
       } else {
-        // Fallback for demo mode so the portal is viewable even without a Firebase connection
+        // Fallback for demo mode
         setUser({
           displayName: 'Alisher Navoiy',
           email: 'alisher@prestige.com',
           photoURL: 'https://i.pravatar.cc/150?u=9',
           phoneNumber: '+998 90 123 45 67'
         });
+
+        const demoOrders = [
+          {
+            id: 'ORD-2026-904',
+            date: '2026-05-15T12:00:00.000Z',
+            total: 12650000,
+            items: [{ name: 'Royal Velvet Sofa', quantity: 1, bespokeDetails: { wood: 'Walnut (Yong\'oq)', fabric: 'Italiya Baxmali' } }],
+            addons: { premiumBox: true, artisanCert: false },
+            status: 'artisan',
+            paymentMethod: 'click_payme',
+            paymentStatus: 'paid',
+            client: 'Alisher Navoiy',
+            phone: '+998 90 123 45 67',
+            address: 'Toshkent shahar'
+          }
+        ];
+        setOrders(demoOrders);
+        setSelectedOrderId('ORD-2026-904');
+        setOrdersLoading(false);
       }
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeOrders) unsubscribeOrders();
+    };
   }, []);
 
   const handleLogout = async () => {
@@ -66,6 +99,58 @@ export const Profile = () => {
       console.error("Logout failed", error);
     }
   };
+
+  const getSelectedOrderData = () => {
+    const order = orders.find(o => o.id === selectedOrderId);
+    if (!order) return null;
+
+    const itemNames = order.items?.map((it: any) => `${it.name} (x${it.quantity})`).join(', ') || 'Faxr Mebel Mahsuloti';
+    const firstBespoke = order.items?.find((it: any) => it.bespokeDetails);
+    const wood = firstBespoke?.bespokeDetails?.wood || 'Walnut (Yong\'oq)';
+    const fabric = firstBespoke?.bespokeDetails?.fabric || 'Italiya Baxmali';
+    const packaging = order.addons?.premiumBox ? t('profile.packagingWood', 'Yog\'och quti') : t('profile.packagingStandard', 'Standart qadoq');
+
+    const steps = [
+      { 
+        label: t('profile.status.received', 'Buyurtma qabul qilindi'), 
+        desc: order.paymentStatus === 'paid' 
+          ? t('profile.status.receivedPaidDesc', 'Sizning to\'lovingiz tasdiqlandi va buyurtma ro\'yxatga olindi.') 
+          : t('profile.status.receivedPendingDesc', 'Buyurtma qabul qilindi. Menejer to\'lov va parametrlarni tasdiqlash uchun bog\'lanadi.'), 
+        status: order.status === 'pending' ? 'active' : 'completed' 
+      },
+      { 
+        label: t('profile.status.wood', 'Yog\'och saralanmoqda'), 
+        desc: t('profile.status.woodDesc', `Ustaxonamizdan oliy navli ${wood} yog'ochi ajratib olindi.`), 
+        status: order.status === 'pending' ? 'pending' : order.status === 'wood' ? 'active' : 'completed' 
+      },
+      { 
+        label: t('profile.status.artisan', 'Usta qo\'lida sayqallanmoqda'), 
+        desc: t('profile.status.artisanDesc', 'Bosh duradgor Rustamali mebelni qo\'lda tayyorlamoqda.'), 
+        status: (order.status === 'pending' || order.status === 'wood') ? 'pending' : order.status === 'artisan' ? 'active' : 'completed' 
+      },
+      { 
+        label: t('profile.status.quality', 'Sifat nazorati'), 
+        desc: t('profile.status.qualityDesc', 'Mebel choklari va yuklama chidamliligi tekshiriladi.'), 
+        status: (order.status === 'pending' || order.status === 'wood' || order.status === 'artisan') ? 'pending' : order.status === 'quality' ? 'active' : 'completed' 
+      },
+      { 
+        label: t('profile.status.delivery', 'Yetkazib berish va o\'rnatish'), 
+        desc: t('profile.status.deliveryDesc', 'Bepul yetkazib berilib, xonadoningizga yig\'ib beriladi.'), 
+        status: order.status === 'completed' ? 'completed' : 'pending' 
+      }
+    ];
+
+    return {
+      ...order,
+      itemNames,
+      wood,
+      fabric,
+      packaging,
+      steps
+    };
+  };
+
+  const currentOrder = getSelectedOrderData();
 
   if (loading) {
     return (
@@ -162,76 +247,133 @@ export const Profile = () => {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
               >
-                {/* Active Order Card */}
-                <div className="bento-card p-8 border border-foreground/5 relative overflow-hidden">
-                  <div className="flex flex-col sm:flex-row justify-between sm:items-center pb-6 border-b border-foreground/5 mb-8 gap-4">
-                    <div>
-                      <span className="text-[9px] font-black uppercase tracking-widest text-brand-gold">{t('profile.activeOrder')}</span>
-                      <h3 className="text-lg font-bold text-foreground mt-1">{mockActiveOrder.item}</h3>
-                      <p className="text-[10px] text-foreground/45 mt-1 font-bold">{t('profile.code')}: {mockActiveOrder.id} | {t('profile.date')}: {mockActiveOrder.date}</p>
-                    </div>
-                    
-                    <div className="text-left sm:text-right shrink-0">
-                      <span className="text-[9px] uppercase font-black tracking-widest text-foreground/40 block">{t('profile.paidAmount')}</span>
-                      <span className="price-tag text-2xl font-bold block">{formatPrice(mockActiveOrder.total)}</span>
-                    </div>
+                {ordersLoading ? (
+                  <div className="bento-card p-12 text-center border border-foreground/5">
+                    <Clock className="w-8 h-8 text-brand-gold animate-spin mx-auto mb-4" />
+                    <span className="text-xs uppercase tracking-hero text-foreground/40 font-bold">{t('profile.ordersLoading', 'Buyurtmalar yuklanmoqda...')}</span>
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-                    {/* Visual details column */}
-                    <div className="md:col-span-4 bg-foreground/5 p-6 rounded-2xl border border-foreground/5 space-y-3.5 h-fit">
-                      <span className="text-[9px] font-black uppercase tracking-widest text-brand-gold block">{t('profile.selectedParams')}</span>
-                      <div className="space-y-2.5 text-xs">
-                        <div className="flex justify-between">
-                          <span className="text-foreground/45">{t('profile.woodType')}:</span>
-                          <span className="font-bold">{mockActiveOrder.wood}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-foreground/45">{t('profile.fabric')}:</span>
-                          <span className="font-bold">{mockActiveOrder.fabric}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-foreground/45">{t('profile.packaging')}:</span>
-                          <span className="font-bold">{mockActiveOrder.packaging}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-foreground/45">{t('profile.delivery')}:</span>
-                          <span className="font-bold text-green-500">Kuryer (Luxe)</span>
-                        </div>
+                ) : orders.length === 0 ? (
+                  <div className="bento-card p-12 text-center border border-foreground/5 flex flex-col items-center justify-center space-y-4">
+                    <ShoppingBag className="w-12 h-12 text-foreground/20" />
+                    <h3 className="text-lg font-bold text-foreground">{t('profile.noOrders', 'Sizda faol buyurtmalar yo\'q')}</h3>
+                    <p className="text-xs text-foreground/45 italic max-w-sm">{t('profile.noOrdersDesc', 'Bizning katalogimizdan premium mebellarni tanlang va birinchi buyurtmangizni amalga oshiring.')}</p>
+                    <button 
+                      onClick={() => navigate('/shop')}
+                      className="bg-brand-gold text-black px-6 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:scale-102 transition-transform"
+                    >
+                      {t('cta.shop', 'Do\'konni Ko\'rish')}
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    {/* Order Selector (Dropdown if multiple) */}
+                    {orders.length > 1 && (
+                      <div className="flex items-center gap-3 bg-foreground/5 p-3 rounded-2xl border border-foreground/5 w-fit">
+                        <span className="text-[9px] uppercase font-black tracking-widest text-foreground/45 ml-2">{t('profile.selectOrder', 'Buyurtmani tanlash')}:</span>
+                        <select
+                          value={selectedOrderId || ''}
+                          onChange={(e) => setSelectedOrderId(e.target.value)}
+                          className="bg-background border border-foreground/15 text-foreground rounded-xl px-4 py-1.5 text-[11px] font-bold focus:border-brand-gold outline-none cursor-pointer"
+                        >
+                          {orders.map(o => (
+                            <option key={o.id} value={o.id}>
+                              {o.id} ({new Date(o.date).toLocaleDateString()})
+                            </option>
+                          ))}
+                        </select>
                       </div>
-                    </div>
+                    )}
 
-                    {/* Timeline tracking tracker */}
-                    <div className="md:col-span-8 space-y-6">
-                      <span className="text-[9px] font-black uppercase tracking-widest text-brand-gold block mb-2">{t('profile.timeline')}</span>
-                      
-                      <div className="relative pl-6 border-l border-foreground/10 space-y-8">
-                        {mockActiveOrder.steps.map((step, idx) => (
-                          <div key={idx} className="relative">
-                            
-                            {/* Visual state markers */}
-                            <span className={`absolute -left-9.5 top-0.5 w-6 h-6 rounded-full flex items-center justify-center border text-[9px] font-extrabold ${
-                              step.status === 'completed' 
-                                ? 'bg-green-500 text-white border-green-500' 
-                                : step.status === 'active'
-                                ? 'bg-brand-gold text-black border-brand-gold animate-pulse'
-                                : 'bg-background text-foreground/30 border-foreground/10'
-                            }`}>
-                              {step.status === 'completed' ? <CheckCircle className="w-3.5 h-3.5" /> : idx + 1}
-                            </span>
+                    {currentOrder && (
+                      <div className="bento-card p-8 border border-foreground/5 relative overflow-hidden">
+                        <div className="flex flex-col sm:flex-row justify-between sm:items-center pb-6 border-b border-foreground/5 mb-8 gap-4">
+                          <div>
+                            <span className="text-[9px] font-black uppercase tracking-widest text-brand-gold">{t('profile.activeOrder')}</span>
+                            <h3 className="text-lg font-bold text-foreground mt-1">{currentOrder.itemNames}</h3>
+                            <p className="text-[10px] text-foreground/45 mt-1 font-bold">
+                              {t('profile.code')}: {currentOrder.id} | {t('profile.date')}: {new Date(currentOrder.date).toLocaleDateString('uz-UZ')}
+                            </p>
+                          </div>
+                          
+                          <div className="text-left sm:text-right shrink-0">
+                            <span className="text-[9px] uppercase font-black tracking-widest text-foreground/40 block">{t('profile.paidAmount')}</span>
+                            <span className="price-tag text-2xl font-bold block">{formatPrice(currentOrder.total)}</span>
+                          </div>
+                        </div>
 
-                            <div className="space-y-1">
-                              <h4 className={`text-xs font-bold uppercase tracking-wider ${
-                                step.status === 'completed' ? 'text-green-500' : step.status === 'active' ? 'text-brand-gold' : 'text-foreground/40'
-                              }`}>{step.label}</h4>
-                              <p className="text-[10px] text-foreground/50 leading-relaxed font-light italic">{step.desc}</p>
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+                          {/* Visual details column */}
+                          <div className="md:col-span-4 bg-foreground/5 p-6 rounded-2xl border border-foreground/5 space-y-3.5 h-fit">
+                            <span className="text-[9px] font-black uppercase tracking-widest text-brand-gold block">{t('profile.selectedParams')}</span>
+                            <div className="space-y-2.5 text-xs">
+                              <div className="flex justify-between">
+                                <span className="text-foreground/45">{t('profile.woodType')}:</span>
+                                <span className="font-bold text-right pl-2">{currentOrder.wood}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-foreground/45">{t('profile.fabric')}:</span>
+                                <span className="font-bold text-right pl-2">{currentOrder.fabric}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-foreground/45">{t('profile.packaging')}:</span>
+                                <span className="font-bold text-right pl-2">{currentOrder.packaging}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-foreground/45">{t('profile.delivery')}:</span>
+                                <span className="font-bold text-green-500 text-right pl-2">Kuryer (Luxe)</span>
+                              </div>
+                              <div className="flex justify-between border-t border-foreground/5 pt-2">
+                                <span className="text-foreground/45">{t('profile.paymentMethod', 'To\'lov turi')}:</span>
+                                <span className="font-bold text-brand-gold text-[10px] uppercase text-right pl-2">
+                                  {currentOrder.paymentMethod === 'click_payme' ? 'Click / Payme' : t('profile.manualPay', 'Konsultatsiya')}
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-foreground/45">{t('profile.paymentStatus', 'To\'lov holati')}:</span>
+                                <span className={cn(
+                                  "font-bold text-[10px] uppercase text-right pl-2", 
+                                  currentOrder.paymentStatus === 'paid' ? 'text-green-500' : 'text-orange-500'
+                                )}>
+                                  {currentOrder.paymentStatus === 'paid' ? t('profile.paid', 'To\'langan') : t('profile.pendingPay', 'Kutilmoqda')}
+                                </span>
+                              </div>
                             </div>
                           </div>
-                        ))}
+
+                          {/* Timeline tracking tracker */}
+                          <div className="md:col-span-8 space-y-6">
+                            <span className="text-[9px] font-black uppercase tracking-widest text-brand-gold block mb-2">{t('profile.timeline')}</span>
+                            
+                            <div className="relative pl-6 border-l border-foreground/10 space-y-8">
+                              {currentOrder.steps.map((step, idx) => (
+                                <div key={idx} className="relative">
+                                  
+                                  {/* Visual state markers */}
+                                  <span className={`absolute -left-9.5 top-0.5 w-6 h-6 rounded-full flex items-center justify-center border text-[9px] font-extrabold ${
+                                    step.status === 'completed' 
+                                      ? 'bg-green-500 text-white border-green-500' 
+                                      : step.status === 'active'
+                                      ? 'bg-brand-gold text-black border-brand-gold animate-pulse'
+                                      : 'bg-background text-foreground/30 border-foreground/10'
+                                  }`}>
+                                    {step.status === 'completed' ? <CheckCircle className="w-3.5 h-3.5" /> : idx + 1}
+                                  </span>
+
+                                  <div className="space-y-1">
+                                    <h4 className={`text-xs font-bold uppercase tracking-wider ${
+                                      step.status === 'completed' ? 'text-green-500' : step.status === 'active' ? 'text-brand-gold' : 'text-foreground/40'
+                                    }`}>{step.label}</h4>
+                                    <p className="text-[10px] text-foreground/50 leading-relaxed font-light italic">{step.desc}</p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
+                    )}
+                  </>
+                )}
               </motion.div>
             ) : (
               /* Wishlist panel content */

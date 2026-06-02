@@ -1,11 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
-import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, CreditCard, ChevronLeft, CheckCircle2, Gift, Award, HelpCircle } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, CreditCard, ChevronLeft, CheckCircle2, Gift, Award, HelpCircle, ShieldCheck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { cn, formatPrice } from '../lib/utils';
 import { Link, useNavigate } from 'react-router-dom';
 import { sendTelegramMessage } from '../services/telegram';
+import { auth, db } from '../lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+
+const generateOrderId = () => {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const rand = Math.floor(1000 + Math.random() * 9000);
+  return `ORD-${year}${month}${day}-${rand}`;
+};
 
 export const Cart = () => {
   const { t } = useTranslation();
@@ -15,6 +27,16 @@ export const Cart = () => {
   const [isCheckout, setIsCheckout] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [user, setUser] = useState<any | null>(null);
+
+  // Payment states
+  const [paymentMethod, setPaymentMethod] = useState<'click_payme' | 'consultation'>('click_payme');
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardExpiry, setCardExpiry] = useState('');
+  const [cardCvv, setCardCvv] = useState('');
+  const [smsCode, setSmsCode] = useState('');
+  const [paymentStep, setPaymentStep] = useState<'card' | 'sms' | 'verifying'>('card');
 
   // Premium Custom Add-ons
   const [premiumBox, setPremiumBox] = useState(false);
@@ -27,6 +49,13 @@ export const Cart = () => {
     wishes: ''
   });
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+    });
+    return () => unsubscribe();
+  }, []);
+
   const getAddonTotal = () => {
     let total = 0;
     if (premiumBox) total += 500000; // 500k UZS
@@ -36,10 +65,12 @@ export const Cart = () => {
 
   const finalAmount = totalAmount + getAddonTotal();
 
-  const handleCheckout = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const saveOrderToDatabase = async () => {
+    if (!user) return;
     setIsSubmitting(true);
 
+    const orderId = generateOrderId();
+    
     const orderDetails = cart.map(item => {
       let customTag = '';
       if (item.bespokeDetails) {
@@ -53,13 +84,17 @@ export const Cart = () => {
       artisanCert ? '📜 Ustaxonaning Asillik Sertifikati (+150,000 UZS)' : ''
     ].filter(Boolean).join('\n') || 'Yo\'q';
 
+    const paymentLabel = paymentMethod === 'click_payme' ? "💳 Click / Payme (Online - TO'LANDI)" : "📞 Konsultatsiyadan so'ng (Kutilmoqda)";
+
     const message = `
 🌟 <b>YANGI PRESTIGE BUYURTMA</b> 🌟
 
+🆔 <b>Buyurtma ID:</b> <code>${orderId}</code>
 👤 <b>Mijoz:</b> ${formData.name}
 📱 <b>Telefon:</b> ${formData.phone}
 📍 <b>Manzil:</b> ${formData.address}
 ✍️ <b>Qo'shimcha istaklar:</b> ${formData.wishes || 'Yo\'q'}
+💳 <b>To'lov turi:</b> ${paymentLabel}
 
 🛒 <b>Buyurtma tarkibi:</b>
 ${orderDetails}
@@ -71,17 +106,68 @@ ${addonsList}
 📅 <b>Sana:</b> ${new Date().toLocaleString('uz-UZ')}
 `;
 
-    const result = await sendTelegramMessage(message);
-    setIsSubmitting(false);
-    
-    if (result.success) {
+    try {
+      const orderData = {
+        id: orderId,
+        userId: user.uid,
+        client: formData.name,
+        phone: formData.phone,
+        address: formData.address,
+        wishes: formData.wishes,
+        items: cart.map(item => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          category: item.category,
+          image: item.image,
+          bespokeDetails: item.bespokeDetails || null
+        })),
+        addons: {
+          premiumBox,
+          artisanCert
+        },
+        total: finalAmount,
+        status: 'pending',
+        paymentMethod,
+        paymentStatus: paymentMethod === 'click_payme' ? 'paid' : 'pending',
+        date: new Date().toISOString()
+      };
+
+      // Save order to Firestore
+      await setDoc(doc(db, 'orders', orderId), orderData);
+
+      // Send telegram alert
+      await sendTelegramMessage(message);
+
+      setIsSubmitting(false);
+      setShowPaymentModal(false);
       setIsSuccess(true);
+      
       setTimeout(() => {
         clearCart();
-        navigate('/');
+        navigate('/profile');
       }, 4500);
+
+    } catch (error) {
+      console.error("Order creation failed:", error);
+      setIsSubmitting(false);
+      setShowPaymentModal(false);
+      alert("Xatolik yuz berdi. Iltimos qaytadan urinib ko'ring.");
+    }
+  };
+
+  const handleCheckout = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) {
+      navigate('/auth', { state: { from: { pathname: '/cart' } } });
+      return;
+    }
+
+    if (paymentMethod === 'click_payme') {
+      setShowPaymentModal(true);
     } else {
-      alert("Xatolik yuz berdi. Iltimos, ma'lumotlarni tekshiring va qayta urinib ko'ring.");
+      await saveOrderToDatabase();
     }
   };
 
@@ -110,10 +196,10 @@ ${addonsList}
             />
           </div>
           <button 
-            onClick={() => { clearCart(); navigate('/shop'); }}
-            className="bg-brand-gold text-black px-8 py-3.5 rounded-full font-bold text-xs uppercase tracking-hero hover:scale-105 transition-transform inline-flex items-center gap-2"
+            onClick={() => { clearCart(); navigate('/profile'); }}
+            className="bg-brand-gold text-black px-8 py-3.5 rounded-full font-bold text-xs uppercase tracking-hero hover:scale-105 transition-transform inline-flex items-center gap-2 shadow-lg shadow-brand-gold/15"
           >
-            Do'konga qaytish <ArrowRight className="w-4 h-4" />
+            Kabinetingizga o'tish <ArrowRight className="w-4 h-4" />
           </button>
         </motion.div>
       </div>
@@ -308,7 +394,13 @@ ${addonsList}
 
                 <div className="space-y-4 pt-2">
                   <button 
-                    onClick={() => setIsCheckout(true)}
+                    onClick={() => {
+                      if (!user) {
+                        navigate('/auth', { state: { from: { pathname: '/cart' } } });
+                      } else {
+                        setIsCheckout(true);
+                      }
+                    }}
                     className="w-full bg-brand-gold text-black py-4 rounded-xl font-extrabold text-xs uppercase tracking-hero hover:scale-102 transition-transform shadow-xl shadow-brand-gold/15 flex items-center justify-center gap-2"
                   >
                     Buyurtmaga O'tish <ArrowRight className="w-4 h-4" />
@@ -383,6 +475,52 @@ ${addonsList}
                     ></textarea>
                   </div>
 
+                  {/* Payment Method Selector */}
+                  <div className="space-y-3">
+                    <label className="text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-1 block ml-2">To'lov Usuli</label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod('click_payme')}
+                        className={cn(
+                          "p-4 rounded-xl border text-left flex flex-col justify-between h-24 transition-all outline-none",
+                          paymentMethod === 'click_payme' 
+                            ? "border-brand-gold bg-brand-gold/5" 
+                            : "border-foreground/15 bg-foreground/5 hover:border-foreground/30"
+                        )}
+                      >
+                        <div className="flex justify-between items-center w-full">
+                          <CreditCard className={cn("w-5 h-5", paymentMethod === 'click_payme' ? "text-brand-gold" : "text-foreground/45")} />
+                          <span className="text-[8px] bg-brand-gold/10 text-brand-gold border border-brand-gold/25 px-1.5 py-0.5 rounded uppercase font-black tracking-widest font-bold">Luxe</span>
+                        </div>
+                        <div>
+                          <span className="text-xs font-bold block text-foreground">Click / Payme</span>
+                          <span className="text-[9px] text-foreground/45">Karta orqali online</span>
+                        </div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod('consultation')}
+                        className={cn(
+                          "p-4 rounded-xl border text-left flex flex-col justify-between h-24 transition-all outline-none",
+                          paymentMethod === 'consultation' 
+                            ? "border-brand-gold bg-brand-gold/5" 
+                            : "border-foreground/15 bg-foreground/5 hover:border-foreground/30"
+                        )}
+                      >
+                        <div className="flex justify-between items-center w-full">
+                          <HelpCircle className={cn("w-5 h-5", paymentMethod === 'consultation' ? "text-brand-gold" : "text-foreground/45")} />
+                          <span className="text-[8px] bg-foreground/10 text-foreground/45 border border-foreground/10 px-1.5 py-0.5 rounded uppercase font-black tracking-widest font-bold">Manual</span>
+                        </div>
+                        <div>
+                          <span className="text-xs font-bold block text-foreground">Maslahatlashuv</span>
+                          <span className="text-[9px] text-foreground/45">Menejer bilan bog'lanish</span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
                   <div className="pt-4 border-t border-foreground/5">
                     <div className="flex justify-between items-center text-xl font-bold mb-4">
                       <span>Umumiy</span>
@@ -403,6 +541,178 @@ ${addonsList}
           </div>
         </aside>
       </div>
+
+      {/* Premium Simulated Payment Modal */}
+      <AnimatePresence>
+        {showPaymentModal && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white dark:bg-[#0f0e0c] border border-brand-gold/25 w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden"
+            >
+              {/* Glow background */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-brand-gold/10 blur-[50px] rounded-full pointer-events-none" />
+
+              {paymentStep === 'card' && (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <span className="text-[9px] uppercase font-black tracking-hero text-brand-gold block mb-1">Prestige Gateway</span>
+                    <h3 className="text-xl font-editorial-title font-bold text-foreground">Click / Payme To'lovi</h3>
+                    <p className="text-[10px] text-foreground/40 italic mt-1">Xavfsiz va premium to'lov interfeysi</p>
+                  </div>
+
+                  <div className="bg-foreground/5 p-4 rounded-2xl border border-foreground/5 flex justify-between items-center">
+                    <span className="text-xs text-foreground/50">To'lov summasi:</span>
+                    <span className="price-tag font-bold text-lg">{formatPrice(finalAmount)}</span>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-[9px] font-black tracking-widest uppercase text-foreground/45 block mb-1.5 ml-2">Karta Raqami</label>
+                      <input
+                        required
+                        type="text"
+                        maxLength={19}
+                        placeholder="8600 0000 0000 0000"
+                        value={cardNumber}
+                        onChange={(e) => {
+                          const v = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+                          const matches = v.match(/\d{4,16}/g);
+                          const match = (matches && matches[0]) || '';
+                          const parts = [];
+                          for (let i = 0, len = match.length; i < len; i += 4) {
+                            parts.push(match.substring(i, i + 4));
+                          }
+                          setCardNumber(parts.length > 0 ? parts.join(' ') : v);
+                        }}
+                        className="bg-foreground/5 border border-foreground/15 focus:border-brand-gold rounded-xl px-4 py-3.5 text-xs outline-none w-full text-foreground tracking-widest font-bold font-mono"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-[9px] font-black tracking-widest uppercase text-foreground/45 block mb-1.5 ml-2">Muddati</label>
+                        <input
+                          required
+                          type="text"
+                          maxLength={5}
+                          placeholder="MM/YY"
+                          value={cardExpiry}
+                          onChange={(e) => {
+                            const v = e.target.value.replace('/', '').replace(/[^0-9]/gi, '');
+                            setCardExpiry(v.length >= 2 ? v.substring(0, 2) + '/' + v.substring(2, 4) : v);
+                          }}
+                          className="bg-foreground/5 border border-foreground/15 focus:border-brand-gold rounded-xl px-4 py-3.5 text-xs outline-none w-full text-foreground tracking-widest font-bold text-center font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[9px] font-black tracking-widest uppercase text-foreground/45 block mb-1.5 ml-2">CVV/CVC</label>
+                        <input
+                          required
+                          type="password"
+                          maxLength={3}
+                          placeholder="***"
+                          value={cardCvv}
+                          onChange={(e) => setCardCvv(e.target.value.replace(/[^0-9]/gi, ''))}
+                          className="bg-foreground/5 border border-foreground/15 focus:border-brand-gold rounded-xl px-4 py-3.5 text-xs outline-none w-full text-foreground tracking-widest font-bold text-center font-mono"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowPaymentModal(false)}
+                      className="w-1/2 bg-foreground/5 hover:bg-foreground/10 text-foreground py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all"
+                    >
+                      Bekor qilish
+                    </button>
+                    <button
+                      type="button"
+                      disabled={cardNumber.length < 19 || cardExpiry.length < 5}
+                      onClick={() => {
+                        setPaymentStep('verifying');
+                        setTimeout(() => {
+                          setPaymentStep('sms');
+                        }, 1800);
+                      }}
+                      className="w-1/2 bg-brand-gold disabled:opacity-50 text-black py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all hover:scale-102"
+                    >
+                      SMS kod olish
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {paymentStep === 'verifying' && (
+                <div className="flex flex-col items-center justify-center py-12 space-y-6">
+                  <div className="w-16 h-16 border-4 border-brand-gold/25 border-t-brand-gold rounded-full animate-spin" />
+                  <div className="text-center space-y-1">
+                    <h4 className="text-sm font-bold uppercase tracking-widest text-foreground animate-pulse">Tranzaksiya tekshirilmoqda</h4>
+                    <p className="text-[10px] text-foreground/45 italic">Iltimos, sahifani yopmang...</p>
+                  </div>
+                </div>
+              )}
+
+              {paymentStep === 'sms' && (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-brand-gold/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <ShieldCheck className="w-6 h-6 text-brand-gold" />
+                    </div>
+                    <h3 className="text-lg font-bold text-foreground">SMS Tasdiqlash</h3>
+                    <p className="text-[10px] text-foreground/45 mt-1 leading-relaxed max-w-xs mx-auto">
+                      Telefoningizga yuborilgan 4 xonali tasdiqlash kodini kiriting.<br />
+                      <span className="font-bold text-brand-gold">SMS Tasdiqlash Kodi: 1234</span>
+                    </p>
+                  </div>
+
+                  <div>
+                    <input
+                      required
+                      type="text"
+                      maxLength={4}
+                      placeholder="• • • •"
+                      value={smsCode}
+                      onChange={(e) => setSmsCode(e.target.value.replace(/[^0-9]/gi, ''))}
+                      className="bg-foreground/5 border border-foreground/15 focus:border-brand-gold rounded-2xl px-4 py-4 text-lg outline-none w-full text-foreground tracking-[1.2rem] font-black text-center font-mono"
+                    />
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setPaymentStep('card')}
+                      className="w-1/2 bg-foreground/5 hover:bg-foreground/10 text-foreground py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all"
+                    >
+                      Orqaga
+                    </button>
+                    <button
+                      type="button"
+                      disabled={smsCode !== '1234'}
+                      onClick={async () => {
+                        setPaymentStep('verifying');
+                        await saveOrderToDatabase();
+                      }}
+                      className="w-1/2 bg-green-500 disabled:opacity-50 text-white py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all hover:scale-102"
+                    >
+                      Tasdiqlash
+                    </button>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

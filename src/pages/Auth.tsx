@@ -8,11 +8,12 @@ import {
   createUserWithEmailAndPassword 
 } from 'firebase/auth';
 import { auth } from '../lib/firebase';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 export const Auth = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -22,13 +23,15 @@ export const Auth = () => {
   const [focused, setFocused] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const from = (location.state as any)?.from?.pathname || '/profile';
+
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     setError(null);
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      navigate('/profile');
+      navigate(from, { replace: true });
     } catch (err: any) {
       console.error('Login failed', err);
       setError(err.message || t('auth.error.general'));
@@ -51,7 +54,7 @@ export const Auth = () => {
       } else {
         await createUserWithEmailAndPassword(auth, email, password);
       }
-      navigate('/profile');
+      navigate(from, { replace: true });
     } catch (err: any) {
       console.error('Auth error', err);
       let msg = t('auth.error.general');

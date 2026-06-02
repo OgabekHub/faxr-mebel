@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import { Plus, Trash2, Edit3, DollarSign, ShoppingBag, Users, CheckCircle, Package, ArrowUpRight, BarChart2, X, PlusCircle, Save } from 'lucide-react';
-import { formatPrice } from '../lib/utils';
+import { cn, formatPrice } from '../lib/utils';
+import { db } from '../lib/firebase';
+import { collection, doc, updateDoc, onSnapshot } from 'firebase/firestore';
 
 // Stateful mock initial database for Admin actions
 const initialOrders = [
@@ -22,7 +24,32 @@ export const Admin = () => {
   
   const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders'>('overview');
   const [products, setProducts] = useState(initialProducts);
-  const [orders, setOrders] = useState(initialOrders);
+  const [orders, setOrders] = useState<any[]>([]);
+  const [isDemoMode, setIsDemoMode] = useState(false);
+
+  useEffect(() => {
+    // Real-time Firestore sync with permission fallback
+    const unsubscribe = onSnapshot(
+      collection(db, 'orders'),
+      (snapshot) => {
+        const fetchedOrders = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        // Sort by date (newest first)
+        fetchedOrders.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        setOrders(fetchedOrders);
+        setIsDemoMode(false);
+      },
+      (error) => {
+        console.warn("Firestore collection 'orders' access denied. Falling back to Demo Mode:", error.message);
+        setIsDemoMode(true);
+        setOrders(initialOrders);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
 
   // Form states for creating/editing a product
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
@@ -85,19 +112,33 @@ export const Admin = () => {
     setIsProductModalOpen(false);
   };
 
-  // Toggle order status in state loop
-  const advanceOrderStatus = (orderId: string) => {
-    setOrders(orders.map(o => {
-      if (o.id === orderId) {
-        let nextStatus = 'wood';
-        if (o.status === 'wood') nextStatus = 'artisan';
-        else if (o.status === 'artisan') nextStatus = 'quality';
-        else if (o.status === 'quality') nextStatus = 'completed';
-        else nextStatus = 'wood';
-        return { ...o, status: nextStatus };
-      }
-      return o;
-    }));
+  // Toggle order status in Firestore / local state
+  const advanceOrderStatus = async (orderId: string) => {
+    const currentOrder = orders.find(o => o.id === orderId);
+    if (!currentOrder) return;
+
+    let nextStatus = 'wood';
+    if (currentOrder.status === 'pending') nextStatus = 'wood';
+    else if (currentOrder.status === 'wood') nextStatus = 'artisan';
+    else if (currentOrder.status === 'artisan') nextStatus = 'quality';
+    else if (currentOrder.status === 'quality') nextStatus = 'completed';
+    else nextStatus = 'pending';
+
+    if (isDemoMode) {
+      setOrders(orders.map(o => o.id === orderId ? { ...o, status: nextStatus } : o));
+      return;
+    }
+
+    try {
+      const orderRef = doc(db, 'orders', orderId);
+      await updateDoc(orderRef, {
+        status: nextStatus
+      });
+    } catch (error) {
+      console.error("Firestore status update failed, shifting to local demo mode:", error);
+      setIsDemoMode(true);
+      setOrders(orders.map(o => o.id === orderId ? { ...o, status: nextStatus } : o));
+    }
   };
 
   const getStatusLabel = (status: string) => {
@@ -146,6 +187,22 @@ export const Admin = () => {
           </button>
         </div>
       </header>
+
+      {/* Demo Mode Banner */}
+      {isDemoMode && (
+        <div className="mb-8 p-4 bg-amber-500/10 border border-amber-500/25 rounded-2xl flex items-center justify-between gap-4 animate-fade-in">
+          <div className="flex items-center gap-3">
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
+            <div className="text-left">
+              <span className="text-xs font-bold text-foreground block">Demo Boshqaruv Rejimi Faol</span>
+              <p className="text-[10px] text-foreground/50 leading-relaxed font-light italic">
+                Firebase Firestore ma'lumotlar bazasiga yozish huquqi yo'q (rursat cheklangan). Kiritilgan o'zgarishlar faqat brauzer xotirasida saqlanadi.
+              </p>
+            </div>
+          </div>
+          <span className="text-[9px] font-black tracking-widest uppercase bg-amber-500/20 text-amber-500 px-3 py-1 rounded-lg shrink-0">Demo Mode</span>
+        </div>
+      )}
 
       {/* Overview Analytics Section */}
       <AnimatePresence mode="wait">
@@ -371,34 +428,54 @@ export const Admin = () => {
             <h2 className="text-xl font-editorial-title font-bold text-foreground pb-4 border-b border-foreground/5">Hozirgi Buyurtmalar va Nazorat ({orders.length})</h2>
             
             <div className="space-y-4">
-              {orders.map(o => (
-                <div key={o.id} className="bento-card p-6 flex flex-col md:flex-row items-center justify-between gap-6 border-l-4 border-l-brand-gold">
-                  <div className="space-y-2 text-center md:text-left">
-                    <div className="flex flex-wrap justify-center md:justify-start items-center gap-3">
-                      <span className="text-[9px] font-black uppercase tracking-widest text-brand-gold">ID: {o.id}</span>
-                      <span className="px-3 py-1 bg-brand-gold/10 border border-brand-gold/25 rounded-full text-[9px] font-bold text-brand-gold uppercase tracking-wider">
-                        {getStatusLabel(o.status)}
-                      </span>
-                    </div>
-                    <h3 className="text-lg font-bold text-foreground">{o.item}</h3>
-                    <p className="text-[10px] text-foreground/45 font-light">Mijoz: <strong className="text-foreground">{o.client}</strong> | Parametr: {o.wood} & {o.fabric}</p>
-                  </div>
+              {orders.map(o => {
+                const itemNames = o.items?.map((it: any) => `${it.name} (x${it.quantity})`).join(', ') || o.item || 'Faxr Mebel Mahsuloti';
+                const firstBespoke = o.items?.find((it: any) => it.bespokeDetails);
+                const wood = firstBespoke?.bespokeDetails?.wood || o.wood || 'N/A';
+                const fabric = firstBespoke?.bespokeDetails?.fabric || o.fabric || 'N/A';
 
-                  <div className="shrink-0 text-center md:text-right flex flex-col sm:flex-row items-center gap-4">
-                    <div className="mb-2 sm:mb-0">
-                      <span className="text-[9px] uppercase font-black tracking-widest text-foreground/40 block">Qiymati</span>
-                      <span className="price-tag text-xl font-bold">{formatPrice(o.total)}</span>
+                return (
+                  <div key={o.id} className="bento-card p-6 flex flex-col md:flex-row items-center justify-between gap-6 border-l-4 border-l-brand-gold">
+                    <div className="space-y-2 text-center md:text-left">
+                      <div className="flex flex-wrap justify-center md:justify-start items-center gap-3">
+                        <span className="text-[9px] font-black uppercase tracking-widest text-brand-gold">ID: {o.id}</span>
+                        <span className="px-3 py-1 bg-brand-gold/10 border border-brand-gold/25 rounded-full text-[9px] font-bold text-brand-gold uppercase tracking-wider">
+                          {getStatusLabel(o.status)}
+                        </span>
+                        {o.paymentStatus && (
+                          <span className={cn(
+                            "px-3 py-1 border rounded-full text-[9px] font-bold uppercase tracking-wider",
+                            o.paymentStatus === 'paid' ? "bg-green-500/10 border-green-500/25 text-green-500" : "bg-orange-500/10 border-orange-500/25 text-orange-500"
+                          )}>
+                            {o.paymentStatus === 'paid' ? 'To\'langan' : 'To\'lov kutilmoqda'}
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="text-lg font-bold text-foreground">{itemNames}</h3>
+                      <p className="text-[10px] text-foreground/45 font-light">
+                        Mijoz: <strong className="text-foreground">{o.client}</strong> | 📞 {o.phone || 'N/A'} | Manzil: <span className="italic text-foreground/60">{o.address || 'N/A'}</span>
+                      </p>
+                      <p className="text-[10px] text-foreground/45 font-light">
+                        Parametr: <strong className="text-foreground">{wood}</strong> & <strong className="text-foreground">{fabric}</strong>
+                      </p>
                     </div>
 
-                    <button 
-                      onClick={() => advanceOrderStatus(o.id)}
-                      className="px-5 py-3.5 bg-foreground/5 hover:bg-brand-gold hover:text-black rounded-xl text-[9px] font-black uppercase tracking-hero transition-all flex items-center gap-2"
-                    >
-                      🔄 Bosqichni O'zgartirish
-                    </button>
+                    <div className="shrink-0 text-center md:text-right flex flex-col sm:flex-row items-center gap-4">
+                      <div className="mb-2 sm:mb-0">
+                        <span className="text-[9px] uppercase font-black tracking-widest text-foreground/40 block">Qiymati</span>
+                        <span className="price-tag text-xl font-bold">{formatPrice(o.total)}</span>
+                      </div>
+
+                      <button 
+                        onClick={() => advanceOrderStatus(o.id)}
+                        className="px-5 py-3.5 bg-foreground/5 hover:bg-brand-gold hover:text-black rounded-xl text-[9px] font-black uppercase tracking-hero transition-all flex items-center gap-2"
+                      >
+                        🔄 Bosqichni O'zgartirish
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </motion.div>
         )}
