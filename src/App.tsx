@@ -9,6 +9,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { CartProvider } from './context/CartContext';
+import { WishlistProvider } from './context/WishlistContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { HelmetProvider } from 'react-helmet-async';
@@ -96,12 +97,14 @@ export default function App() {
     <HelmetProvider>
       <ErrorBoundary>
         <ThemeProvider>
-          <CartProvider>
-            <Router>
-              <ScrollToTop />
-              <AppLayout />
-            </Router>
-          </CartProvider>
+          <WishlistProvider>
+            <CartProvider>
+              <Router>
+                <ScrollToTop />
+                <AppLayout />
+              </Router>
+            </CartProvider>
+          </WishlistProvider>
         </ThemeProvider>
       </ErrorBoundary>
     </HelmetProvider>

@@ -5,6 +5,8 @@ import { auth } from '../lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { formatPrice } from '../lib/utils';
+import { useTranslation } from 'react-i18next';
+import { useWishlist } from '../context/WishlistContext';
 
 // Premium mock wishlist and order history
 const mockWishlist = [
@@ -30,7 +32,9 @@ const mockActiveOrder = {
 };
 
 export const Profile = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  const { wishlist } = useWishlist();
   const [user, setUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'orders' | 'wishlist'>('orders');
@@ -67,7 +71,7 @@ export const Profile = () => {
     return (
       <div className="pt-44 pb-20 text-center h-screen flex flex-col items-center justify-center">
         <Clock className="w-12 h-12 text-brand-gold animate-spin mb-4" />
-        <span className="text-xs uppercase tracking-hero text-foreground/40 font-bold">Cabinet yuklanmoqda...</span>
+        <span className="text-xs uppercase tracking-hero text-foreground/40 font-bold">{t('profile.loading')}</span>
       </div>
     );
   }
@@ -84,11 +88,11 @@ export const Profile = () => {
             <img src={user?.photoURL || 'https://i.pravatar.cc/150?u=9'} alt="User Profile" className="w-full h-full object-cover" />
           </div>
           <div className="text-center md:text-left space-y-1.5">
-            <h1 className="text-2xl md:text-3xl font-editorial-title font-bold text-foreground">{user?.displayName || 'Prestige Client'}</h1>
+            <h1 className="text-2xl md:text-3xl font-editorial-title font-bold text-foreground">{user?.displayName || t('profile.guestName')}</h1>
             <p className="text-xs text-foreground/50 leading-relaxed font-light italic">{user?.email}</p>
             <div className="flex flex-wrap justify-center md:justify-start gap-3 pt-1">
               <span className="px-3.5 py-1 bg-brand-gold/10 border border-brand-gold/10 rounded-full text-[9px] font-black uppercase tracking-wider text-brand-gold flex items-center gap-1.5">
-                <Award className="w-3 h-3" /> Gold Club Member
+                <Award className="w-3 h-3" /> {t('profile.goldMember')}
               </span>
             </div>
           </div>
@@ -98,7 +102,7 @@ export const Profile = () => {
           onClick={handleLogout}
           className="px-6 py-3.5 bg-foreground/5 hover:bg-red-500 hover:text-white rounded-xl text-[9px] font-black uppercase tracking-hero transition-all flex items-center gap-2 border border-foreground/5 hover:border-red-500 relative z-10"
         >
-          <LogOut className="w-4 h-4" /> Tizimdan Chiqish
+          <LogOut className="w-4 h-4" /> {t('profile.logout')}
         </button>
       </div>
 
@@ -116,7 +120,7 @@ export const Profile = () => {
                     : 'hover:bg-foreground/5 text-foreground/60'
                 }`}
               >
-                <ShoppingBag className="w-4 h-4" /> Active Buyurtmalar
+                <ShoppingBag className="w-4 h-4" /> {t('profile.activeOrders')}
               </button>
               <button
                 onClick={() => setActiveTab('wishlist')}
@@ -126,15 +130,15 @@ export const Profile = () => {
                     : 'hover:bg-foreground/5 text-foreground/60'
                 }`}
               >
-                <Heart className="w-4 h-4" /> Sevimlilar (Wishlist)
+                <Heart className="w-4 h-4" /> {t('profile.wishlist')}
               </button>
             </nav>
           </div>
 
           <div className="bento-card p-6 bg-brand-gold text-black">
-            <h3 className="text-xs font-black uppercase tracking-wider mb-2">Prestige Xizmat</h3>
+            <h3 className="text-xs font-black uppercase tracking-wider mb-2">{t('profile.prestigeService')}</h3>
             <p className="text-[10px] leading-relaxed mb-4 font-semibold opacity-75">
-              Sizga shaxsiy dizayner biriktirilgan. Savollaringiz bormi? Buyurtmalarni o'zgartirmoqchimisiz?
+              {t('profile.prestigeDesc')}
             </p>
             <a 
               href="https://t.me/faxrmebel" 
@@ -142,7 +146,7 @@ export const Profile = () => {
               rel="noopener noreferrer" 
               className="w-full py-3 bg-black text-white text-center rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
             >
-              <Send className="w-3.5 h-3.5" /> Telegram orqali yordam
+              <Send className="w-3.5 h-3.5" /> {t('profile.telegramSupport')}
             </a>
           </div>
         </aside>
@@ -162,13 +166,13 @@ export const Profile = () => {
                 <div className="bento-card p-8 border border-foreground/5 relative overflow-hidden">
                   <div className="flex flex-col sm:flex-row justify-between sm:items-center pb-6 border-b border-foreground/5 mb-8 gap-4">
                     <div>
-                      <span className="text-[9px] font-black uppercase tracking-widest text-brand-gold">Aktiv Buyurtma</span>
+                      <span className="text-[9px] font-black uppercase tracking-widest text-brand-gold">{t('profile.activeOrder')}</span>
                       <h3 className="text-lg font-bold text-foreground mt-1">{mockActiveOrder.item}</h3>
-                      <p className="text-[10px] text-foreground/45 mt-1 font-bold">KOD: {mockActiveOrder.id} | Sana: {mockActiveOrder.date}</p>
+                      <p className="text-[10px] text-foreground/45 mt-1 font-bold">{t('profile.code')}: {mockActiveOrder.id} | {t('profile.date')}: {mockActiveOrder.date}</p>
                     </div>
                     
                     <div className="text-left sm:text-right shrink-0">
-                      <span className="text-[9px] uppercase font-black tracking-widest text-foreground/40 block">To'langan Qiymat</span>
+                      <span className="text-[9px] uppercase font-black tracking-widest text-foreground/40 block">{t('profile.paidAmount')}</span>
                       <span className="price-tag text-2xl font-bold block">{formatPrice(mockActiveOrder.total)}</span>
                     </div>
                   </div>
@@ -176,22 +180,22 @@ export const Profile = () => {
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
                     {/* Visual details column */}
                     <div className="md:col-span-4 bg-foreground/5 p-6 rounded-2xl border border-foreground/5 space-y-3.5 h-fit">
-                      <span className="text-[9px] font-black uppercase tracking-widest text-brand-gold block">Tanlangan parametrlar</span>
+                      <span className="text-[9px] font-black uppercase tracking-widest text-brand-gold block">{t('profile.selectedParams')}</span>
                       <div className="space-y-2.5 text-xs">
                         <div className="flex justify-between">
-                          <span className="text-foreground/45">Yog'och turi:</span>
+                          <span className="text-foreground/45">{t('profile.woodType')}:</span>
                           <span className="font-bold">{mockActiveOrder.wood}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-foreground/45">Qoplama mato:</span>
+                          <span className="text-foreground/45">{t('profile.fabric')}:</span>
                           <span className="font-bold">{mockActiveOrder.fabric}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-foreground/45">Qadoqlash:</span>
+                          <span className="text-foreground/45">{t('profile.packaging')}:</span>
                           <span className="font-bold">{mockActiveOrder.packaging}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-foreground/45">Yetkazish:</span>
+                          <span className="text-foreground/45">{t('profile.delivery')}:</span>
                           <span className="font-bold text-green-500">Kuryer (Luxe)</span>
                         </div>
                       </div>
@@ -199,7 +203,7 @@ export const Profile = () => {
 
                     {/* Timeline tracking tracker */}
                     <div className="md:col-span-8 space-y-6">
-                      <span className="text-[9px] font-black uppercase tracking-widest text-brand-gold block mb-2">Buyurtma Holati Timeline</span>
+                      <span className="text-[9px] font-black uppercase tracking-widest text-brand-gold block mb-2">{t('profile.timeline')}</span>
                       
                       <div className="relative pl-6 border-l border-foreground/10 space-y-8">
                         {mockActiveOrder.steps.map((step, idx) => (
@@ -238,30 +242,37 @@ export const Profile = () => {
                 exit={{ opacity: 0, x: -20 }}
                 className="grid grid-cols-1 sm:grid-cols-2 gap-6"
               >
-                {mockWishlist.map((item) => (
-                  <div key={item.id} className="bento-card glow-tracer p-5 group flex flex-col justify-between">
-                    <div className="relative aspect-square rounded-[1.5rem] overflow-hidden mb-5">
-                      <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                      <div className="absolute top-4 left-4 glass px-3.5 py-1 rounded-full text-[8px] font-black uppercase tracking-widest">
-                        {item.category}
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between items-center mb-4">
-                      <div>
-                        <h3 className="text-base font-bold text-foreground">{item.name}</h3>
-                        <span className="price-tag text-lg font-bold block mt-1">{formatPrice(item.price)}</span>
-                      </div>
-                    </div>
-
-                    <button 
-                      onClick={() => navigate('/shop')}
-                      className="w-full py-3 bg-foreground/5 hover:bg-brand-gold hover:text-black rounded-xl text-[9px] font-black uppercase tracking-widest border border-foreground/5 transition-all"
-                    >
-                      Katalogda ko'rish
-                    </button>
+                {wishlist.length === 0 ? (
+                  <div className="col-span-1 sm:col-span-2 flex flex-col items-center justify-center py-20 opacity-50">
+                    <Heart className="w-12 h-12 mb-4 text-foreground/20" />
+                    <p className="text-xs uppercase tracking-widest font-bold">{t('profile.emptyWishlist')}</p>
                   </div>
-                ))}
+                ) : (
+                  wishlist.map((item) => (
+                    <div key={item.id} className="bento-card glow-tracer p-5 group flex flex-col justify-between">
+                      <div className="relative aspect-square rounded-[1.5rem] overflow-hidden mb-5">
+                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                        <div className="absolute top-4 left-4 glass px-3.5 py-1 rounded-full text-[8px] font-black uppercase tracking-widest">
+                          {item.category}
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-center mb-4">
+                        <div>
+                          <h3 className="text-base font-bold text-foreground">{item.name}</h3>
+                          <span className="price-tag text-lg font-bold block mt-1">{formatPrice(item.price)}</span>
+                        </div>
+                      </div>
+
+                      <button 
+                        onClick={() => navigate('/shop')}
+                        className="w-full py-3 bg-foreground/5 hover:bg-brand-gold hover:text-black rounded-xl text-[9px] font-black uppercase tracking-widest border border-foreground/5 transition-all"
+                      >
+                        {t('common.seeAll')}
+                      </button>
+                    </div>
+                  ))
+                )}
               </motion.div>
             )}
           </AnimatePresence>

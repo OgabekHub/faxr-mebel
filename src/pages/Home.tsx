@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowRight, Star, Shield, Award, MapPin, Clock, Phone, Send, Info, Check, QrCode, Smartphone, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, Star, Shield, Award, MapPin, Clock, Phone, Send, Info, Check, QrCode, Smartphone, ChevronLeft, ChevronRight, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { formatPrice } from '../lib/utils';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 import { ARModal } from '../components/ARModal';
 import { BespokeModal } from '../components/BespokeModal';
 import { BentoSpotlight } from '../components/BentoSpotlight';
@@ -74,6 +75,7 @@ const featuredProducts = [
 export const Home = () => {
   const { t, i18n } = useTranslation();
   const { addToCart } = useCart();
+  const { wishlist, toggleWishlist, isInWishlist } = useWishlist();
 
   const [addedToast, setAddedToast] = useState<string | null>(null);
   const [isAROpen, setIsAROpen] = useState(false);
@@ -136,6 +138,20 @@ export const Home = () => {
 
   const currentSlideData = heroSlides[currentSlide];
   const { collection: sCollection, title: sTitle, titleGold: sTitleGold } = getSlideTexts(currentSlideData);
+
+  const handleToggleWishlist = (product: any, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist({
+      id: product.id,
+      name: t(`product.${product.id}.name`),
+      price: product.price,
+      image: product.image,
+      category: t(`shop.category.${product.category}`)
+    });
+    setAddedToast(isInWishlist(product.id) ? t('shop.toast.wishlistRemoved') : t('shop.toast.wishlistAdded'));
+    setTimeout(() => setAddedToast(null), 3000);
+  };
 
   return (
     <div className="flex flex-col pt-32 px-6 gap-16 max-w-7xl mx-auto mb-20 overflow-hidden">
@@ -394,7 +410,20 @@ export const Home = () => {
             >
               <div className="relative aspect-square rounded-[1.8rem] overflow-hidden mb-6">
                 <img src={product.image} alt={t(`product.${product.id}.name`)} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" />
-                <div className="absolute top-4 right-4 glass px-4 py-1.5 rounded-full text-[9px] font-black text-brand-gold uppercase tracking-widest">
+                
+                {/* Floating actions */}
+                <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
+                  <button 
+                    onClick={(e) => handleToggleWishlist(product, e)}
+                    className={`p-2.5 rounded-full transition-all duration-300 shadow-md ${
+                      isInWishlist(product.id) ? "bg-red-500 text-white" : "glass text-foreground hover:scale-110"
+                    }`}
+                  >
+                    <Heart className="w-3.5 h-3.5 fill-current" />
+                  </button>
+                </div>
+
+                <div className="absolute top-4 left-4 glass px-4 py-1.5 rounded-full text-[9px] font-black text-brand-gold uppercase tracking-widest">
                   {t(`shop.category.${product.category}`)}
                 </div>
               </div>

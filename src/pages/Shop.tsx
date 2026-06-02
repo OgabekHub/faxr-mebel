@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Search, Star, ShoppingCart, Eye, Grid, List, Sparkles, X, Heart, ShieldCheck, Check, QrCode, Smartphone } from 'lucide-react';
 import { cn, formatPrice } from '../lib/utils';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 import { Link } from 'react-router-dom';
 import { ARModal } from '../components/ARModal';
 import { BespokeModal } from '../components/BespokeModal';
@@ -31,6 +32,7 @@ const categories = ['All', 'Sofa', 'Bedroom', 'Dining', 'Office', 'Luxury Decor'
 export const Shop = () => {
   const { t } = useTranslation();
   const { addToCart } = useCart();
+  const { wishlist, toggleWishlist: toggleGlobalWishlist, isInWishlist } = useWishlist();
   
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -44,15 +46,19 @@ export const Shop = () => {
   // Custom bespoke wood and fabric selection inside the modal
   const [bespokeWood, setBespokeWood] = useState('Walnut (Yong\'oq)');
   const [bespokeFabric, setBespokeFabric] = useState('Italian Velvet');
-  const [wishlist, setWishlist] = useState<string[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const toggleWishlist = (productId: string) => {
-    if (wishlist.includes(productId)) {
-      setWishlist(wishlist.filter(id => id !== productId));
+  const handleToggleWishlist = (product: any) => {
+    toggleGlobalWishlist({
+      id: product.id,
+      name: t('product.' + product.id + '.name'),
+      price: product.price,
+      image: product.image,
+      category: t('shop.category.' + product.category)
+    });
+    if (isInWishlist(product.id)) {
       triggerToast(t('shop.toast.wishlistRemoved'));
     } else {
-      setWishlist([...wishlist, productId]);
       triggerToast(t('shop.toast.wishlistAdded'));
     }
   };
@@ -75,7 +81,7 @@ export const Shop = () => {
     (selectedCategory === 'All' || p.category === selectedCategory) &&
     t('product.' + p.id + '.name').toLowerCase().includes(searchQuery.toLowerCase()) &&
     p.price <= priceRange &&
-    (!showOnlyFavorites || wishlist.includes(p.id))
+    (!showOnlyFavorites || isInWishlist(p.id))
   );
 
   return (
@@ -248,10 +254,10 @@ export const Shop = () => {
                         {/* Floating actions */}
                         <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
                           <button 
-                            onClick={() => toggleWishlist(product.id)}
+                            onClick={() => handleToggleWishlist(product)}
                             className={cn(
                               "p-2.5 rounded-full transition-all duration-300 shadow-md",
-                              wishlist.includes(product.id) ? "bg-red-500 text-white" : "glass text-foreground hover:scale-110"
+                              isInWishlist(product.id) ? "bg-red-500 text-white" : "glass text-foreground hover:scale-110"
                             )}
                           >
                             <Heart className="w-3.5 h-3.5 fill-current" />

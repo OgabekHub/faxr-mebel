@@ -21,6 +21,7 @@ export const Contact = () => {
   
   // Tab selector between Message / Showroom Appointment booking
   const [activeFormTab, setActiveFormTab] = useState<'message' | 'appointment'>('message');
+  const [isTimeDropdownOpen, setIsTimeDropdownOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -234,17 +235,60 @@ export const Contact = () => {
                   </div>
                   <div>
                     <label className="text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">{t('contact.form.label.time')}</label>
-                    <select 
-                      required
-                      value={formData.time}
-                      onChange={(e) => setFormData({...formData, time: e.target.value})}
-                      className="bg-foreground/5 border border-foreground/15 focus:border-brand-gold rounded-xl px-4 py-3.5 text-xs outline-none w-full transition-all text-foreground font-bold"
-                    >
-                      <option value="">{t('contact.form.placeholder.time')}</option>
-                      {availableTimes.map((time) => (
-                        <option key={time} value={time}>{time}</option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setIsTimeDropdownOpen(!isTimeDropdownOpen)}
+                        className={cn(
+                          "bg-foreground/5 border rounded-xl px-4 py-3.5 text-xs outline-none w-full transition-all font-bold flex justify-between items-center",
+                          isTimeDropdownOpen ? "border-brand-gold text-foreground" : "border-foreground/15 hover:border-brand-gold text-foreground",
+                          !formData.time ? "text-foreground/50" : ""
+                        )}
+                      >
+                        {formData.time ? formData.time : t('contact.form.placeholder.time')}
+                        <ChevronDown className={cn("w-4 h-4 transition-transform duration-300", isTimeDropdownOpen ? "rotate-180 text-brand-gold" : "text-foreground/50")} />
+                      </button>
+
+                      {/* Hidden input for HTML5 required validation */}
+                      <input 
+                        type="text" 
+                        required 
+                        readOnly 
+                        value={formData.time} 
+                        className="absolute bottom-0 left-1/2 w-0 h-0 opacity-0 -z-10" 
+                      />
+
+                      <AnimatePresence>
+                        {isTimeDropdownOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.2 }}
+                            className="absolute top-full left-0 w-full mt-2 p-2 glass border border-foreground/10 rounded-xl overflow-hidden z-20 shadow-xl flex flex-col gap-1"
+                          >
+                            {availableTimes.map((time) => (
+                              <button
+                                key={time}
+                                type="button"
+                                onClick={() => {
+                                  setFormData({...formData, time});
+                                  setIsTimeDropdownOpen(false);
+                                }}
+                                className={cn(
+                                  "w-full text-left px-4 py-2.5 rounded-lg text-xs font-bold transition-all",
+                                  formData.time === time 
+                                    ? "bg-brand-gold text-black" 
+                                    : "hover:bg-foreground/10 text-foreground"
+                                )}
+                              >
+                                {time}
+                              </button>
+                            ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   </div>
                 </div>
               )}
