@@ -549,33 +549,33 @@ ${addonsList}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 overflow-y-auto flex items-center justify-center p-4 sm:p-6"
           >
             <motion.div
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="bg-[#0f0e0c] border border-brand-gold/25 w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden"
+              className="bg-[#0f0e0c] border border-brand-gold/25 w-full max-w-md rounded-3xl sm:rounded-[2.5rem] p-5 sm:p-8 shadow-2xl relative overflow-hidden text-left my-auto"
             >
               {/* Glow background */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-brand-gold/10 blur-[50px] rounded-full pointer-events-none" />
 
               {paymentStep === 'card' && (
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <div className="text-center">
-                    <span className="text-[9px] uppercase font-black tracking-hero text-brand-gold block mb-1">Prestige Gateway</span>
-                    <h3 className="text-xl font-editorial-title font-bold text-white">Click / Payme To'lovi</h3>
-                    <p className="text-[10px] text-white/40 italic mt-1">Xavfsiz va premium to'lov interfeysi</p>
+                    <span className="text-[9px] uppercase font-black tracking-hero text-brand-gold block mb-0.5">Prestige Gateway</span>
+                    <h3 className="text-lg sm:text-xl font-editorial-title font-bold text-white">Click / Payme To'lovi</h3>
+                    <p className="text-[9px] sm:text-[10px] text-white/40 italic mt-0.5">Xavfsiz va premium to'lov interfeysi</p>
                   </div>
 
-                  <div className="bg-white/5 p-4 rounded-2xl border border-white/10 flex justify-between items-center">
+                  <div className="bg-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white/10 flex justify-between items-center">
                     <span className="text-xs text-white/50">To'lov summasi:</span>
-                    <span className="price-tag font-bold text-lg">{formatPrice(finalAmount)}</span>
+                    <span className="price-tag font-bold text-base sm:text-lg">{formatPrice(finalAmount)}</span>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     <div>
-                      <label className="text-[9px] font-black tracking-widest uppercase text-white/40 block mb-1.5 ml-2">Karta Raqami</label>
+                      <label className="text-[9px] font-black tracking-widest uppercase text-white/40 block mb-1 ml-1.5">Karta Raqami</label>
                       <input
                         required
                         type="text"
@@ -592,13 +592,13 @@ ${addonsList}
                           }
                           setCardNumber(parts.length > 0 ? parts.join(' ') : v);
                         }}
-                        className="bg-white/5 border border-white/10 focus:border-brand-gold rounded-xl px-4 py-3.5 text-xs outline-none w-full text-white placeholder-white/30 tracking-widest font-bold font-mono"
+                        className="bg-white/5 border border-white/10 focus:border-brand-gold rounded-xl px-3.5 py-2.5 sm:px-4 sm:py-3.5 text-xs outline-none w-full text-white placeholder-white/30 tracking-widest font-bold font-mono"
                       />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
                       <div>
-                        <label className="text-[9px] font-black tracking-widest uppercase text-white/40 block mb-1.5 ml-2">Muddati</label>
+                        <label className="text-[9px] font-black tracking-widest uppercase text-white/40 block mb-1 ml-1.5">Muddati</label>
                         <input
                           required
                           type="text"
@@ -609,11 +609,11 @@ ${addonsList}
                             const v = e.target.value.replace('/', '').replace(/[^0-9]/gi, '');
                             setCardExpiry(v.length >= 2 ? v.substring(0, 2) + '/' + v.substring(2, 4) : v);
                           }}
-                          className="bg-white/5 border border-white/10 focus:border-brand-gold rounded-xl px-4 py-3.5 text-xs outline-none w-full text-white placeholder-white/30 tracking-widest font-bold text-center font-mono"
+                          className="bg-white/5 border border-white/10 focus:border-brand-gold rounded-xl px-3.5 py-2.5 sm:px-4 sm:py-3.5 text-xs outline-none w-full text-white placeholder-white/30 tracking-widest font-bold text-center font-mono"
                         />
                       </div>
                       <div>
-                        <label className="text-[9px] font-black tracking-widest uppercase text-white/40 block mb-1.5 ml-2">CVV/CVC</label>
+                        <label className="text-[9px] font-black tracking-widest uppercase text-white/40 block mb-1 ml-1.5">CVV/CVC</label>
                         <input
                           required
                           type="password"
@@ -621,17 +621,17 @@ ${addonsList}
                           placeholder="***"
                           value={cardCvv}
                           onChange={(e) => setCardCvv(e.target.value.replace(/[^0-9]/gi, ''))}
-                          className="bg-white/5 border border-white/10 focus:border-brand-gold rounded-xl px-4 py-3.5 text-xs outline-none w-full text-white placeholder-white/30 tracking-widest font-bold text-center font-mono"
+                          className="bg-white/5 border border-white/10 focus:border-brand-gold rounded-xl px-3.5 py-2.5 sm:px-4 sm:py-3.5 text-xs outline-none w-full text-white placeholder-white/30 tracking-widest font-bold text-center font-mono"
                         />
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex gap-3 pt-2">
+                  <div className="flex gap-2 sm:gap-3 pt-1 sm:pt-2">
                     <button
                       type="button"
                       onClick={() => setShowPaymentModal(false)}
-                      className="w-1/2 bg-white/5 hover:bg-white/10 text-white/80 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all"
+                      className="w-1/2 bg-white/5 hover:bg-white/10 text-white/80 py-2.5 sm:py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all"
                     >
                       Bekor qilish
                     </button>
@@ -644,7 +644,7 @@ ${addonsList}
                           setPaymentStep('sms');
                         }, 1800);
                       }}
-                      className="w-1/2 bg-brand-gold disabled:opacity-50 text-black py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all hover:scale-102"
+                      className="w-1/2 bg-brand-gold disabled:opacity-50 text-black py-2.5 sm:py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all hover:scale-102"
                     >
                       SMS kod olish
                     </button>
@@ -653,23 +653,23 @@ ${addonsList}
               )}
 
               {paymentStep === 'verifying' && (
-                <div className="flex flex-col items-center justify-center py-12 space-y-6">
-                  <div className="w-16 h-16 border-4 border-brand-gold/25 border-t-brand-gold rounded-full animate-spin" />
+                <div className="flex flex-col items-center justify-center py-8 sm:py-12 space-y-4 sm:space-y-6">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-brand-gold/25 border-t-brand-gold rounded-full animate-spin" />
                   <div className="text-center space-y-1">
-                    <h4 className="text-sm font-bold uppercase tracking-widest text-white animate-pulse">Tranzaksiya tekshirilmoqda</h4>
-                    <p className="text-[10px] text-white/45 italic">Iltimos, sahifani yopmang...</p>
+                    <h4 className="text-xs sm:text-sm font-bold uppercase tracking-widest text-white animate-pulse">Tranzaksiya tekshirilmoqda</h4>
+                    <p className="text-[9px] sm:text-[10px] text-white/45 italic">Iltimos, sahifani yopmang...</p>
                   </div>
                 </div>
               )}
 
               {paymentStep === 'sms' && (
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <div className="text-center">
-                    <div className="w-12 h-12 bg-brand-gold/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <ShieldCheck className="w-6 h-6 text-brand-gold" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-brand-gold/10 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
+                      <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-brand-gold" />
                     </div>
-                    <h3 className="text-lg font-bold text-white">SMS Tasdiqlash</h3>
-                    <p className="text-[10px] text-white/45 mt-1 leading-relaxed max-w-xs mx-auto">
+                    <h3 className="text-base sm:text-lg font-bold text-white">SMS Tasdiqlash</h3>
+                    <p className="text-[9px] sm:text-[10px] text-white/45 mt-1 leading-relaxed max-w-xs mx-auto">
                       Telefoningizga yuborilgan 4 xonali tasdiqlash kodini kiriting.<br />
                       <span className="font-bold text-brand-gold">SMS Tasdiqlash Kodi: 1234</span>
                     </p>
@@ -683,15 +683,15 @@ ${addonsList}
                       placeholder="• • • •"
                       value={smsCode}
                       onChange={(e) => setSmsCode(e.target.value.replace(/[^0-9]/gi, ''))}
-                      className="bg-white/5 border border-white/10 focus:border-brand-gold rounded-2xl px-4 py-4 text-lg outline-none w-full text-white placeholder-white/30 tracking-[1.2rem] font-black text-center font-mono"
+                      className="bg-white/5 border border-white/10 focus:border-brand-gold rounded-xl sm:rounded-2xl px-3 sm:px-4 py-3 sm:py-4 text-base sm:text-lg outline-none w-full text-white placeholder-white/30 tracking-[0.8rem] sm:tracking-[1.2rem] font-black text-center font-mono"
                     />
                   </div>
 
-                  <div className="flex gap-3">
+                  <div className="flex gap-2 sm:gap-3">
                     <button
                       type="button"
                       onClick={() => setPaymentStep('card')}
-                      className="w-1/2 bg-white/5 hover:bg-white/10 text-white/80 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all"
+                      className="w-1/2 bg-white/5 hover:bg-white/10 text-white/80 py-2.5 sm:py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all"
                     >
                       Orqaga
                     </button>
@@ -702,7 +702,7 @@ ${addonsList}
                         setPaymentStep('verifying');
                         await saveOrderToDatabase();
                       }}
-                      className="w-1/2 bg-green-500 disabled:opacity-50 text-white py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all hover:scale-102"
+                      className="w-1/2 bg-green-500 disabled:opacity-50 text-white py-2.5 sm:py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all hover:scale-102"
                     >
                       Tasdiqlash
                     </button>
