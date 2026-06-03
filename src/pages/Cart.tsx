@@ -149,11 +149,11 @@ ${addonsList}
         navigate('/profile');
       }, 4500);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("Order creation failed:", error);
       setIsSubmitting(false);
       setShowPaymentModal(false);
-      alert("Xatolik yuz berdi. Iltimos qaytadan urinib ko'ring.");
+      alert(`Xatolik yuz berdi: ${error?.message || error || "Noma'lum xatolik"}`);
     }
   };
 
