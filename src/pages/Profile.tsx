@@ -6,6 +6,8 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { formatPrice } from '../lib/utils';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '../context/ThemeContext';
+import { CustomSelect } from '../components/CustomSelect';
 import { useWishlist } from '../context/WishlistContext';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 
@@ -270,17 +272,15 @@ export const Profile = () => {
                     {orders.length > 1 && (
                       <div className="flex items-center gap-3 bg-foreground/5 p-3 rounded-2xl border border-foreground/5 w-fit">
                         <span className="text-[9px] uppercase font-black tracking-widest text-foreground/45 ml-2">{t('profile.selectOrder', 'Buyurtmani tanlash')}:</span>
-                        <select
+                        <CustomSelect
                           value={selectedOrderId || ''}
-                          onChange={(e) => setSelectedOrderId(e.target.value)}
-                          className="bg-background border border-foreground/15 text-foreground rounded-xl px-4 py-1.5 text-[11px] font-bold focus:border-brand-gold outline-none cursor-pointer"
-                        >
-                          {orders.map(o => (
-                            <option key={o.id} value={o.id}>
-                              {o.id} ({new Date(o.date).toLocaleDateString()})
-                            </option>
-                          ))}
-                        </select>
+                          onChange={setSelectedOrderId}
+                          options={orders.map(o => ({
+                            value: o.id,
+                            label: `${o.id} (${new Date(o.date).toLocaleDateString()})`
+                          }))}
+                          className="w-48"
+                        />
                       </div>
                     )}
 

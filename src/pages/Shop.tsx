@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { ARModal } from '../components/ARModal';
 import { BespokeModal } from '../components/BespokeModal';
 import { BentoSpotlight } from '../components/BentoSpotlight';
+import { CustomSelect } from '../components/CustomSelect';
 import { createPortal } from 'react-dom';
 import { SEO } from '../components/SEO';
 
@@ -420,28 +421,30 @@ export const Shop = () => {
                     <div className="grid grid-cols-2 gap-4 mb-6">
                       <div className="flex flex-col justify-between h-full">
                         <label className="text-[9px] font-black uppercase tracking-widest text-foreground/40 block mb-2">{t('shop.modal.woodLabel')}</label>
-                        <select 
+                        <CustomSelect 
                           value={bespokeWood}
-                          onChange={(e) => setBespokeWood(e.target.value)}
-                          className="bg-foreground/5 border border-foreground/10 rounded-xl px-3 py-2 text-xs outline-none w-full font-bold focus:border-brand-gold transition-all text-foreground mt-auto"
-                        >
-                          <option value="Walnut (Yong'oq)">Walnut (Oliy Yong'oq)</option>
-                          <option value="Oak (Eman)">Oak (Klassik Eman)</option>
-                          <option value="Birch (Qayrag'och)">Birch (Eco Qayrag'och)</option>
-                        </select>
+                          onChange={setBespokeWood}
+                          options={[
+                            { value: "Walnut (Yong'oq)", label: "Walnut (Oliy Yong'oq)" },
+                            { value: "Oak (Eman)", label: "Oak (Klassik Eman)" },
+                            { value: "Birch (Qayrag'och)", label: "Birch (Eco Qayrag'och)" }
+                          ]}
+                          className="mt-auto"
+                        />
                       </div>
 
                       <div className="flex flex-col justify-between h-full">
                         <label className="text-[9px] font-black uppercase tracking-widest text-foreground/40 block mb-2">{t('shop.modal.fabricLabel')}</label>
-                        <select 
+                        <CustomSelect 
                           value={bespokeFabric}
-                          onChange={(e) => setBespokeFabric(e.target.value)}
-                          className="bg-foreground/5 border border-foreground/10 rounded-xl px-3 py-2 text-xs outline-none w-full font-bold focus:border-brand-gold transition-all text-foreground mt-auto"
-                        >
-                          <option value="Italian Velvet">Italian Velvet (Baxmal)</option>
-                          <option value="Full-grain Leather">Full-grain Leather (Charm)</option>
-                          <option value="Premium Textile">Premium Textile (Mato)</option>
-                        </select>
+                          onChange={setBespokeFabric}
+                          options={[
+                            { value: "Italian Velvet", label: "Italian Velvet (Baxmal)" },
+                            { value: "Full-grain Leather", label: "Full-grain Leather (Charm)" },
+                            { value: "Premium Textile", label: "Premium Textile (Mato)" }
+                          ]}
+                          className="mt-auto"
+                        />
                       </div>
                     </div>
                   </div>

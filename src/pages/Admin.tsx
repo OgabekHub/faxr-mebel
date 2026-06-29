@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import { Plus, Trash2, Edit3, DollarSign, ShoppingBag, Users, CheckCircle, Package, ArrowUpRight, BarChart2, X, PlusCircle, Save } from 'lucide-react';
 import { cn, formatPrice } from '../lib/utils';
+import { useTheme } from '../context/ThemeContext';
+import { CustomSelect } from '../components/CustomSelect';
 import { db } from '../lib/firebase';
 import { collection, doc, updateDoc, onSnapshot } from 'firebase/firestore';
 
@@ -536,17 +538,17 @@ export const Admin = () => {
                   </div>
                   <div>
                     <label className="text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">Kategoriya</label>
-                    <select 
+                    <CustomSelect 
                       value={productForm.category}
-                      onChange={(e) => setProductForm({...productForm, category: e.target.value})}
-                      className="bg-foreground/5 border border-foreground/15 focus:border-brand-gold rounded-xl px-4 py-3 text-xs outline-none w-full transition-all text-foreground font-bold"
-                    >
-                      <option value="Sofa">Sofa</option>
-                      <option value="Dining">Dining</option>
-                      <option value="Bedroom">Bedroom</option>
-                      <option value="Office">Office</option>
-                      <option value="Luxury Decor">Luxury Decor</option>
-                    </select>
+                      onChange={(value) => setProductForm({...productForm, category: value})}
+                      options={[
+                        { value: "Sofa", label: "Sofa" },
+                        { value: "Dining", label: "Dining" },
+                        { value: "Bedroom", label: "Bedroom" },
+                        { value: "Office", label: "Office" },
+                        { value: "Luxury Decor", label: "Luxury Decor" }
+                      ]}
+                    />
                   </div>
                 </div>
 
