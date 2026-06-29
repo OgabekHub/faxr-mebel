@@ -130,13 +130,6 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
             transition={{ type: 'spring', damping: 25 }}
             className="w-full max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden bg-background border border-foreground/10 rounded-[2rem] md:rounded-[3rem] shadow-2xl relative"
           >
-            {/* Close Button */}
-            <button 
-              onClick={onClose}
-              className="absolute top-6 right-6 z-50 w-10 h-10 rounded-full bg-foreground/5 hover:bg-foreground/10 flex items-center justify-center border border-foreground/10 text-foreground transition-all duration-300"
-            >
-              <X className="w-5 h-5" />
-            </button>
 
             <div className="grid grid-cols-1 md:grid-cols-12 min-h-[500px]">
               
@@ -176,20 +169,29 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
               {/* Right Column: Multi-Step Interactive Form */}
               <div className="md:col-span-7 p-8 flex flex-col justify-between">
                 
-                {/* Steps Header indicator */}
+                {/* Steps Header indicator & Close Button */}
                 {!submitted && (
-                  <div className="flex items-center gap-2 mb-6 pr-12">
-                    {[1, 2, 3].map((s) => (
-                      <div 
-                        key={s} 
-                        className={`h-1.5 rounded-full transition-all duration-500 ${
-                          s === step ? 'w-8 bg-brand-gold' : s < step ? 'w-3 bg-foreground/30' : 'w-3 bg-foreground/10'
-                        }`} 
-                      />
-                    ))}
-                    <span className="text-[9px] uppercase font-black text-foreground/45 tracking-widest ml-auto">
-                      Step {step} of 3
-                    </span>
+                  <div className="flex items-start justify-between gap-3 mb-6">
+                    <div className="flex items-center gap-2 flex-1 mt-2">
+                      {[1, 2, 3].map((s) => (
+                        <div 
+                          key={s} 
+                          className={`h-1.5 rounded-full transition-all duration-500 ${
+                            s === step ? 'w-8 bg-brand-gold' : s < step ? 'w-3 bg-foreground/30' : 'w-3 bg-foreground/10'
+                          }`} 
+                        />
+                      ))}
+                      <span className="text-[9px] uppercase font-black text-foreground/45 tracking-widest ml-auto">
+                        Step {step} of 3
+                      </span>
+                    </div>
+                    {/* Close Button */}
+                    <button
+                      onClick={onClose}
+                      className="shrink-0 w-9 h-9 rounded-full bg-foreground/8 hover:bg-foreground/15 flex items-center justify-center border border-foreground/10 text-foreground transition-all duration-300"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
                   </div>
                 )}
 
