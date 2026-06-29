@@ -123,7 +123,7 @@ export const Auth = () => {
         <div className="relative z-10">
           <Link to="/" className="inline-flex items-center gap-2 group">
             <span className="text-xl xl:text-2xl font-display font-black tracking-tighter text-white">
-              <span className="text-brand-gold group-hover:brightness-110 transition-all duration-500 ease-out">FAXR</span> MEBEL
+              <span className="text-brand-gold group-hover:brightness-110">FAXR</span> MEBEL
             </span>
           </Link>
         </div>
@@ -228,7 +228,7 @@ export const Auth = () => {
                 to="/"
                 className="inline-flex items-center gap-1.5 text-foreground/40 hover:text-foreground/70 transition-colors text-xs mb-6 group"
               >
-                <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-all duration-500 ease-out duration-500 ease-out" />
+                <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5" />
                 {t('nav.home')}
               </Link>
               <div className="text-center">
@@ -253,7 +253,7 @@ export const Auth = () => {
                     setIsLogin(key);
                     setError(null);
                   }}
-                  className={`flex-1 py-2.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest rounded-xl transition-all duration-500 ease-out ${
+                  className={`flex-1 py-2.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest rounded-xl ${
                     isLogin === key
                       ? 'bg-brand-gold text-black shadow-md'
                       : 'text-foreground/40 hover:text-foreground/70'
@@ -316,7 +316,7 @@ export const Auth = () => {
                 <label className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-foreground/40 ml-1">
                   {t('auth.email')}
                 </label>
-                <div className={`relative transition-all duration-500 ease-out ${focused === 'email' ? 'scale-[1.01]' : ''}`}>
+                <div className={`relative ${focused === 'email' ? 'scale-[1.01]' : ''}`}>
                   <input
                     type="email"
                     value={email}
@@ -337,7 +337,7 @@ export const Auth = () => {
                 <label className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-foreground/40 ml-1">
                   {t('auth.passcode')}
                 </label>
-                <div className={`relative transition-all duration-500 ease-out ${focused === 'pass' ? 'scale-[1.01]' : ''}`}>
+                <div className={`relative ${focused === 'pass' ? 'scale-[1.01]' : ''}`}>
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={password}
@@ -386,12 +386,12 @@ export const Auth = () => {
                   ) : (
                     <>
                       {isLogin ? t('auth.grantAccess') : t('auth.createAccount')}
-                      <ArrowRight className="w-4 h-4 transition-all duration-500 ease-out group-hover:translate-x-1" />
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1" />
                     </>
                   )}
                 </span>
                 {/* Shimmer effect */}
-                <div className="absolute inset-0 bg-white/10 translate-x-[-110%] group-hover:translate-x-[110%] transition-all duration-700 ease-out skew-x-12" />
+                <div className="absolute inset-0 bg-white/10 translate-x-[-110%] group-hover:translate-x-[110%] skew-x-12" />
               </motion.button>
             </form>
 
@@ -430,7 +430,7 @@ export const Auth = () => {
                   setIsLogin(!isLogin);
                   setError(null);
                 }}
-                className="text-brand-gold font-bold hover:underline underline-offset-4 decoration-brand-gold/30 transition-all duration-500 ease-out"
+                className="text-brand-gold font-bold hover:underline underline-offset-4 decoration-brand-gold/30"
               >
                 {isLogin ? t('auth.apply') : t('auth.login')}
               </button>

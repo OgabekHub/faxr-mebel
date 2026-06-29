@@ -163,7 +163,7 @@ export const Contact = () => {
                   type="button"
                   onClick={() => setActiveFormTab('message')}
                   className={cn(
-                    "text-xs font-black uppercase tracking-widest pb-2 border-b-2 transition-all duration-500 ease-out",
+                    "text-xs font-black uppercase tracking-widest pb-2 border-b-2",
                     activeFormTab === 'message' ? "border-brand-gold text-brand-gold font-bold" : "border-transparent text-foreground/40"
                   )}
                 >
@@ -173,7 +173,7 @@ export const Contact = () => {
                   type="button"
                   onClick={() => setActiveFormTab('appointment')}
                   className={cn(
-                    "text-xs font-black uppercase tracking-widest pb-2 border-b-2 transition-all duration-500 ease-out",
+                    "text-xs font-black uppercase tracking-widest pb-2 border-b-2",
                     activeFormTab === 'appointment' ? "border-brand-gold text-brand-gold font-bold" : "border-transparent text-foreground/40"
                   )}
                 >
@@ -246,7 +246,7 @@ export const Contact = () => {
                         )}
                       >
                         {formData.time ? formData.time : t('contact.form.placeholder.time')}
-                        <ChevronDown className={cn("w-4 h-4 transition-all duration-500 ease-out duration-300", isTimeDropdownOpen ? "rotate-180 text-brand-gold" : "text-foreground/50")} />
+                        <ChevronDown className={cn("w-4 h-4 duration-300", isTimeDropdownOpen ? "rotate-180 text-brand-gold" : "text-foreground/50")} />
                       </button>
 
                       {/* Hidden input for HTML5 required validation */}
@@ -276,7 +276,7 @@ export const Contact = () => {
                                   setIsTimeDropdownOpen(false);
                                 }}
                                 className={cn(
-                                  "w-full text-left px-4 py-2.5 rounded-lg text-xs font-bold transition-all duration-500 ease-out",
+                                  "w-full text-left px-4 py-2.5 rounded-lg text-xs font-bold",
                                   formData.time === time 
                                     ? "bg-brand-gold text-black" 
                                     : "hover:bg-foreground/10 text-foreground"
@@ -296,7 +296,7 @@ export const Contact = () => {
               <button 
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-brand-gold text-black py-4 rounded-xl font-extrabold text-xs uppercase tracking-hero hover:scale-102 transition-all duration-500 ease-out shadow-xl shadow-brand-gold/15 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+                className="w-full bg-brand-gold text-black py-4 rounded-xl font-extrabold text-xs uppercase tracking-hero hover:scale-102 shadow-xl shadow-brand-gold/15 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-4"
               >
                 {isSubmitting ? t('contact.form.submitting') : t('contact.form.submit')}
                 {!isSubmitting && <Send className="w-4 h-4" />}
@@ -317,14 +317,14 @@ export const Contact = () => {
             {faqs.map((faq, idx) => (
               <div 
                 key={idx}
-                className="bento-card border border-foreground/5 overflow-hidden transition-all duration-500 ease-out"
+                className="bento-card border border-foreground/5 overflow-hidden"
               >
                 <button
                   onClick={() => setOpenFaqIndex(openFaqIndex === idx ? null : idx)}
                   className="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none"
                 >
                   <span className="text-sm font-bold text-foreground">{t(`contact.faq.${faq.id}.q`)}</span>
-                  <ChevronDown className={cn("w-4 h-4 text-brand-gold transition-all duration-500 ease-out duration-300", openFaqIndex === idx ? "rotate-180" : "")} />
+                  <ChevronDown className={cn("w-4 h-4 text-brand-gold duration-300", openFaqIndex === idx ? "rotate-180" : "")} />
                 </button>
 
                 <AnimatePresence initial={false}>

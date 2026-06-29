@@ -59,7 +59,7 @@ export const About = () => {
         </div>
         
         <div className="relative rounded-[2.5rem] overflow-hidden aspect-[4/3] group shadow-2xl">
-          <img src="/images/dining_table.png" alt="Showroom" className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 ease-out" />
+          <img src="/images/dining_table.png" alt="Showroom" className="w-full h-full object-cover group-hover:scale-105" />
           <div className="absolute inset-0 bg-black/30 flex items-center justify-center p-6 text-center">
             <span className="text-[9px] uppercase tracking-hero text-white/90 border border-white/20 px-5 py-2.5 rounded-full font-black">{t('about.story.workshop')}</span>
           </div>
