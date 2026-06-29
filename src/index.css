@@ -153,33 +153,10 @@ body::before {
   position: relative;
 }
 
-.glow-tracer::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(135deg, transparent 30%, var(--color-brand-gold) 50%, transparent 70%);
-  background-size: 300% 300%;
-  background-position: 0% 0%;
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1), background-position 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-  z-index: 10;
-}
-
-.glow-tracer:hover::after {
-  opacity: 1;
-  background-position: 100% 100%;
-}
-
 .glow-tracer:hover {
-  border-color: transparent;
-  box-shadow: 0 15px 40px var(--gold-glow);
-  transform: translateY(-4px);
+  transform: translateY(-8px);
+  box-shadow: 0 30px 60px -15px var(--gold-glow);
+  border-color: var(--color-brand-gold);
 }
 
 /* Textures and Gradients */
