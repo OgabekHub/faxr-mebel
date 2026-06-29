@@ -142,7 +142,7 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
               
               {/* Left Column: Live Bespoke Product Overview */}
               <div className="md:col-span-5 bg-foreground/5 border-b md:border-b-0 md:border-r border-foreground/10 p-8 flex flex-col justify-between">
-                <div className="pr-12 md:pr-0">
+                <div>
                   <span className="text-brand-gold uppercase tracking-hero text-[10px] font-black block">Concierge Desk</span>
                   <h3 className="text-2xl font-editorial-title font-bold mt-2">{t('product.' + product.id + '.name')}</h3>
                   <p className="text-[9px] text-foreground/45 uppercase tracking-hero font-extrabold mt-1">Bespoke Manufacturing</p>
@@ -166,9 +166,9 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
                     <span>Daraxt / Matosi:</span>
                     <span className="text-brand-gold">{wood.toUpperCase()} / {fabric.toUpperCase()}</span>
                   </div>
-                  <div className="flex justify-between items-end border-t border-foreground/10 pt-4">
-                    <span className="text-[10px] uppercase font-black tracking-widest text-foreground">{t('shop.modal.totalPrice')}:</span>
-                    <span className="text-2xl italic font-editorial-title gold-foil-text font-bold">{formatPrice(finalPrice)}</span>
+                  <div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-1 border-t border-foreground/10 pt-4">
+                    <span className="text-[10px] uppercase font-black tracking-widest text-foreground whitespace-nowrap">{t('shop.modal.totalPrice')}:</span>
+                    <span className="price-tag text-xl font-bold whitespace-nowrap">{formatPrice(finalPrice)}</span>
                   </div>
                 </div>
               </div>
