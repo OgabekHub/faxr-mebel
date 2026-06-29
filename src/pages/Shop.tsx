@@ -231,92 +231,86 @@ export const Shop = () => {
 
         {/* Right Product Grid */}
         <div className="lg:col-span-3">
-          {viewType === 'grid' ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <AnimatePresence mode="popLayout">
-                {filteredProducts.map((product) => (
-                  <motion.div
-                    layout
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    key={product.id}
-                    className="flex flex-col"
-                  >
-                    <BentoSpotlight className="group flex-grow flex flex-col justify-between">
-                      <div className="relative aspect-[4/5] overflow-hidden rounded-t-[1.8rem]">
-                        <img 
-                          src={product.image} 
-                          alt={t('product.' + product.id + '.name')} 
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
-                        />
-                        
-                        {/* Floating actions */}
-                        <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
-                          <button 
-                            onClick={() => handleToggleWishlist(product)}
-                            className={cn(
-                              "p-2.5 rounded-full transition-all duration-300 shadow-md",
-                              isInWishlist(product.id) ? "bg-red-500 text-white" : "glass text-foreground hover:scale-110"
-                            )}
-                          >
-                            <Heart className="w-3.5 h-3.5 fill-current" />
-                          </button>
-                          <button 
-                            onClick={() => setQuickViewProduct(product)}
-                            className="p-2.5 glass text-foreground rounded-full shadow-md hover:scale-110 transition-transform"
-                          >
-                            <Eye className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                        
-                        <div className="absolute top-4 left-4 glass px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest text-foreground">
-                          {t('shop.category.' + product.category)}
-                        </div>
+          <motion.div 
+            layout
+            className={cn(
+              "transition-all duration-500",
+              viewType === 'grid' 
+                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" 
+                : "flex flex-col gap-6"
+            )}
+          >
+          <AnimatePresence mode="popLayout">
+            {filteredProducts.map((product) => (
+              <motion.div
+                layout
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.4, ease: "easeInOut" }}
+                key={product.id}
+                className="flex flex-col"
+              >
+                {viewType === 'grid' ? (
+                  <BentoSpotlight className="group flex-grow flex flex-col justify-between">
+                    <div className="relative aspect-[4/5] overflow-hidden rounded-t-[1.8rem]">
+                      <img 
+                        src={product.image} 
+                        alt={t('product.' + product.id + '.name')} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                      />
+                      
+                      {/* Floating actions */}
+                      <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
+                        <button 
+                          onClick={() => handleToggleWishlist(product)}
+                          className={cn(
+                            "p-2.5 rounded-full transition-all duration-300 shadow-md",
+                            isInWishlist(product.id) ? "bg-red-500 text-white" : "glass text-foreground hover:scale-110"
+                          )}
+                        >
+                          <Heart className="w-3.5 h-3.5 fill-current" />
+                        </button>
+                        <button 
+                          onClick={() => setQuickViewProduct(product)}
+                          className="p-2.5 glass text-foreground rounded-full shadow-md hover:scale-110 transition-transform"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                       
-                      <div className="p-6 flex flex-col flex-grow justify-between">
-                        <div className="mb-4">
-                          <div className="flex items-center justify-between gap-2">
-                             <h3 className="text-base font-bold tracking-tight text-foreground">{t('product.' + product.id + '.name')}</h3>
-                             <div className="flex items-center gap-1 text-brand-gold text-[10px] font-bold shrink-0">
-                               <Star className="w-3 h-3 fill-current" /> {product.rating}
-                             </div>
-                          </div>
-                          <p className="text-[10px] text-foreground/45 leading-relaxed italic line-clamp-2 mt-2">
-                            {t('shop.product.materialLabel')} {product.wood} | {product.fabric}
-                          </p>
-                        </div>
-                        
-                        <div className="flex items-center justify-between pt-4 border-t border-foreground/5">
-                          <span className="price-tag text-xl font-bold">{formatPrice(product.price)}</span>
-                          <button 
-                            onClick={() => handleAddToCart(product)}
-                            className="bg-brand-gold text-black p-3.5 rounded-xl hover:scale-110 active:scale-95 transition-all shadow-md shadow-brand-gold/15"
-                          >
-                            <ShoppingCart className="w-4 h-4" />
-                          </button>
-                        </div>
+                      <div className="absolute top-4 left-4 glass px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest text-foreground">
+                        {t('shop.category.' + product.category)}
                       </div>
-                    </BentoSpotlight>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-          ) : (
-            /* List / Editorial View */
-            <div className="space-y-6">
-              <AnimatePresence mode="popLayout">
-                {filteredProducts.map((product) => (
-                  <motion.div
-                    layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    key={product.id}
-                    className="bento-card glow-tracer p-6 flex flex-col md:flex-row items-center gap-8 group"
-                  >
-                    <div className="w-48 h-48 rounded-2xl overflow-hidden shrink-0 relative">
+                    </div>
+                    
+                    <div className="p-6 flex flex-col flex-grow justify-between">
+                      <div className="mb-4">
+                        <div className="flex items-center justify-between gap-2">
+                           <h3 className="text-base font-bold tracking-tight text-foreground">{t('product.' + product.id + '.name')}</h3>
+                           <div className="flex items-center gap-1 text-brand-gold text-[10px] font-bold shrink-0">
+                             <Star className="w-3 h-3 fill-current" /> {product.rating}
+                           </div>
+                        </div>
+                        <p className="text-[10px] text-foreground/45 leading-relaxed italic line-clamp-2 mt-2">
+                          {t('shop.product.materialLabel')} {product.wood} | {product.fabric}
+                        </p>
+                      </div>
+                      
+                      <div className="flex items-center justify-between pt-4 border-t border-foreground/5">
+                        <span className="price-tag text-xl font-bold">{formatPrice(product.price)}</span>
+                        <button 
+                          onClick={() => handleAddToCart(product)}
+                          className="bg-brand-gold text-black p-3.5 rounded-xl hover:scale-110 active:scale-95 transition-all shadow-md shadow-brand-gold/15"
+                        >
+                          <ShoppingCart className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </BentoSpotlight>
+                ) : (
+                  <div className="bento-card glow-tracer p-6 flex flex-col md:flex-row items-center gap-8 group w-full">
+                    <div className="w-48 h-48 rounded-2xl overflow-hidden shrink-0 relative mx-auto md:mx-0">
                       <img src={product.image} alt={t('product.' + product.id + '.name')} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                       <div className="absolute top-2 left-2 glass px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest text-foreground">
                         {t('shop.category.' + product.category)}
@@ -339,7 +333,7 @@ export const Shop = () => {
                       </div>
                     </div>
 
-                    <div className="shrink-0 text-center md:text-right flex flex-col gap-3 min-w-[150px]">
+                    <div className="shrink-0 text-center md:text-right flex flex-col justify-center gap-3 min-w-[150px]">
                       <span className="price-tag text-2xl font-bold">{formatPrice(product.price)}</span>
                       <button 
                         onClick={() => handleAddToCart(product)}
@@ -354,11 +348,12 @@ export const Shop = () => {
                         {t('shop.product.quickView')}
                       </button>
                     </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-          )}
+                  </div>
+                )}
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
           
           {filteredProducts.length === 0 && (
             <div className="flex flex-col items-center justify-center py-40 bento-card border-dashed">
