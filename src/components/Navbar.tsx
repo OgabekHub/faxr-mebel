@@ -30,6 +30,7 @@ export const Navbar = () => {
   const [targetTheme, setTargetTheme] = useState<'light' | 'dark' | null>(null);
 
   const handleThemeToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (wipeActive) return; // Guard against rapid double-clicks
     const x = e.clientX;
     const y = e.clientY;
     setWipeCoords({ x, y });
@@ -37,14 +38,20 @@ export const Navbar = () => {
     setTargetTheme(nextTheme);
     setWipeActive(true);
 
+    // Disable CSS transitions during wipe so theme flip is instant (wipe handles visual)
+    document.body.classList.add('theme-wipe-active');
+
+    // Flip theme when wipe fully covers screen (~45% of 850ms ≈ 380ms)
     setTimeout(() => {
       toggleTheme();
-    }, 420);
+    }, 380);
 
+    // Re-enable CSS transitions and clean up after wipe animation completes
     setTimeout(() => {
+      document.body.classList.remove('theme-wipe-active');
       setWipeActive(false);
       setTargetTheme(null);
-    }, 900);
+    }, 850);
   };
 
   useEffect(() => {
