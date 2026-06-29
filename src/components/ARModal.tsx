@@ -99,13 +99,7 @@ export const ARModal: React.FC<ARModalProps> = ({
             transition={{ type: 'spring', damping: 25 }}
             className="w-full max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden bg-background border border-foreground/10 rounded-[2rem] md:rounded-[3rem] shadow-2xl relative"
           >
-            {/* Close Button */}
-            <button
-              onClick={onClose}
-              className="absolute top-6 right-6 z-50 w-10 h-10 rounded-full bg-black/40 md:bg-foreground/5 hover:bg-black/60 md:hover:bg-foreground/10 flex items-center justify-center border border-white/10 md:border-foreground/10 text-white md:text-foreground transition-all duration-300"
-            >
-              <X className="w-5 h-5" />
-            </button>
+
 
             <div className="grid grid-cols-1 md:grid-cols-12 min-h-[500px]">
 
@@ -180,13 +174,24 @@ export const ARModal: React.FC<ARModalProps> = ({
 
               {/* Right Side: QR Code + Info */}
               <div className="md:col-span-5 p-7 flex flex-col justify-between">
-                <div className="pr-12 md:pr-0">
-                  <span className="text-brand-gold uppercase tracking-[0.3em] text-[9px] font-black block">
-                    Kengaytirilgan Borliq
-                  </span>
-                  <h3 className="text-xl font-bold mt-2 leading-tight">
-                    Mebelni O'z Xonangizda Ko'ring
-                  </h3>
+                <div>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <span className="text-brand-gold uppercase tracking-[0.3em] text-[9px] font-black block">
+                        Kengaytirilgan Borliq
+                      </span>
+                      <h3 className="text-xl font-bold mt-2 leading-tight">
+                        Mebelni O'z Xonangizda Ko'ring
+                      </h3>
+                    </div>
+                    {/* Close Button */}
+                    <button
+                      onClick={onClose}
+                      className="shrink-0 w-9 h-9 rounded-full bg-foreground/8 hover:bg-foreground/15 flex items-center justify-center border border-foreground/10 text-foreground transition-all duration-300 mt-1"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
                   <p className="text-[10px] text-foreground/45 leading-relaxed font-light mt-2">
                     Telefoningiz kamerasini quyidagi QR-kodga qarating va mebelni haqiqiy xonangizga 3D formatida joylashtiring.
                   </p>
