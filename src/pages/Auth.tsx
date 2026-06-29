@@ -228,7 +228,7 @@ export const Auth = () => {
                 to="/"
                 className="inline-flex items-center gap-1.5 text-foreground/40 hover:text-foreground/70 transition-colors text-xs mb-6 group"
               >
-                <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform duration-500 ease-out duration-500 ease-out" />
+                <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-all duration-500 ease-out duration-500 ease-out" />
                 {t('nav.home')}
               </Link>
               <div className="text-center">
@@ -386,12 +386,12 @@ export const Auth = () => {
                   ) : (
                     <>
                       {isLogin ? t('auth.grantAccess') : t('auth.createAccount')}
-                      <ArrowRight className="w-4 h-4 transition-transform duration-500 ease-out group-hover:translate-x-1" />
+                      <ArrowRight className="w-4 h-4 transition-all duration-500 ease-out group-hover:translate-x-1" />
                     </>
                   )}
                 </span>
                 {/* Shimmer effect */}
-                <div className="absolute inset-0 bg-white/10 translate-x-[-110%] group-hover:translate-x-[110%] transition-transform duration-700 ease-out skew-x-12" />
+                <div className="absolute inset-0 bg-white/10 translate-x-[-110%] group-hover:translate-x-[110%] transition-all duration-700 ease-out skew-x-12" />
               </motion.button>
             </form>
 

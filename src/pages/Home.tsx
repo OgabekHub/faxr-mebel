@@ -327,7 +327,7 @@ export const Home = () => {
            className="col-span-1 md:col-span-2 row-span-2 flex"
         >
           <BentoSpotlight className="bg-brand-gold text-black p-8 justify-between flex-grow flex flex-col relative overflow-hidden group shadow-lg shadow-brand-gold/10">
-            <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-500 ease-out duration-500 ease-out" />
+            <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-all duration-500 ease-out duration-500 ease-out" />
             <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white shrink-0">
               <Shield className="w-5 h-5 text-brand-gold" />
             </div>
@@ -360,7 +360,7 @@ export const Home = () => {
             <h3 className="text-xs font-black uppercase tracking-widest">{t('home.teaser1.title')}</h3>
             <p className="text-[10px] text-foreground/45 mt-1 italic">{t('home.teaser1.desc')}</p>
           </div>
-          <div className="flex-grow bg-[url('/images/bed.png')] bg-cover bg-center min-h-[140px] group-hover:scale-105 transition-transform duration-700 ease-out"></div>
+          <div className="flex-grow bg-[url('/images/bed.png')] bg-cover bg-center min-h-[140px] group-hover:scale-105 transition-all duration-700 ease-out"></div>
         </BentoSpotlight>
 
         <BentoSpotlight className="col-span-1 md:col-span-4 row-span-2 overflow-hidden flex flex-col group">
@@ -368,7 +368,7 @@ export const Home = () => {
             <h3 className="text-xs font-black uppercase tracking-widest">{t('home.teaser2.title')}</h3>
             <p className="text-[10px] text-foreground/45 mt-1 italic">{t('home.teaser2.desc')}</p>
           </div>
-          <div className="flex-grow bg-[url('/images/dining_table.png')] bg-cover bg-center min-h-[140px] group-hover:scale-105 transition-transform duration-700 ease-out"></div>
+          <div className="flex-grow bg-[url('/images/dining_table.png')] bg-cover bg-center min-h-[140px] group-hover:scale-105 transition-all duration-700 ease-out"></div>
         </BentoSpotlight>
 
         <BentoSpotlight className="col-span-1 md:col-span-4 row-span-2 p-8 justify-center border-l-4 border-l-brand-gold flex flex-col">
@@ -396,7 +396,7 @@ export const Home = () => {
             <h2 className="text-3xl md:text-5xl font-editorial-title mt-2">{t('featured.title')}</h2>
             <p className="text-xs text-foreground/50 italic mt-1">{t('featured.desc')}</p>
           </div>
-          <Link to="/shop" className="text-brand-gold font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:translate-x-2 transition-transform duration-500 ease-out duration-500 ease-out">
+          <Link to="/shop" className="text-brand-gold font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:translate-x-2 transition-all duration-500 ease-out duration-500 ease-out">
             {t('common.seeAll')} <ArrowRight className="w-4 h-4 text-brand-gold" />
           </Link>
         </div>

@@ -246,7 +246,7 @@ export const Contact = () => {
                         )}
                       >
                         {formData.time ? formData.time : t('contact.form.placeholder.time')}
-                        <ChevronDown className={cn("w-4 h-4 transition-transform duration-500 ease-out duration-300", isTimeDropdownOpen ? "rotate-180 text-brand-gold" : "text-foreground/50")} />
+                        <ChevronDown className={cn("w-4 h-4 transition-all duration-500 ease-out duration-300", isTimeDropdownOpen ? "rotate-180 text-brand-gold" : "text-foreground/50")} />
                       </button>
 
                       {/* Hidden input for HTML5 required validation */}
@@ -296,7 +296,7 @@ export const Contact = () => {
               <button 
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-brand-gold text-black py-4 rounded-xl font-extrabold text-xs uppercase tracking-hero hover:scale-102 transition-transform duration-500 ease-out shadow-xl shadow-brand-gold/15 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+                className="w-full bg-brand-gold text-black py-4 rounded-xl font-extrabold text-xs uppercase tracking-hero hover:scale-102 transition-all duration-500 ease-out shadow-xl shadow-brand-gold/15 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-4"
               >
                 {isSubmitting ? t('contact.form.submitting') : t('contact.form.submit')}
                 {!isSubmitting && <Send className="w-4 h-4" />}
@@ -324,7 +324,7 @@ export const Contact = () => {
                   className="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none"
                 >
                   <span className="text-sm font-bold text-foreground">{t(`contact.faq.${faq.id}.q`)}</span>
-                  <ChevronDown className={cn("w-4 h-4 text-brand-gold transition-transform duration-500 ease-out duration-300", openFaqIndex === idx ? "rotate-180" : "")} />
+                  <ChevronDown className={cn("w-4 h-4 text-brand-gold transition-all duration-500 ease-out duration-300", openFaqIndex === idx ? "rotate-180" : "")} />
                 </button>
 
                 <AnimatePresence initial={false}>

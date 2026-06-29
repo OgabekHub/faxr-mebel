@@ -141,7 +141,7 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
                   <p className="text-[9px] text-foreground/45 uppercase tracking-hero font-extrabold mt-1">Bespoke Manufacturing</p>
                   
                   <div className="relative mt-8 group">
-                    <div className="absolute inset-0 bg-brand-gold/5 rounded-3xl blur-2xl group-hover:scale-105 transition-transform duration-500 ease-out duration-500 ease-out" />
+                    <div className="absolute inset-0 bg-brand-gold/5 rounded-3xl blur-2xl group-hover:scale-105 transition-all duration-500 ease-out duration-500 ease-out" />
                     <img 
                       src={product.image} 
                       alt={product.name} 

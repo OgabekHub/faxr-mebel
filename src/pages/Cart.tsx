@@ -197,7 +197,7 @@ ${addonsList}
           </div>
           <button 
             onClick={() => { clearCart(); navigate('/profile'); }}
-            className="bg-brand-gold text-black px-8 py-3.5 rounded-full font-bold text-xs uppercase tracking-hero hover:scale-105 transition-transform duration-500 ease-out inline-flex items-center gap-2 shadow-lg shadow-brand-gold/15"
+            className="bg-brand-gold text-black px-8 py-3.5 rounded-full font-bold text-xs uppercase tracking-hero hover:scale-105 transition-all duration-500 ease-out inline-flex items-center gap-2 shadow-lg shadow-brand-gold/15"
           >
             Kabinetingizga o'tish <ArrowRight className="w-4 h-4" />
           </button>
@@ -223,7 +223,7 @@ ${addonsList}
           </p>
           <Link 
             to="/shop" 
-            className="bg-brand-gold text-black px-8 py-3.5 rounded-full font-bold text-xs uppercase tracking-hero hover:scale-105 transition-transform duration-500 ease-out inline-flex items-center gap-2 shadow-lg shadow-brand-gold/15"
+            className="bg-brand-gold text-black px-8 py-3.5 rounded-full font-bold text-xs uppercase tracking-hero hover:scale-105 transition-all duration-500 ease-out inline-flex items-center gap-2 shadow-lg shadow-brand-gold/15"
           >
             Kolleksiyani ko'rish <ArrowRight className="w-4 h-4" />
           </Link>
@@ -263,7 +263,7 @@ ${addonsList}
                 className="bento-card p-6 flex flex-col sm:flex-row items-center gap-6 group"
               >
                 <div className="w-32 h-32 rounded-2xl overflow-hidden shrink-0 relative bg-foreground/5">
-                  <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
+                  <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 ease-out" />
                 </div>
                 
                 <div className="flex-grow text-center sm:text-left space-y-2">
@@ -401,7 +401,7 @@ ${addonsList}
                         setIsCheckout(true);
                       }
                     }}
-                    className="w-full bg-brand-gold text-black py-4 rounded-xl font-extrabold text-xs uppercase tracking-hero hover:scale-102 transition-transform duration-500 ease-out shadow-xl shadow-brand-gold/15 flex items-center justify-center gap-2"
+                    className="w-full bg-brand-gold text-black py-4 rounded-xl font-extrabold text-xs uppercase tracking-hero hover:scale-102 transition-all duration-500 ease-out shadow-xl shadow-brand-gold/15 flex items-center justify-center gap-2"
                   >
                     Buyurtmaga O'tish <ArrowRight className="w-4 h-4" />
                   </button>
@@ -530,7 +530,7 @@ ${addonsList}
                     <button 
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full bg-brand-gold text-black py-4 rounded-xl font-extrabold text-xs uppercase tracking-hero hover:scale-102 transition-transform duration-500 ease-out shadow-xl shadow-brand-gold/15 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full bg-brand-gold text-black py-4 rounded-xl font-extrabold text-xs uppercase tracking-hero hover:scale-102 transition-all duration-500 ease-out shadow-xl shadow-brand-gold/15 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isSubmitting ? 'Yuborilmoqda...' : 'Buyurtmani Yakunlash'}
                     </button>
