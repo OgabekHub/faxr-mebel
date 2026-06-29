@@ -175,7 +175,7 @@ export const Shop = () => {
             <button
               onClick={() => setShowOnlyFavorites(prev => !prev)}
               className={cn(
-                "w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all duration-300",
+                "w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all duration-500 ease-out",
                 showOnlyFavorites 
                   ? "bg-red-500/10 border-red-500/30 text-red-500 font-bold" 
                   : "bg-foreground/5 border-foreground/10 text-foreground/50 hover:border-brand-gold hover:text-brand-gold"
@@ -214,7 +214,7 @@ export const Shop = () => {
 
           {/* Bespoke Inquiry Card */}
           <div className="bento-card p-8 bg-brand-gold text-black relative overflow-hidden group shadow-lg shadow-brand-gold/15">
-             <div className="absolute -right-16 -bottom-16 w-36 h-36 bg-black/10 rounded-full blur-2xl group-hover:scale-110 transition-transform" />
+             <div className="absolute -right-16 -bottom-16 w-36 h-36 bg-black/10 rounded-full blur-2xl group-hover:scale-110 transition-transform duration-500 ease-out duration-500 ease-out" />
              <Sparkles className="w-6 h-6 mb-4 text-black animate-pulse-slow" />
              <h4 className="text-sm font-extrabold uppercase tracking-wider mb-2">{t('shop.bespoke.title')}</h4>
              <p className="text-[10px] leading-relaxed mb-6 font-semibold opacity-75">
@@ -222,7 +222,7 @@ export const Shop = () => {
              </p>
              <Link 
                to="/contact" 
-               className="w-full py-3.5 bg-black text-white rounded-xl text-[9px] font-black uppercase tracking-hero text-center block hover:scale-[1.02] active:scale-95 transition-transform"
+               className="w-full py-3.5 bg-black text-white rounded-xl text-[9px] font-black uppercase tracking-hero text-center block hover:scale-[1.02] active:scale-95 transition-transform duration-500 ease-out duration-500 ease-out"
              >
                {t('shop.bespoke.cta')}
              </Link>
@@ -257,7 +257,7 @@ export const Shop = () => {
                       <img 
                         src={product.image} 
                         alt={t('product.' + product.id + '.name')} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" 
                       />
                       
                       {/* Floating actions */}
@@ -265,15 +265,15 @@ export const Shop = () => {
                         <button 
                           onClick={() => handleToggleWishlist(product)}
                           className={cn(
-                            "p-2.5 rounded-full transition-all duration-300 shadow-md",
-                            isInWishlist(product.id) ? "bg-red-500 text-white" : "glass text-foreground hover:scale-110"
+                            "p-2.5 rounded-full transition-all duration-500 ease-out shadow-md",
+                            isInWishlist(product.id) ? "bg-red-500 text-white" : "glass text-foreground hover:scale-110 transition-all duration-500 ease-out"
                           )}
                         >
                           <Heart className="w-3.5 h-3.5 fill-current" />
                         </button>
                         <button 
                           onClick={() => setQuickViewProduct(product)}
-                          className="p-2.5 glass text-foreground rounded-full shadow-md hover:scale-110 transition-transform"
+                          className="p-2.5 glass text-foreground rounded-full shadow-md hover:scale-110 transition-transform duration-500 ease-out duration-500 ease-out"
                         >
                           <Eye className="w-3.5 h-3.5" />
                         </button>
@@ -311,7 +311,7 @@ export const Shop = () => {
                 ) : (
                   <div className="bento-card glow-tracer p-6 flex flex-col md:flex-row items-center gap-8 group w-full">
                     <div className="w-48 h-48 rounded-2xl overflow-hidden shrink-0 relative mx-auto md:mx-0">
-                      <img src={product.image} alt={t('product.' + product.id + '.name')} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                      <img src={product.image} alt={t('product.' + product.id + '.name')} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
                       <div className="absolute top-2 left-2 glass px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest text-foreground">
                         {t('shop.category.' + product.category)}
                       </div>
@@ -337,13 +337,13 @@ export const Shop = () => {
                       <span className="price-tag text-2xl font-bold">{formatPrice(product.price)}</span>
                       <button 
                         onClick={() => handleAddToCart(product)}
-                        className="w-full py-3 bg-brand-gold text-black rounded-xl text-[9px] font-black uppercase tracking-widest hover:scale-102 transition-transform shadow shadow-brand-gold/15"
+                        className="w-full py-3 bg-brand-gold text-black rounded-xl text-[9px] font-black uppercase tracking-widest hover:scale-102 transition-transform duration-500 ease-out shadow shadow-brand-gold/15"
                       >
                         {t('nav.cart')}
                       </button>
                       <button 
                         onClick={() => setQuickViewProduct(product)}
-                        className="w-full py-2 bg-foreground/5 hover:bg-foreground/10 text-foreground rounded-xl text-[9px] font-black uppercase tracking-widest transition-all"
+                        className="w-full py-2 bg-foreground/5 hover:bg-foreground/10 text-foreground rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-500 ease-out"
                       >
                         {t('shop.product.quickView')}
                       </button>
@@ -467,7 +467,7 @@ export const Shop = () => {
                           setActiveBespokeProduct(quickViewProduct);
                           setQuickViewProduct(null);
                         }}
-                        className="py-3 px-4 bg-foreground/5 border border-foreground/10 hover:border-brand-gold hover:text-brand-gold rounded-xl flex items-center justify-center gap-2 transition-all duration-300 text-[9px] font-black uppercase tracking-wider text-foreground"
+                        className="py-3 px-4 bg-foreground/5 border border-foreground/10 hover:border-brand-gold hover:text-brand-gold rounded-xl flex items-center justify-center gap-2 transition-all duration-500 ease-out text-[9px] font-black uppercase tracking-wider text-foreground"
                       >
                         <Smartphone className="w-4 h-4 text-brand-gold" />
                         VIP Buyurtma
@@ -477,7 +477,7 @@ export const Shop = () => {
                           setActiveARProduct(quickViewProduct);
                           setQuickViewProduct(null);
                         }}
-                        className="py-3 px-4 bg-foreground/5 border border-foreground/10 hover:border-brand-gold hover:text-brand-gold rounded-xl flex items-center justify-center gap-2 transition-all duration-300 text-[9px] font-black uppercase tracking-wider text-foreground"
+                        className="py-3 px-4 bg-foreground/5 border border-foreground/10 hover:border-brand-gold hover:text-brand-gold rounded-xl flex items-center justify-center gap-2 transition-all duration-500 ease-out text-[9px] font-black uppercase tracking-wider text-foreground"
                       >
                         <QrCode className="w-4 h-4 text-brand-gold" />
                         AR Kamera

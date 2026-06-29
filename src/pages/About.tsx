@@ -59,7 +59,7 @@ export const About = () => {
         </div>
         
         <div className="relative rounded-[2.5rem] overflow-hidden aspect-[4/3] group shadow-2xl">
-          <img src="/images/dining_table.png" alt="Showroom" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+          <img src="/images/dining_table.png" alt="Showroom" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
           <div className="absolute inset-0 bg-black/30 flex items-center justify-center p-6 text-center">
             <span className="text-[9px] uppercase tracking-hero text-white/90 border border-white/20 px-5 py-2.5 rounded-full font-black">{t('about.story.workshop')}</span>
           </div>
@@ -127,7 +127,7 @@ export const About = () => {
 
       {/* Brand values card */}
       <section className="bento-card p-10 md:p-16 bg-brand-gold text-black text-center relative overflow-hidden group shadow-xl shadow-brand-gold/10">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=1200')] bg-cover bg-center opacity-10 group-hover:scale-102 transition-transform duration-1000" />
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=1200')] bg-cover bg-center opacity-10 group-hover:scale-102 transition-transform duration-1000 ease-out" />
         <div className="relative z-10 max-w-2xl mx-auto space-y-6">
           <Sparkles className="w-8 h-8 mx-auto text-black animate-pulse-slow" />
           <h3 className="text-3xl md:text-5xl font-editorial-title font-bold leading-tight whitespace-pre-line">{t('about.footer.title')}</h3>

@@ -15,13 +15,13 @@ const ErrorFallback = ({ error, resetErrorBoundary }: any) => {
         <div className="flex gap-4 justify-center">
           <button 
             onClick={resetErrorBoundary}
-            className="px-6 py-3 bg-brand-gold text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform"
+            className="px-6 py-3 bg-brand-gold text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform duration-500 ease-out duration-500 ease-out"
           >
             Qayta urinish
           </button>
           <a 
             href="/"
-            className="px-6 py-3 bg-foreground/10 text-foreground rounded-xl text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform"
+            className="px-6 py-3 bg-foreground/10 text-foreground rounded-xl text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform duration-500 ease-out duration-500 ease-out"
           >
             Bosh sahifa
           </a>

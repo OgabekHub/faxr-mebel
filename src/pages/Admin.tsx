@@ -373,7 +373,7 @@ export const Admin = () => {
               <h2 className="text-xl font-editorial-title font-bold text-foreground">Katalogdagi Mebellar Ro'yxati ({products.length})</h2>
               <button 
                 onClick={handleOpenAddProduct}
-                className="bg-brand-gold text-black px-5 py-3 rounded-xl font-extrabold text-[9px] uppercase tracking-hero flex items-center gap-1.5 hover:scale-103 transition-transform"
+                className="bg-brand-gold text-black px-5 py-3 rounded-xl font-extrabold text-[9px] uppercase tracking-hero flex items-center gap-1.5 hover:scale-103 transition-transform duration-500 ease-out duration-500 ease-out"
               >
                 <PlusCircle className="w-4 h-4" /> Yangi Mebel Qo'shish
               </button>
@@ -588,7 +588,7 @@ export const Admin = () => {
 
                 <button 
                   type="submit"
-                  className="w-full bg-brand-gold text-black py-4 rounded-xl font-extrabold text-xs uppercase tracking-hero hover:scale-102 transition-transform shadow-xl shadow-brand-gold/15 flex items-center justify-center gap-2"
+                  className="w-full bg-brand-gold text-black py-4 rounded-xl font-extrabold text-xs uppercase tracking-hero hover:scale-102 transition-transform duration-500 ease-out shadow-xl shadow-brand-gold/15 flex items-center justify-center gap-2"
                 >
                   <Save className="w-4 h-4" /> Mebelni Saqlash
                 </button>

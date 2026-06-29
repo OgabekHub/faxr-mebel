@@ -135,7 +135,7 @@ export const Navbar = () => {
                   key={lang.code}
                   onClick={() => changeLanguage(lang.code)}
                   className={cn(
-                    "px-3 py-1.5 rounded-full transition-all duration-300",
+                    "px-3 py-1.5 rounded-full transition-all duration-500 ease-out",
                     i18n.language.startsWith(lang.code) 
                       ? "bg-[#8C6A3C] dark:bg-brand-gold text-white dark:text-black shadow-sm font-bold" 
                       : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200"
@@ -236,7 +236,7 @@ export const Navbar = () => {
                     key={lang.code}
                     onClick={() => changeLanguage(lang.code)}
                     className={cn(
-                      "px-3 py-1.5 rounded-full text-[9px] font-black tracking-widest uppercase transition-all",
+                      "px-3 py-1.5 rounded-full text-[9px] font-black tracking-widest uppercase transition-all duration-500 ease-out",
                       i18n.language.startsWith(lang.code) 
                         ? "bg-[#8C6A3C] dark:bg-brand-gold text-white dark:text-black font-bold" 
                         : "bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400"

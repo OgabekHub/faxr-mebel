@@ -141,7 +141,7 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
                   <p className="text-[9px] text-foreground/45 uppercase tracking-hero font-extrabold mt-1">Bespoke Manufacturing</p>
                   
                   <div className="relative mt-8 group">
-                    <div className="absolute inset-0 bg-brand-gold/5 rounded-3xl blur-2xl group-hover:scale-105 transition-transform" />
+                    <div className="absolute inset-0 bg-brand-gold/5 rounded-3xl blur-2xl group-hover:scale-105 transition-transform duration-500 ease-out duration-500 ease-out" />
                     <img 
                       src={product.image} 
                       alt={product.name} 
@@ -188,7 +188,7 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
                     {/* Close Button */}
                     <button
                       onClick={onClose}
-                      className="shrink-0 w-9 h-9 rounded-full bg-foreground/8 hover:bg-foreground/15 flex items-center justify-center border border-foreground/10 text-foreground transition-all duration-300"
+                      className="shrink-0 w-9 h-9 rounded-full bg-foreground/8 hover:bg-foreground/15 flex items-center justify-center border border-foreground/10 text-foreground transition-all duration-500 ease-out"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -262,7 +262,7 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
 
                     <button 
                       onClick={onClose}
-                      className="w-full py-4 bg-brand-gold text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-gold-muted transition-all duration-300 mt-6 shadow-xl shadow-brand-gold/15"
+                      className="w-full py-4 bg-brand-gold text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-gold-muted transition-all duration-500 ease-out mt-6 shadow-xl shadow-brand-gold/15"
                     >
                       Bosh sahifaga qaytish
                     </button>
@@ -449,7 +449,7 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
                       {step > 1 && (
                         <button 
                           onClick={handlePrev}
-                          className="px-6 py-4 bg-foreground/5 border border-foreground/10 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-foreground/10 flex items-center gap-2 text-foreground transition-all duration-300"
+                          className="px-6 py-4 bg-foreground/5 border border-foreground/10 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-foreground/10 flex items-center gap-2 text-foreground transition-all duration-500 ease-out"
                         >
                           <ArrowLeft className="w-4 h-4" />
                           Orqaga
@@ -459,7 +459,7 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
                       {step < 3 ? (
                         <button 
                           onClick={handleNext}
-                          className="flex-1 py-4 bg-brand-gold text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-gold-muted flex items-center justify-center gap-2 transition-all duration-300 shadow-xl shadow-brand-gold/15"
+                          className="flex-1 py-4 bg-brand-gold text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-gold-muted flex items-center justify-center gap-2 transition-all duration-500 ease-out shadow-xl shadow-brand-gold/15"
                         >
                           Davom etish
                           <ArrowRight className="w-4 h-4" />
@@ -468,7 +468,7 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
                         <button 
                           onClick={handleSubmit}
                           disabled={!userName || !userPhone}
-                          className="flex-1 py-4 bg-brand-gold text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-gold-muted flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-brand-gold/15"
+                          className="flex-1 py-4 bg-brand-gold text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-gold-muted flex items-center justify-center gap-2 transition-all duration-500 ease-out disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-brand-gold/15"
                         >
                           Tugatish va Buyurtmani Yuborish
                           <Send className="w-4 h-4" />

@@ -236,7 +236,7 @@ export const Home = () => {
                 </h1>
                 
                 <div className="flex items-center gap-4">
-                  <Link to="/shop" className="bg-brand-gold text-black px-8 py-4 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-brand-gold-muted transition-all duration-300 shadow-xl shadow-brand-gold/20">
+                  <Link to="/shop" className="bg-brand-gold text-black px-8 py-4 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-brand-gold-muted transition-all duration-500 ease-out shadow-xl shadow-brand-gold/20">
                     {t('cta.shop')}
                   </Link>
                 </div>
@@ -247,14 +247,14 @@ export const Home = () => {
           {/* Left/Right controls (Fade in on hover) */}
           <button
             onClick={handlePrevSlide}
-            className="absolute left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full glass border border-white/10 hover:border-brand-gold text-white hover:text-brand-gold flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-105 active:scale-95"
+            className="absolute left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full glass border border-white/10 hover:border-brand-gold text-white hover:text-brand-gold flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out hover:scale-105 active:scale-95"
             aria-label="Previous Slide"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button
             onClick={handleNextSlide}
-            className="absolute right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full glass border border-white/10 hover:border-brand-gold text-white hover:text-brand-gold flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-105 active:scale-95"
+            className="absolute right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full glass border border-white/10 hover:border-brand-gold text-white hover:text-brand-gold flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out hover:scale-105 active:scale-95"
             aria-label="Next Slide"
           >
             <ChevronRight className="w-5 h-5" />
@@ -297,20 +297,20 @@ export const Home = () => {
             <div className="flex gap-2 mt-6">
               <button 
                 onClick={() => handleAddToCart(featuredProducts[0])}
-                className="flex-1 py-3.5 bg-brand-gold text-black rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-brand-gold-muted transition-all duration-300 shadow-lg shadow-brand-gold/10"
+                className="flex-1 py-3.5 bg-brand-gold text-black rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-brand-gold-muted transition-all duration-500 ease-out shadow-lg shadow-brand-gold/10"
               >
                 {t('common.addToCart')}
               </button>
               <button 
                 onClick={() => setIsBespokeOpen(true)}
-                className="p-3.5 bg-foreground/5 border border-foreground/10 hover:border-brand-gold hover:text-brand-gold rounded-2xl flex items-center justify-center transition-all duration-300"
+                className="p-3.5 bg-foreground/5 border border-foreground/10 hover:border-brand-gold hover:text-brand-gold rounded-2xl flex items-center justify-center transition-all duration-500 ease-out"
                 title="Bespoke Order"
               >
                 <Smartphone className="w-4 h-4" />
               </button>
               <button 
                 onClick={() => setIsAROpen(true)}
-                className="p-3.5 bg-foreground/5 border border-foreground/10 hover:border-brand-gold hover:text-brand-gold rounded-2xl flex items-center justify-center transition-all duration-300"
+                className="p-3.5 bg-foreground/5 border border-foreground/10 hover:border-brand-gold hover:text-brand-gold rounded-2xl flex items-center justify-center transition-all duration-500 ease-out"
                 title="AR View"
               >
                 <QrCode className="w-4 h-4" />
@@ -327,7 +327,7 @@ export const Home = () => {
            className="col-span-1 md:col-span-2 row-span-2 flex"
         >
           <BentoSpotlight className="bg-brand-gold text-black p-8 justify-between flex-grow flex flex-col relative overflow-hidden group shadow-lg shadow-brand-gold/10">
-            <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-transform" />
+            <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-500 ease-out duration-500 ease-out" />
             <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white shrink-0">
               <Shield className="w-5 h-5 text-brand-gold" />
             </div>
@@ -360,7 +360,7 @@ export const Home = () => {
             <h3 className="text-xs font-black uppercase tracking-widest">{t('home.teaser1.title')}</h3>
             <p className="text-[10px] text-foreground/45 mt-1 italic">{t('home.teaser1.desc')}</p>
           </div>
-          <div className="flex-grow bg-[url('/images/bed.png')] bg-cover bg-center min-h-[140px] group-hover:scale-105 transition-transform duration-700"></div>
+          <div className="flex-grow bg-[url('/images/bed.png')] bg-cover bg-center min-h-[140px] group-hover:scale-105 transition-transform duration-700 ease-out"></div>
         </BentoSpotlight>
 
         <BentoSpotlight className="col-span-1 md:col-span-4 row-span-2 overflow-hidden flex flex-col group">
@@ -368,7 +368,7 @@ export const Home = () => {
             <h3 className="text-xs font-black uppercase tracking-widest">{t('home.teaser2.title')}</h3>
             <p className="text-[10px] text-foreground/45 mt-1 italic">{t('home.teaser2.desc')}</p>
           </div>
-          <div className="flex-grow bg-[url('/images/dining_table.png')] bg-cover bg-center min-h-[140px] group-hover:scale-105 transition-transform duration-700"></div>
+          <div className="flex-grow bg-[url('/images/dining_table.png')] bg-cover bg-center min-h-[140px] group-hover:scale-105 transition-transform duration-700 ease-out"></div>
         </BentoSpotlight>
 
         <BentoSpotlight className="col-span-1 md:col-span-4 row-span-2 p-8 justify-center border-l-4 border-l-brand-gold flex flex-col">
@@ -396,7 +396,7 @@ export const Home = () => {
             <h2 className="text-3xl md:text-5xl font-editorial-title mt-2">{t('featured.title')}</h2>
             <p className="text-xs text-foreground/50 italic mt-1">{t('featured.desc')}</p>
           </div>
-          <Link to="/shop" className="text-brand-gold font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:translate-x-2 transition-transform">
+          <Link to="/shop" className="text-brand-gold font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:translate-x-2 transition-transform duration-500 ease-out duration-500 ease-out">
             {t('common.seeAll')} <ArrowRight className="w-4 h-4 text-brand-gold" />
           </Link>
         </div>
@@ -415,8 +415,8 @@ export const Home = () => {
                 <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
                   <button 
                     onClick={(e) => handleToggleWishlist(product, e)}
-                    className={`p-2.5 rounded-full transition-all duration-300 shadow-md ${
-                      isInWishlist(product.id) ? "bg-red-500 text-white" : "glass text-foreground hover:scale-110"
+                    className={`p-2.5 rounded-full transition-all duration-500 ease-out shadow-md ${
+                      isInWishlist(product.id) ? "bg-red-500 text-white" : "glass text-foreground hover:scale-110 transition-all duration-500 ease-out"
                     }`}
                   >
                     <Heart className="w-3.5 h-3.5 fill-current" />
@@ -440,7 +440,7 @@ export const Home = () => {
               
               <button 
                 onClick={() => handleAddToCart(product)}
-                className="w-full mt-auto py-3 bg-foreground/5 hover:bg-brand-gold hover:text-black rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-300 border border-foreground/5"
+                className="w-full mt-auto py-3 bg-foreground/5 hover:bg-brand-gold hover:text-black rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-500 ease-out border border-foreground/5"
               >
                 {t('common.addToCart')}
               </button>
@@ -475,7 +475,7 @@ export const Home = () => {
                 </div>
               </div>
               
-              <Link to="/contact" className="w-full mt-10 py-4 border border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-black rounded-full font-bold text-xs uppercase tracking-widest text-center transition-all duration-300">
+              <Link to="/contact" className="w-full mt-10 py-4 border border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-black rounded-full font-bold text-xs uppercase tracking-widest text-center transition-all duration-500 ease-out">
                 {t('showroom.cta')}
               </Link>
            </div>
@@ -497,7 +497,7 @@ export const Home = () => {
 
       {/* Floating CTA for Mobile Telegram Group */}
       <div className="fixed bottom-6 right-6 z-40 md:hidden flex flex-col gap-4">
-        <a href="https://t.me/faxrmebel" target="_blank" rel="noopener noreferrer" className="bg-[#229ED9] text-white p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all">
+        <a href="https://t.me/faxrmebel" target="_blank" rel="noopener noreferrer" className="bg-[#229ED9] text-white p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all duration-500 ease-out">
           <Send className="w-6 h-6" />
         </a>
       </div>

@@ -187,7 +187,7 @@ export const ARModal: React.FC<ARModalProps> = ({
                     {/* Close Button */}
                     <button
                       onClick={onClose}
-                      className="shrink-0 w-9 h-9 rounded-full bg-foreground/8 hover:bg-foreground/15 flex items-center justify-center border border-foreground/10 text-foreground transition-all duration-300 mt-1"
+                      className="shrink-0 w-9 h-9 rounded-full bg-foreground/8 hover:bg-foreground/15 flex items-center justify-center border border-foreground/10 text-foreground transition-all duration-500 ease-out mt-1"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -246,7 +246,7 @@ export const ARModal: React.FC<ARModalProps> = ({
                   {/* Copy link */}
                   <button
                     onClick={handleCopyLink}
-                    className="w-full py-3 flex items-center justify-center gap-2 bg-foreground/5 border border-foreground/10 hover:border-brand-gold/40 rounded-2xl text-[9px] font-black uppercase tracking-widest text-foreground/60 hover:text-brand-gold transition-all duration-300"
+                    className="w-full py-3 flex items-center justify-center gap-2 bg-foreground/5 border border-foreground/10 hover:border-brand-gold/40 rounded-2xl text-[9px] font-black uppercase tracking-widest text-foreground/60 hover:text-brand-gold transition-all duration-500 ease-out"
                   >
                     {qrCopied ? (
                       <>
@@ -264,7 +264,7 @@ export const ARModal: React.FC<ARModalProps> = ({
                   {/* Close / OK */}
                   <button
                     onClick={onClose}
-                    className="w-full py-3.5 bg-brand-gold text-black rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-brand-gold-muted transition-all duration-300 shadow-xl shadow-brand-gold/15"
+                    className="w-full py-3.5 bg-brand-gold text-black rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-brand-gold-muted transition-all duration-500 ease-out shadow-xl shadow-brand-gold/15"
                   >
                     Tushunarli / Yopish
                   </button>

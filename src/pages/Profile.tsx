@@ -259,7 +259,7 @@ export const Profile = () => {
                     <p className="text-xs text-foreground/45 italic max-w-sm">{t('profile.noOrdersDesc', 'Bizning katalogimizdan premium mebellarni tanlang va birinchi buyurtmangizni amalga oshiring.')}</p>
                     <button 
                       onClick={() => navigate('/shop')}
-                      className="bg-brand-gold text-black px-6 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:scale-102 transition-transform"
+                      className="bg-brand-gold text-black px-6 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:scale-102 transition-transform duration-500 ease-out duration-500 ease-out"
                     >
                       {t('cta.shop', 'Do\'konni Ko\'rish')}
                     </button>
@@ -408,7 +408,7 @@ export const Profile = () => {
 
                       <button 
                         onClick={() => navigate('/shop')}
-                        className="w-full py-3 bg-foreground/5 hover:bg-brand-gold hover:text-black rounded-xl text-[9px] font-black uppercase tracking-widest border border-foreground/5 transition-all"
+                        className="w-full py-3 bg-foreground/5 hover:bg-brand-gold hover:text-black rounded-xl text-[9px] font-black uppercase tracking-widest border border-foreground/5 transition-all duration-500 ease-out"
                       >
                         {t('common.seeAll')}
                       </button>
