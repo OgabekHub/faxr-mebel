@@ -120,7 +120,7 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
+          className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-4 bg-black/85 backdrop-blur-md"
         >
           {/* Main Modal Container */}
           <motion.div
@@ -128,10 +128,10 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.95, y: 20 }}
             transition={{ type: 'spring', damping: 25 }}
-            className="w-full max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden bg-background border border-foreground/10 rounded-[2rem] md:rounded-[3rem] shadow-2xl relative"
+            className="w-full max-w-4xl h-full md:h-auto md:max-h-[90vh] overflow-y-auto overflow-x-hidden bg-background border-0 md:border border-foreground/10 rounded-none md:rounded-[3rem] shadow-2xl relative"
           >
 
-            <div className="grid grid-cols-1 md:grid-cols-12 min-h-[500px]">
+            <div className="grid grid-cols-1 md:grid-cols-12 min-h-screen md:min-h-[500px]">
               
               {/* Left Column: Live Bespoke Product Overview */}
               <div className="md:col-span-5 bg-foreground/5 border-b md:border-b-0 md:border-r border-foreground/10 p-8 flex flex-col justify-between">
