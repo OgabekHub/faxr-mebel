@@ -110,7 +110,7 @@ export const Navbar = () => {
               className="h-7 md:h-8 w-auto select-none transition-transform duration-300 group-hover:scale-105"
               draggable={false}
             />
-            <span className="text-lg md:text-2xl font-display font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50 transition-colors">
+            <span className="text-[15px] md:text-[19px] font-brand tracking-[0.14em] whitespace-nowrap text-neutral-900 dark:text-neutral-50 transition-colors">
               <span className="text-[#8C6A3C] dark:text-brand-gold group-hover:text-brand-gold transition-colors duration-300">FAXR</span> MEBEL
             </span>
           </Link>
