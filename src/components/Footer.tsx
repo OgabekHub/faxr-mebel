@@ -41,7 +41,7 @@ export const Footer = () => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
         {/* Column 1: Brand & Logo */}
         <div className="md:col-span-4 space-y-6">
-          <Link to="/" className="text-2xl font-display font-bold tracking-tighter">
+          <Link to="/" className="text-2xl font-display font-extrabold tracking-tight">
             <span className="text-brand-gold">FAXR</span> MEBEL
           </Link>
           <p className="text-xs text-foreground/50 leading-relaxed font-light italic max-w-sm">

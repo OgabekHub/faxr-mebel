@@ -173,7 +173,7 @@ export const Auth = () => {
         {/* ── Logo ── */}
         <div className="relative z-10">
           <Link to="/" className="inline-flex items-center gap-2 group">
-            <span className="text-xl xl:text-2xl font-display font-black tracking-tighter text-white">
+            <span className="text-xl xl:text-2xl font-display font-extrabold tracking-tight text-white">
               <span className="text-brand-gold group-hover:brightness-110">FAXR</span> MEBEL
             </span>
           </Link>
@@ -283,7 +283,7 @@ export const Auth = () => {
                 {t('nav.home')}
               </Link>
               <div className="text-center">
-                <Link to="/" className="inline-block text-2xl sm:text-3xl font-display font-black tracking-tighter text-foreground mb-2">
+                <Link to="/" className="inline-block text-2xl sm:text-3xl font-display font-extrabold tracking-tight text-foreground mb-2">
                   <span className="text-brand-gold">FAXR</span> MEBEL
                 </Link>
                 <p className="text-foreground/35 text-[9px] uppercase tracking-[0.25em] font-bold">
