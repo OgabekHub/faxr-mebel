@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { postNotify } from '../services/notify';
 import { site } from '../config/site';
+import { BrandWordmark } from './BrandWordmark';
 
 type SubscribeState = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -41,8 +42,8 @@ export const Footer = () => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
         {/* Column 1: Brand & Logo */}
         <div className="md:col-span-4 space-y-6">
-          <Link to="/" className="text-xl font-brand tracking-[0.14em]">
-            <span className="text-brand-gold">FAXR</span> MEBEL
+          <Link to="/" className="inline-block">
+            <BrandWordmark className="text-2xl" />
           </Link>
           <p className="text-xs text-foreground/50 leading-relaxed font-light italic max-w-sm">
             {t('footer.desc')}

@@ -7,6 +7,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { cn } from '../lib/utils';
 import { Link, useLocation } from 'react-router-dom';
+import { BrandWordmark } from './BrandWordmark';
 
 const languages = [
   { code: 'uz', name: 'UZ' },
@@ -110,9 +111,10 @@ export const Navbar = () => {
               className="h-7 md:h-8 w-auto select-none transition-transform duration-300 group-hover:scale-105"
               draggable={false}
             />
-            <span className="text-[15px] md:text-[19px] font-brand tracking-[0.14em] whitespace-nowrap text-neutral-900 dark:text-neutral-50 transition-colors">
-              <span className="text-[#8C6A3C] dark:text-brand-gold group-hover:text-brand-gold transition-colors duration-300">FAXR</span> MEBEL
-            </span>
+            <BrandWordmark
+              className="text-base md:text-xl text-neutral-900 dark:text-neutral-50 transition-colors"
+              accentClassName="text-[#8C6A3C] dark:text-brand-gold group-hover:text-brand-gold transition-colors duration-300"
+            />
           </Link>
 
           {/* Desktop Nav Center (lg+; tablets use the drawer so the language switcher stays reachable) */}
