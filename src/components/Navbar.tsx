@@ -100,7 +100,16 @@ export const Navbar = () => {
       )}>
         <div className="flex items-center justify-between">
           {/* Brand Logo */}
-          <Link to="/" className="flex items-center gap-2 group shrink-0">
+          <Link to="/" className="flex items-center gap-2 md:gap-2.5 group shrink-0">
+            <img
+              src="/images/logo-mark.png"
+              alt=""
+              aria-hidden="true"
+              width={106}
+              height={128}
+              className="h-7 md:h-8 w-auto select-none transition-transform duration-300 group-hover:scale-105"
+              draggable={false}
+            />
             <span className="text-lg md:text-2xl font-display font-black tracking-tighter text-neutral-900 dark:text-neutral-50 transition-colors">
               <span className="text-[#8C6A3C] dark:text-brand-gold group-hover:text-brand-gold transition-colors duration-300">FAXR</span> MEBEL
             </span>
