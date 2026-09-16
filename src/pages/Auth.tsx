@@ -174,7 +174,7 @@ export const Auth = () => {
         {/* ── Logo ── */}
         <div className="relative z-10">
           <Link to="/" className="inline-flex items-center gap-2 group">
-            <BrandLogo className="text-xl xl:text-2xl text-white" markClassName="transition-[filter] group-hover:brightness-110" />
+            <BrandLogo className="text-xl xl:text-2xl" tone="gold" markClassName="transition-[filter] group-hover:brightness-110" />
           </Link>
         </div>
 

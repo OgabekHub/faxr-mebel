@@ -103,7 +103,7 @@ export const Navbar = () => {
           {/* Brand Logo */}
           <Link to="/" className="flex items-center group shrink-0">
             <BrandLogo
-              className="text-lg md:text-[22px] text-neutral-900 dark:text-neutral-50 transition-colors"
+              className="text-lg md:text-[22px]"
               markClassName="transition-transform duration-300 group-hover:scale-105"
             />
           </Link>
