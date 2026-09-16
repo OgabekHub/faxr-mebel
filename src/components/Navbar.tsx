@@ -7,7 +7,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { cn } from '../lib/utils';
 import { Link, useLocation } from 'react-router-dom';
-import { BrandWordmark } from './BrandWordmark';
+import { BrandLogo } from './BrandLogo';
 
 const languages = [
   { code: 'uz', name: 'UZ' },
@@ -101,19 +101,10 @@ export const Navbar = () => {
       )}>
         <div className="flex items-center justify-between">
           {/* Brand Logo */}
-          <Link to="/" className="flex items-center gap-2 md:gap-2.5 group shrink-0">
-            <img
-              src="/images/logo-mark.png"
-              alt=""
-              aria-hidden="true"
-              width={106}
-              height={128}
-              className="h-7 md:h-8 w-auto select-none transition-transform duration-300 group-hover:scale-105"
-              draggable={false}
-            />
-            <BrandWordmark
-              className="text-base md:text-xl text-neutral-900 dark:text-neutral-50 transition-colors"
-              accentClassName="text-[#8C6A3C] dark:text-brand-gold group-hover:text-brand-gold transition-colors duration-300"
+          <Link to="/" className="flex items-center group shrink-0">
+            <BrandLogo
+              className="text-lg md:text-[22px] text-neutral-900 dark:text-neutral-50 transition-colors"
+              markClassName="transition-transform duration-300 group-hover:scale-105"
             />
           </Link>
 

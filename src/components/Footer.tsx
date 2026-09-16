@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { postNotify } from '../services/notify';
 import { site } from '../config/site';
-import { BrandWordmark } from './BrandWordmark';
+import { BrandLogo } from './BrandLogo';
 
 type SubscribeState = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -43,7 +43,7 @@ export const Footer = () => {
         {/* Column 1: Brand & Logo */}
         <div className="md:col-span-4 space-y-6">
           <Link to="/" className="inline-block">
-            <BrandWordmark className="text-2xl" />
+            <BrandLogo className="text-2xl" />
           </Link>
           <p className="text-xs text-foreground/50 leading-relaxed font-light italic max-w-sm">
             {t('footer.desc')}

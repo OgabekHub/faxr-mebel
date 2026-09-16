@@ -12,7 +12,7 @@ import { auth } from '../lib/firebase';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getErrorCode } from '../lib/utils';
-import { BrandWordmark } from '../components/BrandWordmark';
+import { BrandLogo } from '../components/BrandLogo';
 
 interface AuthLocationState {
   from?: { pathname?: string };
@@ -174,7 +174,7 @@ export const Auth = () => {
         {/* ── Logo ── */}
         <div className="relative z-10">
           <Link to="/" className="inline-flex items-center gap-2 group">
-            <BrandWordmark className="text-xl xl:text-2xl text-white" accentClassName="text-brand-gold group-hover:brightness-110" />
+            <BrandLogo className="text-xl xl:text-2xl text-white" markClassName="transition-[filter] group-hover:brightness-110" />
           </Link>
         </div>
 
@@ -283,7 +283,7 @@ export const Auth = () => {
               </Link>
               <div className="text-center">
                 <Link to="/" className="inline-block text-foreground mb-2">
-                  <BrandWordmark className="text-2xl sm:text-3xl" align="center" />
+                  <BrandLogo className="text-2xl sm:text-3xl" />
                 </Link>
                 <p className="text-foreground/35 text-[9px] uppercase tracking-[0.25em] font-bold">
                   {t('auth.subtitle')}
