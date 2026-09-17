@@ -20,6 +20,10 @@ export async function postNotify(input: NotifyInput): Promise<NotifyResponse> {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(input),
+      // A phone that drops to a weak signal mid-request would otherwise hang for
+      // minutes with the submit button stuck in its disabled spinner state.
+      // An abort lands in the catch below and surfaces as `ok: false`.
+      signal: AbortSignal.timeout(15000),
     });
     const data = (await response.json().catch(() => null)) as NotifyResponse | null;
     if (!response.ok || !data) {

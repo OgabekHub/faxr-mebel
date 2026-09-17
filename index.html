@@ -2,11 +2,23 @@
 <html lang="uz">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- interactive-widget lets Android Chrome shrink the layout viewport when the keyboard
+         opens, so submit buttons inside fixed sheets stay reachable. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
     <title>Faxr Mebel - Mebel fabrikasi</title>
     <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#F9F9F6" />
+    <!-- Fonts load from here rather than an @import in index.css: an @import inside the
+         stylesheet is only discovered after the CSS has downloaded and parsed. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@300..800&family=Sora:wght@600&family=Montserrat:ital,wght@0,300..900;1,300..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+    />
+    <link rel="preload" as="image" href="/images/sofa.webp" fetchpriority="high" />
     <script>
       // Apply the saved (or OS) theme before the first paint so dark-mode users
       // don't see a white flash while React boots. Keep in sync with ThemeContext.
@@ -18,6 +30,8 @@
           }
           document.documentElement.classList.add(theme);
           document.documentElement.style.colorScheme = theme;
+          var tc = document.querySelector('meta[name="theme-color"]');
+          if (tc) tc.setAttribute('content', theme === 'dark' ? '#050505' : '#F9F9F6');
         } catch (e) {}
       })();
     </script>

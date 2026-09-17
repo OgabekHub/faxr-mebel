@@ -286,5 +286,14 @@
   "auth.error.popupBlocked": "Браузер заблокировал окно Google. Разрешите всплывающие окна и попробуйте снова.",
   "auth.error.network": "Нет соединения с интернетом. Проверьте подключение и попробуйте снова.",
   "auth.resetNeedEmail": "Сначала введите email, чтобы восстановить пароль.",
-  "auth.resetSent": "Ссылка для восстановления пароля отправлена на ваш email."
+  "auth.resetSent": "Ссылка для восстановления пароля отправлена на ваш email.",
+  "nav.language": "Язык",
+  "nav.theme": "Тема",
+  "nav.profile": "Профиль",
+  "nav.menu": "Меню",
+  "shop.modal.close": "Закрыть",
+  "shop.modal.vipOrder": "VIP Заказ",
+  "shop.modal.arCamera": "AR Камера",
+  "common.on": "Вкл",
+  "common.off": "Выкл"
 }

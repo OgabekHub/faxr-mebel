@@ -286,5 +286,14 @@
   "auth.error.popupBlocked": "Brauzer Google oynasini blokladi. Popup'ga ruxsat bering va qayta urinib ko'ring.",
   "auth.error.network": "Internet aloqasi yo'q. Ulanishni tekshirib, qayta urinib ko'ring.",
   "auth.resetNeedEmail": "Parolni tiklash uchun avval email manzilingizni kiriting.",
-  "auth.resetSent": "Parolni tiklash havolasi emailingizga yuborildi."
+  "auth.resetSent": "Parolni tiklash havolasi emailingizga yuborildi.",
+  "nav.language": "Til",
+  "nav.theme": "Mavzu",
+  "nav.profile": "Profil",
+  "nav.menu": "Menyu",
+  "shop.modal.close": "Yopish",
+  "shop.modal.vipOrder": "VIP Buyurtma",
+  "shop.modal.arCamera": "AR Kamera",
+  "common.on": "Yoq.",
+  "common.off": "O'ch."
 }

@@ -286,5 +286,14 @@
   "auth.error.popupBlocked": "Your browser blocked the Google sign-in window. Allow pop-ups and try again.",
   "auth.error.network": "No internet connection. Check your connection and try again.",
   "auth.resetNeedEmail": "Enter your email first to reset your password.",
-  "auth.resetSent": "A password reset link has been sent to your email."
+  "auth.resetSent": "A password reset link has been sent to your email.",
+  "nav.language": "Language",
+  "nav.theme": "Theme",
+  "nav.profile": "Profile",
+  "nav.menu": "Menu",
+  "shop.modal.close": "Close",
+  "shop.modal.vipOrder": "VIP Order",
+  "shop.modal.arCamera": "AR Camera",
+  "common.on": "On",
+  "common.off": "Off"
 }

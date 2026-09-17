@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigationType } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
@@ -27,7 +27,7 @@ const NotFound = React.lazy(() => import('./pages/NotFound').then(m => ({ defaul
 
 // Loading Fallback for Suspense
 const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-background">
+  <div className="min-h-[100dvh] flex items-center justify-center bg-background">
     <div className="w-8 h-8 border-4 border-brand-gold/30 border-t-brand-gold rounded-full animate-spin"></div>
   </div>
 );
@@ -51,14 +51,31 @@ const PageWrapper = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+/**
+ * New destinations open at the top; Back returns to where you were.
+ *
+ * Without the POP branch a phone shopper who scrolls deep into /shop, opens a
+ * product and goes back has to scroll all the way down again.
+ */
 const ScrollToTop = () => {
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const navigationType = useNavigationType();
+  const offsets = React.useRef(new Map<string, number>());
 
   React.useEffect(() => {
+    const key = location.key;
+    const saved = offsets.current.get(key);
     // `instant` overrides the global `scroll-behavior: smooth`, otherwise every
     // route change visibly scrolls the old page up before the new one appears.
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-  }, [pathname]);
+    if (navigationType === 'POP' && saved !== undefined) {
+      window.scrollTo({ top: saved, left: 0, behavior: 'instant' });
+    } else {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
+    return () => {
+      offsets.current.set(key, window.scrollY);
+    };
+  }, [location.key, navigationType]);
 
   return null;
 };
@@ -70,7 +87,7 @@ const AppLayout = () => {
   const isFooterHidden = isAuthPage || isCartPage;
 
   return (
-    <div className="min-h-screen flex flex-col selection:bg-brand-gold selection:text-white">
+    <div className="min-h-[100dvh] flex flex-col selection:bg-brand-gold selection:text-white">
       {!isAuthPage && <Navbar />}
       <main className="flex-grow">
         <AnimatePresence mode="wait">

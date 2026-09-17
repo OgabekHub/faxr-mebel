@@ -1,5 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300..800&family=Sora:wght@600&family=Montserrat:ital,wght@0,300..900;1,300..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 @import "tailwindcss";
+
+/* The theme toggle puts a `.dark` class on <html>, so the `dark:` utilities have to
+   follow that class. Tailwind v4's default dark variant is prefers-color-scheme, which
+   left the navbar and cards on the OS theme while the page switched. */
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
@@ -64,6 +68,12 @@
   --gold-glow: rgba(197, 160, 89, 0.2);
 }
 
+/* Native date/time pickers follow the app theme instead of the OS one. */
+.dark input[type="date"],
+.dark input[type="time"] {
+  color-scheme: dark;
+}
+
 * {
   box-sizing: border-box;
   scroll-behavior: smooth;
@@ -84,6 +94,24 @@ body *::after {
     transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
     scale 0.5s cubic-bezier(0.4, 0, 0.2, 1),
     translate 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Touch devices: keep the theme crossfade, but let JS-driven transforms (motion
+   animations, `active:scale-*` press feedback) run untweened. Tweening transform over
+   500ms is what makes a tap feel dead on a phone. */
+@media (hover: none) {
+  body,
+  body *,
+  body *::before,
+  body *::after {
+    transition:
+      background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+      color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+      border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+      fill 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+      stroke 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 }
 
 /* When circular wipe is active, skip CSS transitions — the wipe handles the visual reveal */
@@ -139,14 +167,31 @@ body::before {
 /* Glassmorphism Presets */
 .glass {
   background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .dark .glass {
   background: rgba(15, 15, 15, 0.7);
-  backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Desktop keeps the real glass. */
+@media (min-width: 768px) {
+  .glass,
+  .dark .glass {
+    backdrop-filter: blur(24px) saturate(180%);
+  }
+}
+
+/* Phones: a product card paints three always-visible glass layers over its photo, so
+   scrolling the catalogue repaints dozens of blur regions per frame. Denser fill instead. */
+@media (max-width: 767px) {
+  .glass {
+    background: rgba(255, 255, 255, 0.88);
+  }
+  .dark .glass {
+    background: rgba(15, 15, 15, 0.9);
+  }
 }
 
 /* Bento Card Style and Glowing Trace */
@@ -169,10 +214,15 @@ body::before {
   position: relative;
 }
 
-.glow-tracer:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 30px 60px -15px var(--gold-glow);
-  border-color: var(--color-brand-gold);
+/* Hand-written :hover rules need the same (hover: hover) gate Tailwind gives its own
+   hover: utilities — on a touch screen a tap latches the hovered state until you tap
+   elsewhere, leaving the card lifted 8px with a stuck glow. */
+@media (hover: hover) {
+  .glow-tracer:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 30px 60px -15px var(--gold-glow);
+    border-color: var(--color-brand-gold);
+  }
 }
 
 /* Textures and Gradients */
@@ -187,8 +237,10 @@ body::before {
   background: linear-gradient(135deg, var(--color-brand-gold) 0%, var(--color-brand-gold-muted) 100%);
 }
 
-.gold-glow-hover:hover {
-  box-shadow: 0 0 25px rgba(197, 160, 89, 0.3);
+@media (hover: hover) {
+  .gold-glow-hover:hover {
+    box-shadow: 0 0 25px rgba(197, 160, 89, 0.3);
+  }
 }
 
 /* Premium Typography classes */
@@ -234,8 +286,41 @@ input[type="range"]::-webkit-slider-thumb {
   cursor: pointer;
   transition: transform 0.1s ease;
 }
-input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
+@media (hover: hover) {
+  input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+  }
+}
+
+/* A 16px thumb on a 4px track is not grabbable with a thumb. Mouse (pointer: fine)
+   keeps the slim track above. */
+@media (pointer: coarse) {
+  input[type="range"] {
+    height: 28px;
+    background: transparent;
+  }
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 99px;
+    background: var(--border);
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    width: 24px;
+    height: 24px;
+    margin-top: -10px;
+  }
+  input[type="range"]::-moz-range-track {
+    height: 4px;
+    border-radius: 99px;
+    background: var(--border);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--color-brand-gold);
+  }
 }
 
 /* Premium Cursor Spotlight (Hover Glow) */
@@ -290,15 +375,22 @@ input[type="range"]::-webkit-slider-thumb:hover {
   z-index: 10;
 }
 
-.bento-spotlight:hover::before,
-.bento-spotlight:hover::after {
-  opacity: 1;
+@media (hover: hover) {
+  .bento-spotlight:hover::before,
+  .bento-spotlight:hover::after {
+    opacity: 1;
+  }
+
+  .bento-spotlight:hover {
+    transform: translateY(-5px);
+    border-color: rgba(197, 160, 89, 0.25);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+  }
 }
 
-.bento-spotlight:hover {
-  transform: translateY(-5px);
+/* Touch equivalent: a gold cue while the finger is down, with no lift to jitter. */
+.bento-spotlight:active {
   border-color: rgba(197, 160, 89, 0.25);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
 }
 
 /* Ken Burns (Zoom) effect for background sliders */
@@ -315,10 +407,12 @@ input[type="range"]::-webkit-slider-thumb:hover {
   }
 }
 
-/* Luxury page transition animation qobiqlari */
-.page-transition-container {
-  will-change: transform, opacity;
-}
+/* Luxury page transition animation qobiqlari.
+   Deliberately no `will-change`: `will-change: transform` makes this wrapper the
+   containing block for every `position: fixed` child, which pinned the toasts, the
+   mobile Telegram button and the Cart/Admin modals to the page box instead of the
+   viewport (a toast fired while scrolled rendered thousands of px off-screen).
+   motion promotes the layer itself while the 0.45s route transition runs. */
 
 /* Custom premium scrollbar variants */
 .scrollbar-hide::-webkit-scrollbar {
@@ -362,6 +456,42 @@ input[type="range"]::-webkit-slider-thumb:hover {
   100% {
     clip-path: circle(150% at var(--wipe-x, 50%) var(--wipe-y, 50%));
     opacity: 0;
+  }
+}
+
+/* ── Touch and small-screen rules ─────────────────────────────────────────────
+   Unlayered author CSS, so these beat Tailwind's @layer utilities without having
+   to touch every field and control in the JSX. */
+
+/* iOS Safari zooms the page whenever a focused field is under 16px and never zooms
+   back out. Every form in the app used 12-14px. Desktop keeps its smaller type. */
+@media (max-width: 767px) {
+  input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+/* No double-tap-to-zoom on controls that get tapped repeatedly (quantity steppers,
+   slider dots, language pills). Pinch-zoom is untouched. */
+button,
+a,
+[role="button"],
+label,
+summary {
+  touch-action: manipulation;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-ken-burns,
+  .animate-float,
+  .animate-pulse-slow,
+  .animate-spin-slow {
+    animation: none !important;
+  }
+  * {
+    scroll-behavior: auto !important;
   }
 }
 
