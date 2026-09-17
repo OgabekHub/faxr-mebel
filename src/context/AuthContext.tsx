@@ -6,6 +6,8 @@ interface AuthContextType {
   user: User | null;
   /** True until Firebase has reported the initial auth state. */
   loading: boolean;
+  /** True for the invisible account a visitor gets when they send a request without signing in. */
+  isAnonymous: boolean;
   /** True when `admins/{uid}` exists for the signed-in user (see firestore.rules). */
   isAdmin: boolean;
   /** True while the admin flag for the *current* user is still unknown. */
@@ -81,9 +83,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isAdmin = adminKnown && adminCheck!.isAdmin;
   const adminLoading = uid !== null && !adminKnown;
 
+  const isAnonymous = user?.isAnonymous ?? false;
+
   const value = useMemo<AuthContextType>(
-    () => ({ user, loading, isAdmin, adminLoading }),
-    [user, loading, isAdmin, adminLoading]
+    () => ({ user, loading, isAnonymous, isAdmin, adminLoading }),
+    [user, loading, isAnonymous, isAdmin, adminLoading]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

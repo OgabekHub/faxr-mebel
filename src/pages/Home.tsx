@@ -7,7 +7,8 @@ import { formatPrice } from '../lib/utils';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { ARModal } from '../components/ARModal';
-import { BespokeModal } from '../components/BespokeModal';
+import { RequestModal } from '../components/RequestModal';
+import { legacyShopCategoryToPortfolio } from '../types/domain';
 import { BentoSpotlight } from '../components/BentoSpotlight';
 import { SEO } from '../components/SEO';
 
@@ -572,14 +573,14 @@ export const Home = () => {
         productId={featuredProducts[0].id}
       />
 
-      <BespokeModal 
+      <RequestModal
         isOpen={isBespokeOpen}
         onClose={() => setIsBespokeOpen(false)}
-        product={{
-          id: featuredProducts[0].id,
-          name: featuredProducts[0].name,
-          price: featuredProducts[0].price,
-          image: featuredProducts[0].image
+        source={{
+          itemId: featuredProducts[0].id,
+          category: legacyShopCategoryToPortfolio(featuredProducts[0].category),
+          image: featuredProducts[0].image,
+          title: t(`product.${featuredProducts[0].id}.name`),
         }}
       />
     </div>

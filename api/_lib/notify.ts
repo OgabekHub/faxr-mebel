@@ -64,6 +64,21 @@ const newsletterPayloadSchema = z.object({
   email: z.email().max(200),
 });
 
+/** A home-measurement request. Mirrors `FurnitureRequest` in src/types/domain.ts. */
+const requestPayloadSchema = z.object({
+  requestId: requiredText(40),
+  category: z.enum(['soft', 'kitchen', 'bedroom', 'living']),
+  itemTitle: text(160),
+  preferredDate: text(20),
+  preferredTime: z.enum(['morning', 'afternoon', 'evening']),
+  area: text(300),
+  note: text(1000),
+  name: requiredText(100),
+  phone,
+  /** False when the Firestore write failed: the office must call, /profile tracking is not live. */
+  saved: z.boolean(),
+});
+
 /** Honeypot field: real users never fill it; bots that do get a silent "ok". */
 const honeypot = z.string().max(200).optional();
 
@@ -73,6 +88,7 @@ export const notifySchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('appointment'), website: honeypot, payload: appointmentPayloadSchema }),
   z.object({ kind: z.literal('bespoke'), website: honeypot, payload: bespokePayloadSchema }),
   z.object({ kind: z.literal('newsletter'), website: honeypot, payload: newsletterPayloadSchema }),
+  z.object({ kind: z.literal('request'), website: honeypot, payload: requestPayloadSchema }),
 ]);
 
 export type NotifyInput = z.infer<typeof notifySchema>;
@@ -216,6 +232,43 @@ export function buildMessage(input: NotifyInput): string {
         `📧 <b>Email:</b> ${e(p.email)}`,
         `📅 <b>Sana:</b> ${date}`,
       ].join('\n');
+    }
+
+    case 'request': {
+      const p = input.payload;
+      const category: Record<typeof p.category, string> = {
+        soft: 'Yumshoq mebel',
+        kitchen: 'Oshxona',
+        bedroom: 'Yotoqxona',
+        living: 'Mehmonxona / TV zona',
+      };
+      const slot: Record<typeof p.preferredTime, string> = {
+        morning: 'ertalab (9:00–12:00)',
+        afternoon: 'kunduzi (12:00–16:00)',
+        evening: 'kechqurun (16:00–19:00)',
+      };
+      const visit = p.preferredDate
+        ? `${e(p.preferredDate)}, ${slot[p.preferredTime]}`
+        : `kelishiladi (${slot[p.preferredTime]} qulay)`;
+      return [
+        "🏠 <b>YANGI O'LCHOV SO'ROVI</b> 🏠",
+        '',
+        `🆔 <b>Ariza:</b> <code>${e(p.requestId)}</code>`,
+        `🛋 <b>Mebel turi:</b> ${category[p.category]}`,
+        p.itemTitle ? `🖼 <b>Namuna:</b> ${e(p.itemTitle)}` : '',
+        `📅 <b>Tashrif:</b> ${visit}`,
+        `📍 <b>Hudud:</b> ${e(p.area) || "ko'rsatilmagan"}`,
+        `✍️ <b>Izoh:</b> ${e(p.note) || "yo'q"}`,
+        '',
+        `👤 <b>Mijoz:</b> ${e(p.name)}`,
+        `📱 <b>Telefon:</b> ${e(p.phone)}`,
+        `📅 <b>Sana:</b> ${date}`,
+        ...(p.saved
+          ? []
+          : ['', "⚠️ <b>Bazaga saqlanmadi</b> — admin panelda va mijoz profilida ko'rinmaydi. Mijozga o'zingiz qo'ng'iroq qiling."]),
+      ]
+        .filter((line, index, lines) => line !== '' || lines[index - 1] !== '')
+        .join('\n');
     }
   }
 }

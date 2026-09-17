@@ -7,7 +7,8 @@ import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { Link } from 'react-router-dom';
 import { ARModal } from '../components/ARModal';
-import { BespokeModal } from '../components/BespokeModal';
+import { RequestModal } from '../components/RequestModal';
+import { legacyShopCategoryToPortfolio } from '../types/domain';
 import { BentoSpotlight } from '../components/BentoSpotlight';
 import { CustomSelect } from '../components/CustomSelect';
 import { createPortal } from 'react-dom';
@@ -557,14 +558,14 @@ export const Shop = () => {
       )}
 
       {activeBespokeProduct && (
-        <BespokeModal 
+        <RequestModal
           isOpen={!!activeBespokeProduct}
           onClose={() => setActiveBespokeProduct(null)}
-          product={{
-            id: activeBespokeProduct.id,
-            name: activeBespokeProduct.name,
-            price: activeBespokeProduct.price,
-            image: activeBespokeProduct.image
+          source={{
+            itemId: activeBespokeProduct.id,
+            category: legacyShopCategoryToPortfolio(activeBespokeProduct.category),
+            image: activeBespokeProduct.image,
+            title: t('product.' + activeBespokeProduct.id + '.name'),
           }}
         />
       )}
