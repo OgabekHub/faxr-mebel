@@ -7,7 +7,7 @@ import {
   Ruler, CalendarDays, UserRound, Sofa, ChefHat, BedDouble, Tv, Phone,
 } from 'lucide-react';
 import { createPortal } from 'react-dom';
-import { cn, generateRequestId, withTimeout } from '../lib/utils';
+import { cn, generateRequestId, withTimeout, formatDayLabel } from '../lib/utils';
 import { postNotify } from '../services/notify';
 import { normalizeUzPhone } from '../lib/validation';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
@@ -36,18 +36,6 @@ const CATEGORY_ICONS: Record<PortfolioCategoryId, React.ElementType> = {
 const todayLocalISO = () => {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-};
-
-// Browsers ship no Uzbek month names (Intl renders "M10"), so those are spelled out here.
-const UZ_MONTHS = ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avgust', 'sentabr', 'oktabr', 'noyabr', 'dekabr'];
-
-const formatDay = (isoDay: string, lang: string) => {
-  const [year, month, day] = isoDay.split('-').map(Number);
-  if (!year || !month || !day) return isoDay;
-  if (lang.startsWith('ru') || lang.startsWith('en')) {
-    return new Date(year, month - 1, day).toLocaleDateString(lang.startsWith('ru') ? 'ru-RU' : 'en-GB', { day: 'numeric', month: 'long' });
-  }
-  return `${day}-${UZ_MONTHS[month - 1]}`;
 };
 
 interface RequestModalProps {
@@ -152,7 +140,7 @@ export const RequestModal: React.FC<RequestModalProps> = ({ isOpen, onClose, sou
   };
 
   const visitLabel = preferredDate
-    ? `${formatDay(preferredDate, i18n.language)} · ${t(`request.time.${preferredTime}`)}`
+    ? `${formatDayLabel(preferredDate, i18n.language)} · ${t(`request.time.${preferredTime}`)}`
     : t('request.summary.notSet');
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -1,20 +1,22 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { LogOut, Heart, ShoppingBag, Send, Award, Clock, CheckCircle } from 'lucide-react';
+import { LogOut, Heart, ClipboardList, Send, Award, Clock, CheckCircle, AlertTriangle, UserPlus } from 'lucide-react';
 import { auth, db } from '../lib/firebase';
 import { signOut } from 'firebase/auth';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { cn, formatPrice } from '../lib/utils';
+import { formatDayLabel } from '../lib/utils';
 import { useTranslation } from 'react-i18next';
 import { CustomSelect } from '../components/CustomSelect';
 import { useWishlist } from '../context/WishlistContext';
 import { findPortfolioItem, portfolioTitle } from '../hooks/usePortfolio';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
-import type { Order } from '../types/domain';
+import { REQUEST_STATUS_FLOW, type FurnitureRequest } from '../types/domain';
+
+type StepState = 'completed' | 'active' | 'pending';
 
 export const Profile = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { wishlist } = useWishlist();
   // Favourites are references; pieces that have since left the portfolio are skipped.
@@ -22,47 +24,50 @@ export const Profile = () => {
     const item = findPortfolioItem(id);
     return item ? [item] : [];
   });
-  // ProtectedRoute only renders this page once auth has resolved with a signed-in user.
-  const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'orders' | 'wishlist'>('orders');
+  // ProtectedRoute only renders this page once auth has resolved with a signed-in user
+  // (an anonymous account counts: it is how a request sent without signing up is tracked).
+  const { user, isAnonymous } = useAuth();
+  const [activeTab, setActiveTab] = useState<'requests' | 'wishlist'>('requests');
 
-  // Real Orders State
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [ordersLoading, setOrdersLoading] = useState(true);
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [requests, setRequests] = useState<FurnitureRequest[]>([]);
+  const [requestsLoading, setRequestsLoading] = useState(true);
+  const [requestsFailed, setRequestsFailed] = useState(false);
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
 
   const uid = user?.uid ?? null;
 
-  // One orders listener per signed-in user; the cleanup runs on uid change and unmount (no leak).
+  // One listener per signed-in user; the cleanup runs on uid change and unmount (no leak).
   useEffect(() => {
     if (!uid) {
       // Defensive only: ProtectedRoute never renders this page without a user.
-      setOrders([]);
-      setSelectedOrderId(null);
-      setOrdersLoading(false);
+      setRequests([]);
+      setSelectedRequestId(null);
+      setRequestsLoading(false);
       return;
     }
 
-    setOrdersLoading(true);
-    const q = query(collection(db, 'orders'), where('userId', '==', uid));
+    setRequestsLoading(true);
+    setRequestsFailed(false);
+    // Single `where`, sorted client-side: an `orderBy` would need a composite index.
+    const q = query(collection(db, 'requests'), where('userId', '==', uid));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const fetchedOrders: Order[] = snapshot.docs.map(doc => ({
-        ...(doc.data() as Omit<Order, 'id'>),
-        id: doc.id,
+      const fetched: FurnitureRequest[] = snapshot.docs.map((docSnap) => ({
+        ...(docSnap.data() as Omit<FurnitureRequest, 'id'>),
+        id: docSnap.id,
       }));
+      fetched.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-      // Sort by date (newest first)
-      fetchedOrders.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-      setOrders(fetchedOrders);
-      if (fetchedOrders.length > 0) {
-        setSelectedOrderId(prev => prev || fetchedOrders[0].id);
+      setRequests(fetched);
+      if (fetched.length > 0) {
+        setSelectedRequestId(prev => prev || fetched[0].id);
       }
-      setOrdersLoading(false);
+      setRequestsLoading(false);
     }, (error) => {
-      console.error("Firestore orders query failed:", error);
-      setOrdersLoading(false);
+      // Shown, not swallowed: an unpublished rule would otherwise look like "no requests yet".
+      console.error('Firestore requests query failed:', error);
+      setRequestsFailed(true);
+      setRequestsLoading(false);
     });
 
     return () => unsubscribe();
@@ -77,70 +82,48 @@ export const Profile = () => {
     }
   };
 
-  const currentOrder = useMemo(() => {
-    const order = orders.find(o => o.id === selectedOrderId);
-    if (!order) return null;
+  const currentRequest = useMemo(() => {
+    const request = requests.find(r => r.id === selectedRequestId);
+    if (!request) return null;
 
-    const itemNames = order.items?.map((it) => `${it.name} (x${it.quantity})`).join(', ') || 'Faxr Mebel Mahsuloti';
-    const firstBespoke = order.items?.find((it) => it.bespokeDetails);
-    const wood = firstBespoke?.bespokeDetails?.wood || 'Walnut (Yong\'oq)';
-    const fabric = firstBespoke?.bespokeDetails?.fabric || 'Italiya Baxmali';
-    const packaging = order.addons?.premiumBox ? t('profile.packagingWood', 'Yog\'och quti') : t('profile.packagingStandard', 'Standart qadoq');
+    const stageIndex = REQUEST_STATUS_FLOW.indexOf(request.status);
+    const done = request.status === 'installed';
+    const steps = REQUEST_STATUS_FLOW.map((stage, index) => ({
+      label: t(`profile.stage.${stage}`),
+      desc: t(`profile.stage.${stage}Desc`),
+      status: (done || index < stageIndex ? 'completed' : index === stageIndex ? 'active' : 'pending') as StepState,
+    }));
 
-    const steps = [
-      { 
-        label: t('profile.status.received', 'Buyurtma qabul qilindi'), 
-        desc: order.paymentStatus === 'paid' 
-          ? t('profile.status.receivedPaidDesc', 'Sizning to\'lovingiz tasdiqlandi va buyurtma ro\'yxatga olindi.') 
-          : t('profile.status.receivedPendingDesc', 'Buyurtma qabul qilindi. Menejer to\'lov va parametrlarni tasdiqlash uchun bog\'lanadi.'), 
-        status: order.status === 'pending' ? 'active' : 'completed' 
-      },
-      { 
-        label: t('profile.status.wood', 'Yog\'och saralanmoqda'), 
-        desc: t('profile.status.woodDesc', { wood, defaultValue: `Ustaxonamizdan oliy navli ${wood} yog'ochi ajratib olindi.` }),
-        status: order.status === 'pending' ? 'pending' : order.status === 'wood' ? 'active' : 'completed' 
-      },
-      { 
-        label: t('profile.status.artisan', 'Usta qo\'lida sayqallanmoqda'), 
-        desc: t('profile.status.artisanDesc', 'Bosh duradgor Rustamali mebelni qo\'lda tayyorlamoqda.'), 
-        status: (order.status === 'pending' || order.status === 'wood') ? 'pending' : order.status === 'artisan' ? 'active' : 'completed' 
-      },
-      { 
-        label: t('profile.status.quality', 'Sifat nazorati'), 
-        desc: t('profile.status.qualityDesc', 'Mebel choklari va yuklama chidamliligi tekshiriladi.'), 
-        status: (order.status === 'pending' || order.status === 'wood' || order.status === 'artisan') ? 'pending' : order.status === 'quality' ? 'active' : 'completed' 
-      },
-      { 
-        label: t('profile.status.delivery', 'Yetkazib berish va o\'rnatish'), 
-        desc: t('profile.status.deliveryDesc', 'Bepul yetkazib berilib, xonadoningizga yig\'ib beriladi.'), 
-        status: order.status === 'completed' ? 'completed' : 'pending' 
-      }
-    ];
+    const source = request.sourceItemId ? findPortfolioItem(request.sourceItemId) : undefined;
+    const title = source ? portfolioTitle(source.id, t) : t(`portfolio.category.${request.category}`);
+    const visit = request.preferredDate
+      ? `${formatDayLabel(request.preferredDate, i18n.language)} · ${t(`request.time.${request.preferredTime}`)}`
+      : t('request.summary.notSet');
 
-    return {
-      ...order,
-      itemNames,
-      wood,
-      fabric,
-      packaging,
-      steps
-    };
-  }, [orders, selectedOrderId, t]);
+    return { ...request, steps, title, visit };
+  }, [requests, selectedRequestId, t, i18n.language]);
+
+  const paramRow = (label: string, value: string) => (
+    <div className="flex flex-wrap sm:flex-nowrap justify-between gap-x-2">
+      <span className="text-foreground/45">{label}:</span>
+      <span className="font-bold text-right pl-2 ml-auto break-words min-w-0">{value}</span>
+    </div>
+  );
 
   return (
     <div className="pt-36 pb-20 px-6 max-w-7xl mx-auto min-h-dvh">
-      
+
       {/* Upper User Profile Bar */}
       <div className="bento-card p-6 sm:p-8 md:p-10 mb-8 md:mb-12 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 border border-foreground/5 shadow-xl relative overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] md:w-[600px] md:h-[600px] bg-brand-gold/5 blur-[60px] md:blur-[100px] rounded-full pointer-events-none" />
-        
+
         <div className="flex flex-col md:flex-row items-center gap-6 relative z-10">
           <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-brand-gold bg-foreground/5 shadow-lg">
             <img src={user?.photoURL || 'https://i.pravatar.cc/150?u=9'} alt="User Profile" className="w-full h-full object-cover" />
           </div>
           <div className="text-center md:text-left space-y-1.5">
             <h1 className="text-2xl md:text-3xl font-editorial-title font-bold text-foreground">{user?.displayName || t('profile.guestName')}</h1>
-            <p className="text-xs text-foreground/50 leading-relaxed font-light italic break-words">{user?.email}</p>
+            {user?.email && <p className="text-xs text-foreground/50 leading-relaxed font-light italic break-words">{user.email}</p>}
             <div className="flex flex-wrap justify-center md:justify-start gap-3 pt-1">
               <span className="px-3.5 py-1 bg-brand-gold/10 border border-brand-gold/10 rounded-full text-[10px] sm:text-[9px] font-black uppercase tracking-wider text-brand-gold flex items-center gap-1.5">
                 <Award className="w-3 h-3" /> {t('profile.goldMember')}
@@ -149,35 +132,38 @@ export const Profile = () => {
           </div>
         </div>
 
-        <button 
-          onClick={handleLogout}
-          className="px-6 py-3.5 bg-foreground/5 hover:bg-red-500 hover:text-white rounded-xl text-[11px] md:text-[9px] font-black uppercase tracking-widest md:tracking-[0.3em] transition-all flex items-center gap-2 border border-foreground/5 hover:border-red-500 relative z-10"
-        >
-          <LogOut className="w-4 h-4" /> {t('profile.logout')}
-        </button>
+        {/* Signing out an anonymous account would orphan its requests; the upgrade card below is the way forward instead. */}
+        {!isAnonymous && (
+          <button
+            onClick={handleLogout}
+            className="px-6 py-3.5 bg-foreground/5 hover:bg-red-500 hover:text-white rounded-xl text-[11px] md:text-[9px] font-black uppercase tracking-widest md:tracking-[0.3em] transition-all flex items-center gap-2 border border-foreground/5 hover:border-red-500 relative z-10"
+          >
+            <LogOut className="w-4 h-4" /> {t('profile.logout')}
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10">
-        
+
         {/* Navigation Sidebar Panel */}
         <aside className="contents lg:block lg:col-span-3 lg:space-y-6">
           <div className="bento-card p-6 border border-foreground/5">
             <nav className="flex flex-col gap-2">
               <button
-                onClick={() => setActiveTab('orders')}
+                onClick={() => setActiveTab('requests')}
                 className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-left ${
-                  activeTab === 'orders' 
-                    ? 'bg-brand-gold text-black shadow-lg shadow-brand-gold/15' 
+                  activeTab === 'requests'
+                    ? 'bg-brand-gold text-black shadow-lg shadow-brand-gold/15'
                     : 'hover:bg-foreground/5 text-foreground/60'
                 }`}
               >
-                <ShoppingBag className="w-4 h-4" /> {t('profile.activeOrders')}
+                <ClipboardList className="w-4 h-4" /> {t('profile.requests')}
               </button>
               <button
                 onClick={() => setActiveTab('wishlist')}
                 className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-left ${
-                  activeTab === 'wishlist' 
-                    ? 'bg-brand-gold text-black shadow-lg shadow-brand-gold/15' 
+                  activeTab === 'wishlist'
+                    ? 'bg-brand-gold text-black shadow-lg shadow-brand-gold/15'
                     : 'hover:bg-foreground/5 text-foreground/60'
                 }`}
               >
@@ -191,10 +177,10 @@ export const Profile = () => {
             <p className="text-xs sm:text-[10px] leading-relaxed mb-4 font-semibold opacity-75">
               {t('profile.prestigeDesc')}
             </p>
-            <a 
-              href="https://t.me/faxrmebel" 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <a
+              href="https://t.me/faxrmebel"
+              target="_blank"
+              rel="noopener noreferrer"
               className="w-full py-4 sm:py-3 bg-black text-white text-center rounded-xl text-[11px] sm:text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
             >
               <Send className="w-3.5 h-3.5" /> {t('profile.telegramSupport')}
@@ -204,26 +190,48 @@ export const Profile = () => {
 
         {/* Content Viewer Grid */}
         <main className="lg:col-span-9 space-y-6">
+          {isAnonymous && (
+            <div className="bento-card p-5 sm:p-6 border border-brand-gold/30 bg-brand-gold/5 flex flex-col sm:flex-row sm:items-center gap-4">
+              <UserPlus className="w-6 h-6 text-brand-gold shrink-0" aria-hidden="true" />
+              <div className="flex-grow">
+                <h3 className="text-sm font-bold text-foreground">{t('profile.guestUpgrade.title')}</h3>
+                <p className="text-xs text-foreground/55 leading-relaxed mt-1">{t('profile.guestUpgrade.desc')}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate('/auth')}
+                className="shrink-0 bg-brand-gold text-black px-5 py-3.5 sm:py-2.5 rounded-xl font-bold text-[11px] sm:text-[10px] uppercase tracking-widest active:scale-[0.98]"
+              >
+                {t('profile.guestUpgrade.cta')}
+              </button>
+            </div>
+          )}
+
           <AnimatePresence mode="wait">
-            {activeTab === 'orders' ? (
+            {activeTab === 'requests' ? (
               <motion.div
-                key="orders"
+                key="requests"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
               >
-                {ordersLoading ? (
+                {requestsLoading ? (
                   <div className="bento-card p-8 sm:p-12 text-center border border-foreground/5">
                     <Clock className="w-8 h-8 text-brand-gold animate-spin mx-auto mb-4" />
-                    <span className="text-xs uppercase tracking-hero text-foreground/40 font-bold">{t('profile.ordersLoading', 'Buyurtmalar yuklanmoqda...')}</span>
+                    <span className="text-xs uppercase tracking-hero text-foreground/40 font-bold">{t('profile.requestsLoading')}</span>
                   </div>
-                ) : orders.length === 0 ? (
+                ) : requestsFailed ? (
+                  <div role="alert" className="bento-card p-6 border border-red-500/25 bg-red-500/5 flex items-start gap-3">
+                    <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" aria-hidden="true" />
+                    <p className="text-xs text-foreground/70 leading-relaxed">{t('profile.requestsError')}</p>
+                  </div>
+                ) : requests.length === 0 ? (
                   <div className="bento-card p-8 sm:p-12 text-center border border-foreground/5 flex flex-col items-center justify-center space-y-4">
-                    <ShoppingBag className="w-12 h-12 text-foreground/20" />
-                    <h3 className="text-lg font-bold text-foreground">{t('profile.noOrders', 'Sizda faol buyurtmalar yo\'q')}</h3>
-                    <p className="text-xs text-foreground/45 italic max-w-sm">{t('profile.noOrdersDesc', 'Bizning katalogimizdan premium mebellarni tanlang va birinchi buyurtmangizni amalga oshiring.')}</p>
-                    <button 
+                    <ClipboardList className="w-12 h-12 text-foreground/20" />
+                    <h3 className="text-lg font-bold text-foreground">{t('profile.noRequests')}</h3>
+                    <p className="text-xs text-foreground/45 italic max-w-sm">{t('profile.noRequestsDesc')}</p>
+                    <button
                       onClick={() => navigate('/portfolio')}
                       className="bg-brand-gold text-black px-6 py-4 sm:py-2.5 rounded-xl font-bold text-[11px] sm:text-[10px] uppercase tracking-widest hover:scale-102 active:scale-[0.98]"
                     >
@@ -232,90 +240,65 @@ export const Profile = () => {
                   </div>
                 ) : (
                   <>
-                    {/* Order Selector (Dropdown if multiple) */}
-                    {orders.length > 1 && (
+                    {requests.length > 1 && (
                       <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 bg-foreground/5 p-3 rounded-2xl border border-foreground/5 w-full sm:w-fit">
-                        <span className="text-[10px] sm:text-[9px] uppercase font-black tracking-widest text-foreground/45 ml-1 sm:ml-2">{t('profile.selectOrder', 'Buyurtmani tanlash')}:</span>
+                        <span className="text-[10px] sm:text-[9px] uppercase font-black tracking-widest text-foreground/45 ml-1 sm:ml-2">{t('profile.selectRequest')}:</span>
                         <CustomSelect
-                          value={selectedOrderId || ''}
-                          onChange={setSelectedOrderId}
-                          options={orders.map(o => ({
-                            value: o.id,
-                            label: `${o.id} (${new Date(o.date).toLocaleDateString()})`
+                          value={selectedRequestId || ''}
+                          onChange={setSelectedRequestId}
+                          options={requests.map(r => ({
+                            value: r.id,
+                            label: `${r.id} (${new Date(r.date).toLocaleDateString()})`
                           }))}
-                          className="w-full sm:w-48"
+                          className="w-full sm:w-56"
                         />
                       </div>
                     )}
 
-                    {currentOrder && (
+                    {currentRequest && (
                       <div className="bento-card p-5 sm:p-8 border border-foreground/5 relative overflow-hidden">
                         <div className="flex flex-col sm:flex-row justify-between sm:items-center pb-6 border-b border-foreground/5 mb-8 gap-4">
                           <div>
-                            <span className="text-[10px] sm:text-[9px] font-black uppercase tracking-widest text-brand-gold">{t('profile.activeOrder')}</span>
-                            <h3 className="text-lg font-bold text-foreground mt-1">{currentOrder.itemNames}</h3>
+                            <span className="text-[10px] sm:text-[9px] font-black uppercase tracking-widest text-brand-gold">{t('profile.activeRequest')}</span>
+                            <h3 className="text-lg font-bold text-foreground mt-1">{currentRequest.title}</h3>
                             <p className="text-xs sm:text-[10px] text-foreground/45 mt-1 font-bold">
-                              {t('profile.code')}: <span className="select-all">{currentOrder.id}</span> | {t('profile.date')}: {new Date(currentOrder.date).toLocaleDateString('uz-UZ')}
+                              {t('profile.code')}: <span className="select-all">{currentRequest.id}</span> | {t('profile.date')}: {new Date(currentRequest.date).toLocaleDateString()}
                             </p>
                           </div>
-                          
-                          <div className="text-left sm:text-right shrink-0">
-                            <span className="text-[10px] sm:text-[9px] uppercase font-black tracking-widest text-foreground/40 block">{t('profile.paidAmount')}</span>
-                            <span className="price-tag text-2xl font-bold block">{formatPrice(currentOrder.total)}</span>
-                          </div>
+
+                          <span className="shrink-0 self-start sm:self-center px-3.5 py-1.5 bg-brand-gold/10 border border-brand-gold/25 rounded-full text-[11px] sm:text-[10px] font-bold text-brand-gold uppercase tracking-wider">
+                            {t(`profile.stage.${currentRequest.status}`)}
+                          </span>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8">
-                          {/* Visual details column */}
+                          {/* Request details */}
                           <div className="md:col-span-4 bg-foreground/5 p-4 sm:p-6 rounded-2xl border border-foreground/5 space-y-3.5 h-fit">
                             <span className="text-[10px] sm:text-[9px] font-black uppercase tracking-widest text-brand-gold block">{t('profile.selectedParams')}</span>
                             <div className="space-y-2.5 text-xs">
-                              <div className="flex flex-wrap sm:flex-nowrap justify-between gap-x-2">
-                                <span className="text-foreground/45">{t('profile.woodType')}:</span>
-                                <span className="font-bold text-right pl-2 ml-auto">{currentOrder.wood}</span>
-                              </div>
-                              <div className="flex flex-wrap sm:flex-nowrap justify-between gap-x-2">
-                                <span className="text-foreground/45">{t('profile.fabric')}:</span>
-                                <span className="font-bold text-right pl-2 ml-auto">{currentOrder.fabric}</span>
-                              </div>
-                              <div className="flex flex-wrap sm:flex-nowrap justify-between gap-x-2">
-                                <span className="text-foreground/45">{t('profile.packaging')}:</span>
-                                <span className="font-bold text-right pl-2 ml-auto">{currentOrder.packaging}</span>
-                              </div>
-                              <div className="flex flex-wrap sm:flex-nowrap justify-between gap-x-2">
-                                <span className="text-foreground/45">{t('profile.delivery')}:</span>
-                                <span className="font-bold text-green-500 text-right pl-2 ml-auto">Kuryer (Luxe)</span>
-                              </div>
-                              <div className="flex flex-wrap sm:flex-nowrap justify-between gap-x-2 border-t border-foreground/5 pt-2">
-                                <span className="text-foreground/45">{t('profile.paymentMethod', 'To\'lov turi')}:</span>
-                                <span className="font-bold text-brand-gold text-[11px] sm:text-[10px] uppercase text-right pl-2 ml-auto">
-                                  {currentOrder.paymentMethod === 'click_payme' ? 'Click / Payme' : t('profile.manualPay', 'Konsultatsiya')}
-                                </span>
-                              </div>
-                              <div className="flex flex-wrap sm:flex-nowrap justify-between gap-x-2">
-                                <span className="text-foreground/45">{t('profile.paymentStatus', 'To\'lov holati')}:</span>
-                                <span className={cn(
-                                  "font-bold text-[11px] sm:text-[10px] uppercase text-right pl-2 ml-auto",
-                                  currentOrder.paymentStatus === 'paid' ? 'text-green-500' : 'text-orange-500'
-                                )}>
-                                  {currentOrder.paymentStatus === 'paid' ? t('profile.paid', 'To\'langan') : t('profile.pendingPay', 'Kutilmoqda')}
-                                </span>
-                              </div>
+                              {paramRow(t('profile.requestType'), t(`portfolio.category.${currentRequest.category}`))}
+                              {paramRow(t('profile.visitDate'), currentRequest.visit)}
+                              {currentRequest.area && paramRow(t('profile.area'), currentRequest.area)}
+                              {paramRow(t('profile.phone'), currentRequest.phone)}
+                              {currentRequest.note && (
+                                <div className="border-t border-foreground/5 pt-2">
+                                  <span className="text-foreground/45 block mb-1">{t('profile.note')}:</span>
+                                  <p className="italic text-foreground/70 leading-relaxed break-words">{currentRequest.note}</p>
+                                </div>
+                              )}
                             </div>
                           </div>
 
-                          {/* Timeline tracking tracker */}
+                          {/* Timeline */}
                           <div className="md:col-span-8 space-y-6">
                             <span className="text-[10px] sm:text-[9px] font-black uppercase tracking-widest text-brand-gold block mb-2">{t('profile.timeline')}</span>
-                            
+
                             <div className="relative pl-6 border-l border-foreground/10 space-y-8">
-                              {currentOrder.steps.map((step, idx) => (
+                              {currentRequest.steps.map((step, idx) => (
                                 <div key={idx} className="relative">
-                                  
-                                  {/* Visual state markers */}
                                   <span className={`absolute -left-9.5 top-0.5 w-6 h-6 rounded-full flex items-center justify-center border text-[9px] font-extrabold ${
-                                    step.status === 'completed' 
-                                      ? 'bg-green-500 text-white border-green-500' 
+                                    step.status === 'completed'
+                                      ? 'bg-green-500 text-white border-green-500'
                                       : step.status === 'active'
                                       ? 'bg-brand-gold text-black border-brand-gold animate-pulse'
                                       : 'bg-background text-foreground/30 border-foreground/10'

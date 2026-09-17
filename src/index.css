@@ -259,14 +259,6 @@ body::before {
   letter-spacing: 0.3em;
 }
 
-/* Custom Price styling */
-.price-tag {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-style: italic;
-  color: var(--color-brand-gold);
-}
-
 /* Custom Range Slider */
 /* Custom Range Slider */
 input[type="range"] {

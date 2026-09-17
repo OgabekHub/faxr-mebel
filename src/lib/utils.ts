@@ -5,12 +5,17 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatPrice(price: number) {
-  return new Intl.NumberFormat('uz-UZ', {
-    style: 'currency',
-    currency: 'UZS',
-    minimumFractionDigits: 0
-  }).format(price);
+// Browsers ship no Uzbek month names (Intl renders "M10"), so those are spelled out here.
+const UZ_MONTHS = ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avgust', 'sentabr', 'oktabr', 'noyabr', 'dekabr'];
+
+/** `2026-10-05` → "5-oktabr" / "5 октября" / "5 October", by UI language. */
+export function formatDayLabel(isoDay: string, lang: string): string {
+  const [year, month, day] = isoDay.split('-').map(Number);
+  if (!year || !month || !day) return isoDay;
+  if (lang.startsWith('ru') || lang.startsWith('en')) {
+    return new Date(year, month - 1, day).toLocaleDateString(lang.startsWith('ru') ? 'ru-RU' : 'en-GB', { day: 'numeric', month: 'long' });
+  }
+  return `${day}-${UZ_MONTHS[month - 1]}`;
 }
 
 /** `REQ-YYYYMMDD-####`: readable on a phone screen and in the ops chat, and passes firestore.rules' isValidId(). */
