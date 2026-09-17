@@ -1,7 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { onAuthStateChanged, type User } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
-import { auth, db } from '../lib/firebase';
+import type { User } from 'firebase/auth';
 
 interface AuthContextType {
   /** Signed-in Firebase user, or null. */
@@ -33,11 +31,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [adminCheck, setAdminCheck] = useState<AdminCheck | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
-      setUser(nextUser);
-      setLoading(false);
-    });
-    return () => unsubscribe();
+    let cancelled = false;
+    let unsubscribe: (() => void) | null = null;
+
+    // Firebase is loaded on demand so it stays out of the entry chunk.
+    void Promise.all([import('../lib/firebase'), import('firebase/auth')])
+      .then(([{ auth }, { onAuthStateChanged }]) => {
+        if (cancelled) return;
+        unsubscribe = onAuthStateChanged(auth, (nextUser) => {
+          setUser(nextUser);
+          setLoading(false);
+        });
+      })
+      .catch((error: unknown) => {
+        // A flaky network must not leave ProtectedRoute spinning forever.
+        console.warn('Could not load Firebase auth:', error);
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => { cancelled = true; unsubscribe?.(); };
   }, []);
 
   const uid = user?.uid ?? null;
@@ -46,7 +58,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!uid) return;
 
     let cancelled = false; // ignore a stale response after the user changed
-    getDoc(doc(db, 'admins', uid))
+    void Promise.all([import('../lib/firebase'), import('firebase/firestore')])
+      .then(([{ db }, { doc, getDoc }]) => getDoc(doc(db, 'admins', uid)))
       .then((snapshot) => {
         if (!cancelled) setAdminCheck({ uid, isAdmin: snapshot.exists() });
       })

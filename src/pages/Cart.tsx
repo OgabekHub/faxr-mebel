@@ -4,10 +4,12 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, CreditCard, ChevronLeft, CheckCircle2, Gift, Award, HelpCircle, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { cn, formatPrice } from '../lib/utils';
+import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import { postNotify } from '../services/notify';
 import { db } from '../lib/firebase';
 import { useAuth } from '../context/AuthContext';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import { doc, setDoc } from 'firebase/firestore';
 import type { Order } from '../types/domain';
 
@@ -64,6 +66,18 @@ export const Cart = () => {
     clearTimeout(redirectTimer.current);
     clearTimeout(verifyTimer.current);
   }, []);
+
+  // The payment modal is an overlay: freeze the page behind it and close it on Escape.
+  useBodyScrollLock(showPaymentModal);
+
+  useEffect(() => {
+    if (!showPaymentModal) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closePaymentModal();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [showPaymentModal, isSubmitting]);
 
   const finishAndGoToProfile = () => {
     clearTimeout(redirectTimer.current);
@@ -188,12 +202,12 @@ export const Cart = () => {
 
   if (isSuccess) {
     return (
-      <div className="pt-32 px-6 max-w-7xl mx-auto text-center h-[calc(100vh-8rem)] flex flex-col items-center justify-center overflow-hidden">
+      <div className="pt-32 pb-16 px-6 max-w-7xl mx-auto text-center min-h-[calc(100dvh-8rem)] flex flex-col items-center justify-center md:pb-0 md:min-h-0 md:h-[calc(100vh-8rem)] md:overflow-hidden">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="max-w-xl bg-white dark:bg-white/5 bento-card p-12 shadow-2xl border border-brand-gold/20"
+          className="max-w-xl bg-white dark:bg-white/5 bento-card p-6 sm:p-12 shadow-2xl border border-brand-gold/20"
         >
           <div className="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-8 animate-pulse">
             <CheckCircle2 className="w-12 h-12 text-green-500" />
@@ -203,7 +217,7 @@ export const Cart = () => {
             Xaridingiz uchun tashakkur! Faxr Mebel master-artisanlari buyurtma ustida ish boshlashdi. Tez orada aloqaga chiqamiz.
           </p>
           {notifyFailed && (
-            <p role="alert" className="mb-8 p-4 bg-amber-500/10 border border-amber-500/25 rounded-2xl text-[11px] text-amber-600 dark:text-amber-400 font-bold flex items-start gap-2 text-left">
+            <p role="alert" className="mb-8 p-4 bg-amber-500/10 border border-amber-500/25 rounded-2xl text-xs sm:text-[11px] text-amber-600 dark:text-amber-400 font-bold flex items-start gap-2 text-left">
               <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
               <span>{t('cart.notifyFailed')}</span>
             </p>
@@ -219,7 +233,7 @@ export const Cart = () => {
           <button
             type="button"
             onClick={finishAndGoToProfile}
-            className="bg-brand-gold text-black px-8 py-3.5 rounded-full font-bold text-xs uppercase tracking-hero hover:scale-105 inline-flex items-center gap-2 shadow-lg shadow-brand-gold/15"
+            className="bg-brand-gold text-black w-full sm:w-auto px-6 sm:px-8 py-3.5 rounded-full font-bold text-xs uppercase tracking-widest sm:tracking-hero sm:hover:scale-105 inline-flex items-center justify-center gap-2 shadow-lg shadow-brand-gold/15"
           >
             Kabinetingizga o'tish <ArrowRight className="w-4 h-4" />
           </button>
@@ -230,7 +244,7 @@ export const Cart = () => {
 
   if (cart.length === 0) {
     return (
-      <div className="pt-32 px-6 max-w-7xl mx-auto text-center h-[calc(100vh-8rem)] flex flex-col items-center justify-center overflow-hidden">
+      <div className="pt-32 pb-16 px-6 max-w-7xl mx-auto text-center min-h-[calc(100dvh-8rem)] flex flex-col items-center justify-center md:pb-0 md:min-h-0 md:h-[calc(100vh-8rem)] md:overflow-hidden">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -245,7 +259,7 @@ export const Cart = () => {
           </p>
           <Link 
             to="/shop" 
-            className="bg-brand-gold text-black px-8 py-3.5 rounded-full font-bold text-xs uppercase tracking-hero hover:scale-105 inline-flex items-center gap-2 shadow-lg shadow-brand-gold/15"
+            className="bg-brand-gold text-black px-6 sm:px-8 py-3.5 rounded-full font-bold text-xs uppercase tracking-widest sm:tracking-hero sm:hover:scale-105 inline-flex items-center justify-center gap-2 shadow-lg shadow-brand-gold/15"
           >
             Kolleksiyani ko'rish <ArrowRight className="w-4 h-4" />
           </Link>
@@ -282,10 +296,10 @@ export const Cart = () => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
-                className="bento-card p-6 flex flex-col sm:flex-row items-center gap-6 group"
+                className="bento-card p-5 sm:p-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 group"
               >
-                <div className="w-32 h-32 rounded-2xl overflow-hidden shrink-0 relative bg-foreground/5">
-                  <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-105" />
+                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl overflow-hidden shrink-0 relative bg-foreground/5">
+                  <img src={item.image} alt={item.name} loading="lazy" decoding="async" className="w-full h-full object-cover sm:group-hover:scale-105" />
                 </div>
                 
                 <div className="flex-grow text-center sm:text-left space-y-2">
@@ -298,15 +312,15 @@ export const Cart = () => {
                     </div>
                   )}
 
-                  <div className="flex items-center justify-center sm:justify-start gap-4 pt-1">
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 pt-1">
                     <div className="flex items-center gap-2 bg-foreground/5 px-2 py-1 rounded-lg">
                       <button
                         type="button"
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
                         aria-label="Kamaytirish"
-                        className="p-1 hover:bg-white dark:hover:bg-white/10 rounded transition-colors text-foreground"
+                        className="p-3 sm:p-1 hover:bg-white dark:hover:bg-white/10 active:bg-white dark:active:bg-white/10 rounded transition-colors text-foreground"
                       >
-                        <Minus className="w-3 h-3" aria-hidden="true" />
+                        <Minus className="w-4 h-4 sm:w-3 sm:h-3" aria-hidden="true" />
                       </button>
                       <span className="text-xs font-bold w-6 text-center">{item.quantity}</span>
                       <button
@@ -314,9 +328,9 @@ export const Cart = () => {
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
                         disabled={item.quantity >= 99}
                         aria-label="Ko'paytirish"
-                        className="p-1 hover:bg-white dark:hover:bg-white/10 rounded transition-colors text-foreground disabled:opacity-40"
+                        className="p-3 sm:p-1 hover:bg-white dark:hover:bg-white/10 active:bg-white dark:active:bg-white/10 rounded transition-colors text-foreground disabled:opacity-40"
                       >
-                        <Plus className="w-3 h-3" aria-hidden="true" />
+                        <Plus className="w-4 h-4 sm:w-3 sm:h-3" aria-hidden="true" />
                       </button>
                     </div>
                     <span className="text-xs text-foreground/45">x {formatPrice(item.price)}</span>
@@ -327,7 +341,7 @@ export const Cart = () => {
                   <span className="price-tag text-xl font-bold">{formatPrice(item.price * item.quantity)}</span>
                   <button 
                     onClick={() => removeFromCart(item.id)}
-                    className="p-2.5 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-colors border border-red-500/10"
+                    className="p-3.5 sm:p-2.5 text-red-500 hover:bg-red-500 hover:text-white active:bg-red-500 active:text-white rounded-lg transition-colors border border-red-500/10"
                     aria-label="Remove item"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -340,7 +354,7 @@ export const Cart = () => {
 
         {/* Right Side: Order Summary or Form checkout */}
         <aside className="lg:col-span-4">
-          <div className="bento-card p-8 sticky top-32 border border-foreground/5 shadow-xl">
+          <div className="bento-card p-5 sm:p-8 sticky top-32 border border-foreground/5 shadow-xl">
             {!isCheckout ? (
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
@@ -366,7 +380,7 @@ export const Cart = () => {
                       <span className="text-xs font-bold flex items-center gap-1.5 text-foreground group-hover:text-brand-gold transition-colors">
                         <Gift className="w-3.5 h-3.5" /> Yog'och Qadoqlash
                       </span>
-                      <p className="text-[9px] text-foreground/45 mt-0.5 leading-relaxed font-light italic">
+                      <p className="text-[11px] sm:text-[9px] text-foreground/55 sm:text-foreground/45 mt-0.5 leading-relaxed font-light italic">
                         Premium mebellar uchun hashamatli qattiq yog'och quti (+500k UZS)
                       </p>
                     </div>
@@ -384,7 +398,7 @@ export const Cart = () => {
                       <span className="text-xs font-bold flex items-center gap-1.5 text-foreground group-hover:text-brand-gold transition-colors">
                         <Award className="w-3.5 h-3.5" /> Asillik Sertifikati
                       </span>
-                      <p className="text-[9px] text-foreground/45 mt-0.5 leading-relaxed font-light italic">
+                      <p className="text-[11px] sm:text-[9px] text-foreground/55 sm:text-foreground/45 mt-0.5 leading-relaxed font-light italic">
                         Mebelning tozaligi va qo'lda sayqallanganligini tasdiqlovchi sertifikat (+150k UZS)
                       </p>
                     </div>
@@ -413,9 +427,9 @@ export const Cart = () => {
                     <span>O'rnatish & Yetkazish</span>
                     <span className="text-green-500 font-extrabold uppercase text-[9px] tracking-wider">Bepul (Luxe Service)</span>
                   </div>
-                  <div className="pt-4 border-t border-foreground/5 flex justify-between items-center text-xl font-bold">
+                  <div className="pt-4 border-t border-foreground/5 flex justify-between items-center gap-2 text-lg sm:text-xl font-bold">
                     <span>Jami</span>
-                    <span className="price-tag text-2xl font-bold">{formatPrice(finalAmount)}</span>
+                    <span className="price-tag text-xl sm:text-2xl font-bold">{formatPrice(finalAmount)}</span>
                   </div>
                 </div>
 
@@ -428,7 +442,7 @@ export const Cart = () => {
                         setIsCheckout(true);
                       }
                     }}
-                    className="w-full bg-brand-gold text-black py-4 rounded-xl font-extrabold text-xs uppercase tracking-hero hover:scale-102 shadow-xl shadow-brand-gold/15 flex items-center justify-center gap-2"
+                    className="w-full bg-brand-gold text-black py-4 rounded-xl font-extrabold text-xs uppercase tracking-hero sm:hover:scale-102 shadow-xl shadow-brand-gold/15 flex items-center justify-center gap-2"
                   >
                     Buyurtmaga O'tish <ArrowRight className="w-4 h-4" />
                   </button>
@@ -449,7 +463,7 @@ export const Cart = () => {
                 <div className="flex items-center gap-4 mb-4 pb-4 border-b border-foreground/5">
                   <button 
                     onClick={() => setIsCheckout(false)}
-                    className="p-1.5 hover:bg-foreground/5 rounded-full transition-colors text-foreground"
+                    className="p-3 -m-1.5 sm:p-1.5 sm:m-0 hover:bg-foreground/5 active:bg-foreground/5 rounded-full transition-colors text-foreground"
                     aria-label="Back to cart summary"
                   >
                     <ChevronLeft className="w-5 h-5" />
@@ -459,10 +473,12 @@ export const Cart = () => {
 
                 <form onSubmit={handleCheckout} className="space-y-5">
                   <div>
-                    <label className="text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">Ism Sharifingiz</label>
+                    <label className="text-[10px] sm:text-[9px] font-black uppercase tracking-widest text-foreground/55 sm:text-foreground/45 mb-2 block ml-2">Ism Sharifingiz</label>
                     <input 
                       required
-                      type="text" 
+                      type="text"
+                      name="name"
+                      autoComplete="name"
                       value={formData.name}
                       onChange={(e) => setFormData({...formData, name: e.target.value})}
                       placeholder="Masalan: Alisher Navoiy" 
@@ -470,10 +486,13 @@ export const Cart = () => {
                     />
                   </div>
                   <div>
-                    <label className="text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">Telefon Raqamingiz</label>
+                    <label className="text-[10px] sm:text-[9px] font-black uppercase tracking-widest text-foreground/55 sm:text-foreground/45 mb-2 block ml-2">Telefon Raqamingiz</label>
                     <input 
                       required
-                      type="tel" 
+                      type="tel"
+                      name="phone"
+                      autoComplete="tel"
+                      inputMode="tel"
                       value={formData.phone}
                       onChange={(e) => setFormData({...formData, phone: e.target.value})}
                       placeholder="+998 90 123 45 67" 
@@ -481,9 +500,11 @@ export const Cart = () => {
                     />
                   </div>
                   <div>
-                    <label className="text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">Yetkazish Manzili</label>
-                    <textarea 
+                    <label className="text-[10px] sm:text-[9px] font-black uppercase tracking-widest text-foreground/55 sm:text-foreground/45 mb-2 block ml-2">Yetkazish Manzili</label>
+                    <textarea
                       required
+                      name="address"
+                      autoComplete="street-address"
                       value={formData.address}
                       onChange={(e) => setFormData({...formData, address: e.target.value})}
                       placeholder="Toshkent shahar, Yunusobod tumani..." 
@@ -492,8 +513,9 @@ export const Cart = () => {
                     ></textarea>
                   </div>
                   <div>
-                    <label className="text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">Maxsus Istaklar (Ixtiyoriy)</label>
-                    <textarea 
+                    <label className="text-[10px] sm:text-[9px] font-black uppercase tracking-widest text-foreground/55 sm:text-foreground/45 mb-2 block ml-2">Maxsus Istaklar (Ixtiyoriy)</label>
+                    <textarea
+                      name="wishes"
                       value={formData.wishes}
                       onChange={(e) => setFormData({...formData, wishes: e.target.value})}
                       placeholder="Masalan: Mebel osti orqa fon yoritgichini ham o'rnatib bering..." 
@@ -504,8 +526,8 @@ export const Cart = () => {
 
                   {/* Payment Method Selector */}
                   <div className="space-y-3">
-                    <label className="text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-1 block ml-2">To'lov Usuli</label>
-                    <div className="grid grid-cols-2 gap-4">
+                    <label className="text-[10px] sm:text-[9px] font-black uppercase tracking-widest text-foreground/55 sm:text-foreground/45 mb-1 block ml-2">To'lov Usuli</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <button
                         type="button"
                         onClick={() => setPaymentMethod('click_payme')}
@@ -549,13 +571,13 @@ export const Cart = () => {
                   </div>
 
                   <div className="pt-4 border-t border-foreground/5">
-                    <div className="flex justify-between items-center text-xl font-bold mb-4">
+                    <div className="flex justify-between items-center gap-2 text-lg sm:text-xl font-bold mb-4">
                       <span>Umumiy</span>
-                      <span className="price-tag text-2xl font-bold">{formatPrice(finalAmount)}</span>
+                      <span className="price-tag text-xl sm:text-2xl font-bold">{formatPrice(finalAmount)}</span>
                     </div>
                     
                     {submitError && !showPaymentModal && (
-                      <p role="alert" className="mb-4 p-3.5 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-[11px] font-bold">
+                      <p role="alert" className="mb-4 p-3.5 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-xs sm:text-[11px] font-bold">
                         {submitError}
                       </p>
                     )}
@@ -564,7 +586,7 @@ export const Cart = () => {
                       type="submit"
                       disabled={isSubmitting}
                       aria-busy={isSubmitting}
-                      className="w-full bg-brand-gold text-black py-4 rounded-xl font-extrabold text-xs uppercase tracking-hero hover:scale-102 shadow-xl shadow-brand-gold/15 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full bg-brand-gold text-black px-3 py-4 rounded-xl font-extrabold text-xs uppercase tracking-premium sm:tracking-hero sm:hover:scale-102 shadow-xl shadow-brand-gold/15 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isSubmitting ? 'Yuborilmoqda...' : 'Buyurtmani Yakunlash'}
                     </button>
@@ -577,185 +599,198 @@ export const Cart = () => {
       </div>
 
       {/* Premium Simulated Payment Modal */}
-      <AnimatePresence>
-        {showPaymentModal && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="bg-[#0f0e0c] border border-brand-gold/25 w-full max-w-md rounded-3xl sm:rounded-[2.5rem] p-5 sm:p-8 shadow-2xl relative overflow-hidden text-left flex flex-col max-h-[90vh]"
+      {createPortal(
+        <AnimatePresence>
+          {showPaymentModal && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={closePaymentModal}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
             >
-              {/* Glow background */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-brand-gold/10 blur-[50px] rounded-full pointer-events-none" />
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-[#0f0e0c] border border-brand-gold/25 w-full max-w-md rounded-3xl sm:rounded-[2.5rem] p-5 sm:p-8 shadow-2xl relative overflow-hidden text-left flex flex-col max-h-[90dvh] sm:max-h-[90vh]"
+              >
+                {/* Glow background */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-brand-gold/10 blur-[50px] rounded-full pointer-events-none" />
 
-              <div className="overflow-y-auto flex-1 pr-1 -mr-2 scrollbar-none">
-                {paymentStep === 'card' && (
-                  <div className="space-y-4 sm:space-y-6">
-                    <div className="text-center">
-                      <span className="text-[9px] uppercase font-black tracking-hero text-brand-gold block mb-0.5">Prestige Gateway</span>
-                      <h3 className="text-lg sm:text-xl font-editorial-title font-bold text-white">Click / Payme To'lovi</h3>
-                      <p className="text-[9px] sm:text-[10px] text-white/40 italic mt-0.5">Xavfsiz va premium to'lov interfeysi</p>
-                    </div>
-
-                    <div className="bg-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white/10 flex justify-between items-center">
-                      <span className="text-xs text-white/50">To'lov summasi:</span>
-                      <span className="price-tag font-bold text-base sm:text-lg">{formatPrice(finalAmount)}</span>
-                    </div>
-
-                    <div className="space-y-3 sm:space-y-4">
-                      <div>
-                        <label className="text-[9px] font-black tracking-widest uppercase text-white/40 block mb-1 ml-1.5">Karta Raqami</label>
-                        <input
-                          required
-                          type="text"
-                          maxLength={19}
-                          placeholder="8600 0000 0000 0000"
-                          value={cardNumber}
-                          onChange={(e) => {
-                            const v = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-                            const matches = v.match(/\d{4,16}/g);
-                            const match = (matches && matches[0]) || '';
-                            const parts = [];
-                            for (let i = 0, len = match.length; i < len; i += 4) {
-                              parts.push(match.substring(i, i + 4));
-                            }
-                            setCardNumber(parts.length > 0 ? parts.join(' ') : v);
-                          }}
-                          className="bg-white/5 border border-white/10 focus:border-brand-gold rounded-xl px-3.5 py-2.5 sm:px-4 sm:py-3.5 text-xs outline-none w-full text-white placeholder-white/30 tracking-widest font-bold font-mono"
-                        />
+                <div className="overflow-y-auto overscroll-contain flex-1 pr-1 -mr-2 scrollbar-hide">
+                  {paymentStep === 'card' && (
+                    <div className="space-y-4 sm:space-y-6">
+                      <div className="text-center">
+                        <span className="text-[9px] uppercase font-black tracking-hero text-brand-gold block mb-0.5">Prestige Gateway</span>
+                        <h3 className="text-lg sm:text-xl font-editorial-title font-bold text-white">Click / Payme To'lovi</h3>
+                        <p className="text-[11px] sm:text-[10px] text-white/40 italic mt-0.5">Xavfsiz va premium to'lov interfeysi</p>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                      <div className="bg-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white/10 flex justify-between items-center">
+                        <span className="text-xs text-white/50">To'lov summasi:</span>
+                        <span className="price-tag font-bold text-base sm:text-lg">{formatPrice(finalAmount)}</span>
+                      </div>
+
+                      <div className="space-y-3 sm:space-y-4">
                         <div>
-                          <label className="text-[9px] font-black tracking-widest uppercase text-white/40 block mb-1 ml-1.5">Muddati</label>
+                          <label className="text-[10px] sm:text-[9px] font-black tracking-widest uppercase text-white/50 sm:text-white/40 block mb-1 ml-1.5">Karta Raqami</label>
                           <input
                             required
                             type="text"
-                            maxLength={5}
-                            placeholder="MM/YY"
-                            value={cardExpiry}
+                            maxLength={19}
+                            inputMode="numeric"
+                            autoComplete="off"
+                            placeholder="8600 0000 0000 0000"
+                            value={cardNumber}
                             onChange={(e) => {
-                              const v = e.target.value.replace('/', '').replace(/[^0-9]/gi, '');
-                              setCardExpiry(v.length >= 2 ? v.substring(0, 2) + '/' + v.substring(2, 4) : v);
+                              const v = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+                              const matches = v.match(/\d{4,16}/g);
+                              const match = (matches && matches[0]) || '';
+                              const parts = [];
+                              for (let i = 0, len = match.length; i < len; i += 4) {
+                                parts.push(match.substring(i, i + 4));
+                              }
+                              setCardNumber(parts.length > 0 ? parts.join(' ') : v);
                             }}
-                            className="bg-white/5 border border-white/10 focus:border-brand-gold rounded-xl px-3.5 py-2.5 sm:px-4 sm:py-3.5 text-xs outline-none w-full text-white placeholder-white/30 tracking-widest font-bold text-center font-mono"
+                            className="bg-white/5 border border-white/10 focus:border-brand-gold rounded-xl px-3.5 py-2.5 sm:px-4 sm:py-3.5 text-xs outline-none w-full text-white placeholder-white/30 tracking-widest font-bold font-mono"
                           />
                         </div>
-                        <div>
-                          <label className="text-[9px] font-black tracking-widest uppercase text-white/40 block mb-1 ml-1.5">CVV/CVC</label>
-                          <input
-                            required
-                            type="password"
-                            maxLength={3}
-                            placeholder="***"
-                            value={cardCvv}
-                            onChange={(e) => setCardCvv(e.target.value.replace(/[^0-9]/gi, ''))}
-                            className="bg-white/5 border border-white/10 focus:border-brand-gold rounded-xl px-3.5 py-2.5 sm:px-4 sm:py-3.5 text-xs outline-none w-full text-white placeholder-white/30 tracking-widest font-bold text-center font-mono"
-                          />
+
+                        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                          <div>
+                            <label className="text-[10px] sm:text-[9px] font-black tracking-widest uppercase text-white/50 sm:text-white/40 block mb-1 ml-1.5">Muddati</label>
+                            <input
+                              required
+                              type="text"
+                              maxLength={5}
+                              inputMode="numeric"
+                              autoComplete="off"
+                              placeholder="MM/YY"
+                              value={cardExpiry}
+                              onChange={(e) => {
+                                const v = e.target.value.replace('/', '').replace(/[^0-9]/gi, '');
+                                setCardExpiry(v.length >= 2 ? v.substring(0, 2) + '/' + v.substring(2, 4) : v);
+                              }}
+                              className="bg-white/5 border border-white/10 focus:border-brand-gold rounded-xl px-3.5 py-2.5 sm:px-4 sm:py-3.5 text-xs outline-none w-full text-white placeholder-white/30 tracking-widest font-bold text-center font-mono"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] sm:text-[9px] font-black tracking-widest uppercase text-white/50 sm:text-white/40 block mb-1 ml-1.5">CVV/CVC</label>
+                            <input
+                              required
+                              type="password"
+                              maxLength={3}
+                              inputMode="numeric"
+                              autoComplete="off"
+                              placeholder="***"
+                              value={cardCvv}
+                              onChange={(e) => setCardCvv(e.target.value.replace(/[^0-9]/gi, ''))}
+                              className="bg-white/5 border border-white/10 focus:border-brand-gold rounded-xl px-3.5 py-2.5 sm:px-4 sm:py-3.5 text-xs outline-none w-full text-white placeholder-white/30 tracking-widest font-bold text-center font-mono"
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="flex gap-2 sm:gap-3 pt-1 sm:pt-2">
-                      <button
-                        type="button"
-                        onClick={closePaymentModal}
-                        className="w-1/2 bg-white/5 hover:bg-white/10 text-white/80 py-2.5 sm:py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider"
-                      >
-                        Bekor qilish
-                      </button>
-                      <button
-                        type="button"
-                        disabled={cardNumber.length < 19 || cardExpiry.length < 5}
-                        onClick={() => {
-                          setPaymentStep('verifying');
-                          clearTimeout(verifyTimer.current);
-                          verifyTimer.current = setTimeout(() => setPaymentStep('sms'), FAKE_VERIFY_MS);
-                        }}
-                        className="w-1/2 bg-brand-gold disabled:opacity-50 text-black py-2.5 sm:py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all hover:scale-102"
-                      >
-                        SMS kod olish
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {paymentStep === 'verifying' && (
-                  <div className="flex flex-col items-center justify-center py-8 sm:py-12 space-y-4 sm:space-y-6">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-brand-gold/25 border-t-brand-gold rounded-full animate-spin" />
-                    <div className="text-center space-y-1">
-                      <h4 className="text-xs sm:text-sm font-bold uppercase tracking-widest text-white animate-pulse">Tranzaksiya tekshirilmoqda</h4>
-                      <p className="text-[9px] sm:text-[10px] text-white/45 italic">Iltimos, sahifani yopmang...</p>
-                    </div>
-                  </div>
-                )}
-
-                {paymentStep === 'sms' && (
-                  <div className="space-y-4 sm:space-y-6">
-                    <div className="text-center">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-brand-gold/10 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
-                        <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-brand-gold" />
+                      <div className="flex gap-2 sm:gap-3 pt-1 sm:pt-2">
+                        <button
+                          type="button"
+                          onClick={closePaymentModal}
+                          className="w-1/2 bg-white/5 hover:bg-white/10 text-white/80 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider"
+                        >
+                          Bekor qilish
+                        </button>
+                        <button
+                          type="button"
+                          disabled={cardNumber.length < 19 || cardExpiry.length < 5}
+                          onClick={() => {
+                            setPaymentStep('verifying');
+                            clearTimeout(verifyTimer.current);
+                            verifyTimer.current = setTimeout(() => setPaymentStep('sms'), FAKE_VERIFY_MS);
+                          }}
+                          className="w-1/2 bg-brand-gold disabled:opacity-50 text-black py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all sm:hover:scale-102"
+                        >
+                          SMS kod olish
+                        </button>
                       </div>
-                      <h3 className="text-base sm:text-lg font-bold text-white">SMS Tasdiqlash</h3>
-                      <p className="text-[9px] sm:text-[10px] text-white/45 mt-1 leading-relaxed max-w-xs mx-auto">
-                        Telefoningizga yuborilgan 4 xonali tasdiqlash kodini kiriting.<br />
-                        <span className="font-bold text-brand-gold">SMS Tasdiqlash Kodi: 1234</span>
-                      </p>
                     </div>
+                  )}
 
-                    <div>
-                      <input
-                        required
-                        type="text"
-                        maxLength={4}
-                        placeholder="• • • •"
-                        value={smsCode}
-                        onChange={(e) => setSmsCode(e.target.value.replace(/[^0-9]/gi, ''))}
-                        className="bg-white/5 border border-white/10 focus:border-brand-gold rounded-xl sm:rounded-2xl px-3 sm:px-4 py-3 sm:py-4 text-base sm:text-lg outline-none w-full text-white placeholder-white/30 tracking-[0.8rem] sm:tracking-[1.2rem] font-black text-center font-mono"
-                      />
+                  {paymentStep === 'verifying' && (
+                    <div className="flex flex-col items-center justify-center py-8 sm:py-12 space-y-4 sm:space-y-6">
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-brand-gold/25 border-t-brand-gold rounded-full animate-spin" />
+                      <div className="text-center space-y-1">
+                        <h4 className="text-xs sm:text-sm font-bold uppercase tracking-widest text-white animate-pulse">Tranzaksiya tekshirilmoqda</h4>
+                        <p className="text-[11px] sm:text-[10px] text-white/45 italic">Iltimos, sahifani yopmang...</p>
+                      </div>
                     </div>
+                  )}
 
-                    {submitError && (
-                      <p role="alert" className="p-3.5 bg-red-500/10 border border-red-500/25 text-red-400 rounded-xl text-[11px] font-bold">
-                        {submitError}
-                      </p>
-                    )}
+                  {paymentStep === 'sms' && (
+                    <div className="space-y-4 sm:space-y-6">
+                      <div className="text-center">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-brand-gold/10 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
+                          <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-brand-gold" />
+                        </div>
+                        <h3 className="text-base sm:text-lg font-bold text-white">SMS Tasdiqlash</h3>
+                        <p className="text-[11px] sm:text-[10px] text-white/45 mt-1 leading-relaxed max-w-xs mx-auto">
+                          Telefoningizga yuborilgan 4 xonali tasdiqlash kodini kiriting.<br />
+                          <span className="font-bold text-brand-gold">SMS Tasdiqlash Kodi: 1234</span>
+                        </p>
+                      </div>
 
-                    <div className="flex gap-2 sm:gap-3">
-                      <button
-                        type="button"
-                        disabled={isSubmitting}
-                        onClick={() => { setSubmitError(null); setPaymentStep('card'); }}
-                        className="w-1/2 bg-white/5 hover:bg-white/10 text-white/80 py-2.5 sm:py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider disabled:opacity-50"
-                      >
-                        Orqaga
-                      </button>
-                      <button
-                        type="button"
-                        disabled={smsCode !== '1234' || isSubmitting}
-                        onClick={async () => {
-                          if (submittingRef.current) return;
-                          setPaymentStep('verifying');
-                          await saveOrderToDatabase();
-                        }}
-                        className="w-1/2 bg-green-500 disabled:opacity-50 text-white py-2.5 sm:py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all hover:scale-102"
-                      >
-                        Tasdiqlash
-                      </button>
+                      <div>
+                        <input
+                          required
+                          type="text"
+                          maxLength={4}
+                          inputMode="numeric"
+                          autoComplete="off"
+                          placeholder="• • • •"
+                          value={smsCode}
+                          onChange={(e) => setSmsCode(e.target.value.replace(/[^0-9]/gi, ''))}
+                          className="bg-white/5 border border-white/10 focus:border-brand-gold rounded-xl sm:rounded-2xl px-3 sm:px-4 py-3 sm:py-4 text-base sm:text-lg outline-none w-full text-white placeholder-white/30 tracking-[0.8rem] sm:tracking-[1.2rem] font-black text-center font-mono"
+                        />
+                      </div>
+
+                      {submitError && (
+                        <p role="alert" className="p-3.5 bg-red-500/10 border border-red-500/25 text-red-400 rounded-xl text-xs sm:text-[11px] font-bold">
+                          {submitError}
+                        </p>
+                      )}
+
+                      <div className="flex gap-2 sm:gap-3">
+                        <button
+                          type="button"
+                          disabled={isSubmitting}
+                          onClick={() => { setSubmitError(null); setPaymentStep('card'); }}
+                          className="w-1/2 bg-white/5 hover:bg-white/10 text-white/80 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider disabled:opacity-50"
+                        >
+                          Orqaga
+                        </button>
+                        <button
+                          type="button"
+                          disabled={smsCode !== '1234' || isSubmitting}
+                          onClick={async () => {
+                            if (submittingRef.current) return;
+                            setPaymentStep('verifying');
+                            await saveOrderToDatabase();
+                          }}
+                          className="w-1/2 bg-green-500 disabled:opacity-50 text-white py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all sm:hover:scale-102"
+                        >
+                          Tasdiqlash
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 };

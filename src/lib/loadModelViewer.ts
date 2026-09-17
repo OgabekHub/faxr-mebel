@@ -7,7 +7,7 @@
  * forever.
  */
 const SCRIPT_URL = 'https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js';
-const TIMEOUT_MS = 15_000;
+const TIMEOUT_MS = 30_000;
 
 let pending: Promise<void> | null = null;
 
@@ -31,7 +31,8 @@ export function loadModelViewer(): Promise<void> {
       script.onload = null;
       script.onerror = null;
       if (error) {
-        script.remove();
+        // Keep the <script>: the fetch cannot be cancelled anyway, and a late
+        // arrival still upgrades <model-viewer>. Line 21 clears it next attempt.
         pending = null; // allow a retry
         reject(error);
       } else {
@@ -39,8 +40,22 @@ export function loadModelViewer(): Promise<void> {
       }
     };
 
-    timer = setTimeout(() => finish(new Error('model-viewer script timed out')), TIMEOUT_MS);
-    script.onload = () => finish();
+    // A backgrounded phone (a call or a notification mid-download) must not be
+    // blamed on the network: re-arm instead of failing while the tab is hidden.
+    const arm = () => {
+      timer = setTimeout(() => {
+        if (document.visibilityState === 'hidden') arm();
+        else finish(new Error('model-viewer script timed out'));
+      }, TIMEOUT_MS);
+    };
+    arm();
+
+    // A module script fires `load` even when it throws while evaluating, so wait
+    // for the definition itself; the timer still rejects if it never happens.
+    script.onload = () => {
+      if (customElements.get('model-viewer')) finish();
+      else customElements.whenDefined('model-viewer').then(() => finish());
+    };
     script.onerror = () => finish(new Error('model-viewer script failed to load'));
     document.head.appendChild(script);
   });

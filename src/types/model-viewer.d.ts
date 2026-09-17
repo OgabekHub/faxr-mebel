@@ -3,6 +3,8 @@ import type * as React from 'react';
 /** Runtime API of the <model-viewer> custom element that the app relies on. */
 export interface ModelViewerElement extends HTMLElement {
   cameraOrbit: string;
+  /** True once the element knows the platform can really launch AR (post-load). */
+  readonly canActivateAR: boolean;
   activateAR(): Promise<void>;
   resetTurntableRotation(): void;
 }

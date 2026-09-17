@@ -37,7 +37,10 @@ export const ARView: React.FC = () => {
   const { status: scriptStatus, retry: retryScript } = useModelViewer(true);
   const [modelState, setModelState] = useState<ModelState>('loading');
   const [modelAttempt, setModelAttempt] = useState(0);
-  const [isARSupported] = useState<boolean>(() => detectARSupport());
+  // detectARSupport() is the optimistic pre-load guess; the element's own
+  // canActivateAR replaces it as soon as the model is ready.
+  const [isARSupported, setIsARSupported] = useState<boolean>(() => detectARSupport());
+  const [arLaunching, setArLaunching] = useState(false);
 
   const product = (productId && PRODUCT_MODELS[productId]) ? PRODUCT_MODELS[productId] : DEFAULT_MODEL;
 
@@ -47,7 +50,10 @@ export const ARView: React.FC = () => {
     const mv = modelViewerRef.current;
     if (!mv) return;
 
-    const handleLoad = () => setModelState('ready');
+    const handleLoad = () => {
+      setModelState('ready');
+      setIsARSupported(mv.canActivateAR);
+    };
     const handleError = (event: Event) => {
       console.error('model-viewer failed to load the model:', event);
       setModelState('error');
@@ -67,11 +73,16 @@ export const ARView: React.FC = () => {
     else setModelAttempt(n => n + 1);
   };
 
-  const handleARClick = () => {
+  const handleARClick = async () => {
     const mv = modelViewerRef.current;
     // The custom element may not be upgraded yet; guard the runtime API.
     if (mv && typeof mv.activateAR === 'function') {
-      void mv.activateAR();
+      setArLaunching(true);
+      try {
+        await mv.activateAR();
+      } finally {
+        setArLaunching(false);
+      }
     }
   };
 
@@ -88,7 +99,7 @@ export const ARView: React.FC = () => {
   const showError = scriptStatus === 'error' || modelState === 'error';
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white flex flex-col overflow-hidden">
+    <div className="min-h-dvh bg-[#050505] text-white flex flex-col overflow-hidden">
       {/* Luxury top bar */}
       <motion.header
         initial={{ opacity: 0, y: -20 }}
@@ -98,17 +109,17 @@ export const ARView: React.FC = () => {
       >
         <Link
           to="/"
-          className="flex items-center gap-2 text-white/60 hover:text-white transition-colors"
+          className="flex items-center gap-2 py-3 -my-3 pr-3 text-white/60 hover:text-white active:text-white transition-colors"
         >
           <ArrowLeft className="w-5 h-5" aria-hidden="true" />
-          <span className="text-[10px] font-black uppercase tracking-widest">Orqaga</span>
+          <span className="text-[11px] sm:text-[10px] font-black uppercase tracking-widest">Orqaga</span>
         </Link>
 
         <div className="flex items-center gap-2">
-          <span className="text-[8px] uppercase font-black tracking-[0.3em] text-brand-gold">
+          <span className="text-[9px] sm:text-[8px] uppercase font-black tracking-[0.25em] sm:tracking-[0.3em] text-brand-gold">
             FAXR MEBEL
           </span>
-          <span className="text-[8px] uppercase font-black tracking-widest text-white/20">
+          <span className="text-[9px] sm:text-[8px] uppercase font-black tracking-widest text-white/35 sm:text-white/20">
             AR VIEW
           </span>
         </div>
@@ -133,7 +144,7 @@ export const ARView: React.FC = () => {
       </motion.div>
 
       {/* 3D Model Viewer — asosiy ko'rinish */}
-      <div className="flex-1 relative min-h-[55vh]">
+      <div className="flex-1 relative min-h-[55dvh]">
         {/* Loading overlay */}
         {showSpinner && (
           <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-[#050505]/60 pointer-events-none backdrop-blur-sm">
@@ -142,7 +153,7 @@ export const ARView: React.FC = () => {
               transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }}
               className="w-12 h-12 border-2 border-brand-gold/20 border-t-brand-gold rounded-full mb-4 shadow-[0_0_15px_rgba(197,160,89,0.3)]"
             />
-            <p className="text-[9px] uppercase tracking-[0.3em] text-white/60 font-black drop-shadow-md">
+            <p className="text-[11px] sm:text-[9px] uppercase tracking-[0.25em] sm:tracking-[0.3em] text-white/60 font-black drop-shadow-md">
               3D Model yuklanmoqda...
             </p>
           </div>
@@ -152,14 +163,14 @@ export const ARView: React.FC = () => {
         {showError && (
           <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-[#050505]/80 backdrop-blur-sm text-center px-8">
             <AlertCircle className="w-8 h-8 text-amber-400 mb-3" aria-hidden="true" />
-            <p className="text-[10px] uppercase tracking-widest text-white/70 font-black mb-1">
+            <p className="text-xs sm:text-[10px] uppercase tracking-widest text-white/70 font-black mb-1">
               3D modelni yuklab bo'lmadi
             </p>
-            <p className="text-[9px] text-white/40 mb-5">Internet aloqasini tekshirib, qayta urinib ko'ring.</p>
+            <p className="text-[11px] sm:text-[9px] text-white/60 sm:text-white/40 mb-5">Internet aloqasini tekshirib, qayta urinib ko'ring.</p>
             <button
               type="button"
               onClick={handleRetry}
-              className="px-5 py-2.5 bg-brand-gold text-black rounded-xl text-[9px] font-black uppercase tracking-widest"
+              className="px-6 py-3.5 min-h-11 sm:min-h-0 sm:px-5 sm:py-2.5 bg-brand-gold text-black rounded-xl text-[11px] sm:text-[9px] font-black uppercase tracking-widest active:scale-95"
             >
               Qayta urinish
             </button>
@@ -188,11 +199,12 @@ export const ARView: React.FC = () => {
             style={{
               width: '100%',
               height: '100%',
-              minHeight: '55vh',
+              minHeight: '55dvh',
               background: 'transparent',
               '--poster-color': 'transparent',
             }}
             interaction-prompt="none"
+            touch-action="none"
           />
         )}
 
@@ -201,10 +213,10 @@ export const ARView: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="absolute bottom-4 left-4 right-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 flex items-start gap-3"
+            className="pointer-events-none absolute bottom-4 left-4 right-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 flex items-start gap-3"
           >
             <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" aria-hidden="true" />
-            <p className="text-[9px] text-amber-300/80 leading-relaxed font-medium">
+            <p className="text-[11px] sm:text-[9px] text-amber-300/90 sm:text-amber-300/80 leading-relaxed font-medium">
               AR rejimi faqat mobil telefonlarda (iOS/Android Chrome) ishlaydi.
               Kompyuterda 3D modelni aylantirib ko'ring.
             </p>
@@ -220,9 +232,10 @@ export const ARView: React.FC = () => {
             transition={{ delay: 0.5 }}
             onClick={handleReset}
             aria-label="Kamerani tiklash"
-            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center backdrop-blur-sm"
+            data-no-theme-transition
+            className="absolute top-4 right-4 w-11 h-11 sm:w-9 sm:h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center backdrop-blur-sm"
           >
-            <RotateCcw className="w-4 h-4 text-white/60" aria-hidden="true" />
+            <RotateCcw className="w-5 h-5 sm:w-4 sm:h-4 text-white/60" aria-hidden="true" />
           </motion.button>
         )}
       </div>
@@ -235,15 +248,15 @@ export const ARView: React.FC = () => {
         className="px-5 pb-safe pt-4 space-y-3"
       >
         {/* Hint text */}
-        <div className="flex items-center gap-3 px-1 mb-4">
-          <div className="flex items-center gap-2 text-white/30">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-x-3 gap-y-1.5 px-1 mb-4">
+          <div className="flex items-center gap-2 text-white/50 sm:text-white/30">
             <ZoomIn className="w-3.5 h-3.5" aria-hidden="true" />
-            <span className="text-[8px] uppercase tracking-widest font-bold">Pinch — Kattalashtirish</span>
+            <span className="text-[10px] sm:text-[8px] uppercase tracking-widest font-bold">Pinch — Kattalashtirish</span>
           </div>
-          <div className="w-px h-3 bg-white/10" />
-          <div className="flex items-center gap-2 text-white/30">
+          <div className="hidden sm:block w-px h-3 bg-white/10" />
+          <div className="flex items-center gap-2 text-white/50 sm:text-white/30">
             <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
-            <span className="text-[8px] uppercase tracking-widest font-bold">Drag — Aylantirish</span>
+            <span className="text-[10px] sm:text-[8px] uppercase tracking-widest font-bold">Drag — Aylantirish</span>
           </div>
         </div>
 
@@ -252,18 +265,19 @@ export const ARView: React.FC = () => {
           type="button"
           whileTap={{ scale: 0.97 }}
           onClick={handleARClick}
-          disabled={!isModelLoaded || !isARSupported}
-          className="w-full py-4 bg-brand-gold text-black rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-xl shadow-brand-gold/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95"
+          disabled={!isModelLoaded || !isARSupported || arLaunching}
+          data-no-theme-transition
+          className="w-full px-4 sm:px-0 py-4 bg-brand-gold text-black rounded-2xl font-black text-[11px] uppercase tracking-widest sm:tracking-[0.2em] flex items-center justify-center gap-2 sm:gap-3 shadow-xl shadow-brand-gold/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95"
         >
           <Camera className="w-5 h-5" aria-hidden="true" />
-          O'z Xonangizda Ko'ring (AR)
+          {!isModelLoaded ? '3D model yuklanmoqda…' : arLaunching ? 'AR ochilmoqda…' : "O'z Xonangizda Ko'ring (AR)"}
         </motion.button>
 
         {/* iOS fallback instruction */}
         {isARSupported && (
           <div className="flex items-start gap-2 px-1">
-            <Smartphone className="w-3.5 h-3.5 text-brand-gold/60 shrink-0 mt-0.5" aria-hidden="true" />
-            <p className="text-[8px] text-white/30 leading-relaxed">
+            <Smartphone className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-brand-gold/60 shrink-0 mt-0.5" aria-hidden="true" />
+            <p className="text-[10px] sm:text-[8px] text-white/50 sm:text-white/30 leading-relaxed">
               iOS qurilmalarida tugma bosish bilan AR avtomatik ochiladi.
               Android qurilmalarida Google Scene Viewer ishga tushadi.
             </p>
@@ -273,7 +287,7 @@ export const ARView: React.FC = () => {
         {/* 3D badge */}
         <div className="flex items-center justify-center gap-2 pt-2">
           <Box className="w-3 h-3 text-white/15" aria-hidden="true" />
-          <span className="text-[7px] uppercase tracking-[0.35em] text-white/15 font-black">
+          <span className="text-[7px] uppercase tracking-[0.2em] sm:tracking-[0.35em] text-white/25 sm:text-white/15 font-black">
             Powered by WebXR + Google Model Viewer
           </span>
         </div>

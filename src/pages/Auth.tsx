@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Mail, Lock, Send, ShieldCheck, Eye, EyeOff, ArrowRight, Sparkles, ArrowLeft } from 'lucide-react';
 import {
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -59,6 +61,23 @@ export const Auth = () => {
     }
   };
 
+  // Touch devices come back here from the Google redirect instead of a popup.
+  useEffect(() => {
+    let cancelled = false;
+    getRedirectResult(auth)
+      .then((result) => {
+        if (!cancelled && result?.user) navigate(from, { replace: true });
+      })
+      .catch((err) => {
+        console.error('Redirect sign-in failed', err);
+        if (!cancelled) setError(describeAuthError(err));
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleGoogleLogin = async () => {
     if (isLoading) return;
     setIsLoading(true);
@@ -66,6 +85,13 @@ export const Auth = () => {
     setInfo(null);
     try {
       const provider = new GoogleAuthProvider();
+      // Popups are routinely blocked on phones and blocked outright inside the
+      // Telegram and Instagram in-app browsers, which is how most links are opened
+      // here. Desktop keeps the popup so the page state survives.
+      if (window.matchMedia('(pointer: coarse)').matches) {
+        await signInWithRedirect(auth, provider);
+        return;
+      }
       await signInWithPopup(auth, provider);
       navigate(from, { replace: true });
     } catch (err) {
@@ -133,8 +159,8 @@ export const Auth = () => {
   ];
 
   return (
-    /* h-screen w-full — sahifa to'liq viewport ni egallaydi, scroll bo'lmaydi */
-    <div className="h-screen w-full bg-background flex overflow-hidden">
+    /* h-dvh w-full — sahifa to'liq viewport ni egallaydi, scroll bo'lmaydi */
+    <div className="h-dvh w-full bg-background flex overflow-hidden">
 
       {/* ═══════════════════════════════════════
           LEFT PANEL — Branding (only lg+)
@@ -260,7 +286,7 @@ export const Auth = () => {
           RIGHT PANEL — Form
           ═══════════════════════════════════════ */}
       <div className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden">
-        <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-8 md:px-12 py-8 relative min-h-full">
+        <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-8 md:px-12 pt-[max(2rem,env(safe-area-inset-top))] pb-safe relative min-h-full">
 
           {/* Soft glow top-right */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-brand-gold/4 blur-[90px] rounded-full pointer-events-none" />
@@ -276,7 +302,7 @@ export const Auth = () => {
             <div className="lg:hidden mb-8 sm:mb-10">
               <Link
                 to="/"
-                className="inline-flex items-center gap-1.5 text-foreground/40 hover:text-foreground/70 transition-colors text-xs mb-6 group"
+                className="inline-flex items-center gap-1.5 py-2 -mt-2 mb-4 pr-3 text-foreground/55 hover:text-foreground/70 transition-colors text-xs group"
               >
                 <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5" />
                 {t('nav.home')}
@@ -285,7 +311,7 @@ export const Auth = () => {
                 <Link to="/" className="inline-block text-foreground mb-2">
                   <BrandLogo className="text-2xl sm:text-3xl" />
                 </Link>
-                <p className="text-foreground/35 text-[9px] uppercase tracking-[0.25em] font-bold">
+                <p className="text-foreground/35 text-[10px] uppercase tracking-[0.25em] font-bold">
                   {t('auth.subtitle')}
                 </p>
               </div>
@@ -305,7 +331,7 @@ export const Auth = () => {
                     setError(null);
                     setInfo(null);
                   }}
-                  className={`flex-1 py-2.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest rounded-xl ${
+                  className={`flex-1 py-3.5 lg:py-2.5 text-[11px] font-bold uppercase tracking-widest rounded-xl ${
                     isLogin === key
                       ? 'bg-brand-gold text-black shadow-md'
                       : 'text-foreground/40 hover:text-foreground/70'
@@ -355,7 +381,9 @@ export const Auth = () => {
                     initial={{ opacity: 0, y: -8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
-                    className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl text-[11px] font-bold flex items-center gap-2"
+                    role="alert"
+                    aria-live="assertive"
+                    className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl text-xs lg:text-[11px] font-bold flex items-center gap-2"
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shrink-0" />
                     {error}
@@ -371,7 +399,7 @@ export const Auth = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
                     role="status"
-                    className="p-4 bg-brand-gold/10 border border-brand-gold/20 text-brand-gold rounded-2xl text-[11px] font-bold flex items-center gap-2"
+                    className="p-4 bg-brand-gold/10 border border-brand-gold/20 text-brand-gold rounded-2xl text-xs lg:text-[11px] font-bold flex items-center gap-2"
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-brand-gold shrink-0" />
                     {info}
@@ -381,20 +409,28 @@ export const Auth = () => {
 
               {/* Email input */}
               <div className="space-y-1.5">
-                <label className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-foreground/40 ml-1">
+                <label htmlFor="auth-email" className="text-[11px] lg:text-[10px] font-bold uppercase tracking-widest text-foreground/40 ml-1">
                   {t('auth.email')}
                 </label>
                 <div className={`relative ${focused === 'email' ? 'scale-[1.01]' : ''}`}>
                   <input
+                    id="auth-email"
+                    name="email"
                     type="email"
+                    autoComplete="email"
+                    inputMode="email"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    enterKeyHint="next"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     onFocus={() => setFocused('email')}
                     onBlur={() => setFocused(null)}
                     placeholder="alexander@prestige.com"
-                    className="w-full bg-foreground/[0.04] border border-foreground/[0.08] rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:border-brand-gold/50 focus:bg-foreground/[0.06] transition-all text-foreground placeholder:text-foreground/25 pr-12"
+                    className="w-full bg-foreground/[0.04] border border-foreground/[0.08] rounded-2xl px-5 py-3.5 text-base lg:text-sm focus:outline-none focus:border-brand-gold/50 focus:bg-foreground/[0.06] transition-all text-foreground placeholder:text-foreground/25 pr-12"
                   />
-                  <div className={`absolute right-4 top-1/2 -translate-y-1/2 transition-colors duration-300 ${focused === 'email' ? 'text-brand-gold' : 'text-foreground/20'}`}>
+                  <div className={`pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 transition-colors duration-300 ${focused === 'email' ? 'text-brand-gold' : 'text-foreground/20'}`}>
                     <Mail className="w-4 h-4" />
                   </div>
                 </div>
@@ -402,23 +438,30 @@ export const Auth = () => {
 
               {/* Password input */}
               <div className="space-y-1.5">
-                <label className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-foreground/40 ml-1">
+                <label htmlFor="auth-password" className="text-[11px] lg:text-[10px] font-bold uppercase tracking-widest text-foreground/40 ml-1">
                   {t('auth.passcode')}
                 </label>
                 <div className={`relative ${focused === 'pass' ? 'scale-[1.01]' : ''}`}>
                   <input
+                    id="auth-password"
+                    name="password"
                     type={showPassword ? 'text' : 'password'}
+                    autoComplete={isLogin ? 'current-password' : 'new-password'}
+                    enterKeyHint="go"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     onFocus={() => setFocused('pass')}
                     onBlur={() => setFocused(null)}
                     placeholder="••••••••••"
-                    className="w-full bg-foreground/[0.04] border border-foreground/[0.08] rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:border-brand-gold/50 focus:bg-foreground/[0.06] transition-all text-foreground placeholder:text-foreground/25 pr-12"
+                    className="w-full bg-foreground/[0.04] border border-foreground/[0.08] rounded-2xl px-5 py-3.5 text-base lg:text-sm focus:outline-none focus:border-brand-gold/50 focus:bg-foreground/[0.06] transition-all text-foreground placeholder:text-foreground/25 pr-12"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className={`absolute right-4 top-1/2 -translate-y-1/2 transition-colors duration-300 hover:text-brand-gold ${focused === 'pass' ? 'text-brand-gold' : 'text-foreground/20'}`}
+                    onMouseDown={(e) => e.preventDefault()}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-pressed={showPassword}
+                    className={`absolute right-1 top-1/2 -translate-y-1/2 p-3 rounded-full transition-colors duration-300 hover:text-brand-gold ${focused === 'pass' ? 'text-brand-gold' : 'text-foreground/20'}`}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -432,7 +475,7 @@ export const Auth = () => {
                     type="button"
                     onClick={handleForgotPassword}
                     disabled={isLoading}
-                    className="text-[9px] sm:text-[10px] text-brand-gold/60 hover:text-brand-gold uppercase tracking-widest font-bold transition-colors disabled:opacity-50"
+                    className="text-[11px] lg:text-[10px] py-2 -my-2 pl-3 text-brand-gold/80 lg:text-brand-gold/60 hover:text-brand-gold uppercase tracking-widest font-bold transition-colors disabled:opacity-50"
                   >
                     {t('auth.forgot')}
                   </button>
@@ -446,7 +489,7 @@ export const Auth = () => {
                 type="submit"
                 disabled={isLoading}
                 aria-busy={isLoading}
-                className="relative w-full bg-brand-gold text-black py-4 rounded-2xl font-bold text-[10px] sm:text-xs uppercase tracking-hero overflow-hidden group mt-1 disabled:cursor-not-allowed"
+                className="relative w-full bg-brand-gold text-black py-4 rounded-2xl font-bold text-[11px] sm:text-xs uppercase tracking-hero overflow-hidden group mt-1 disabled:cursor-not-allowed"
               >
                 <span className="relative z-10 flex items-center justify-center gap-2">
                   {isLoading ? (
@@ -470,7 +513,7 @@ export const Auth = () => {
             {/* ── Divider ── */}
             <div className="relative flex items-center my-5">
               <div className="flex-1 h-px bg-foreground/[0.08]" />
-              <span className="px-4 text-[9px] sm:text-[10px] uppercase tracking-widest text-foreground/25 font-bold whitespace-nowrap">
+              <span className="px-4 text-[10px] uppercase tracking-widest text-foreground/25 font-bold whitespace-nowrap">
                 {t('auth.orConnect')}
               </span>
               <div className="flex-1 h-px bg-foreground/[0.08]" />
@@ -482,7 +525,7 @@ export const Auth = () => {
               whileTap={{ scale: 0.98 }}
               onClick={handleGoogleLogin}
               disabled={isLoading}
-              className="w-full bg-foreground/[0.04] border border-foreground/[0.08] text-foreground py-3.5 rounded-2xl flex items-center justify-center gap-3 hover:bg-foreground/[0.08] hover:border-foreground/15 transition-all text-[10px] sm:text-[11px] font-bold uppercase tracking-widest disabled:opacity-50"
+              className="w-full bg-foreground/[0.04] border border-foreground/[0.08] text-foreground py-3.5 rounded-2xl flex items-center justify-center gap-3 hover:bg-foreground/[0.08] hover:border-foreground/15 transition-all text-[11px] font-bold uppercase tracking-widest disabled:opacity-50"
             >
               {/* Official Google icon */}
               <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
@@ -495,7 +538,7 @@ export const Auth = () => {
             </motion.button>
 
             {/* ── Switch mode ── */}
-            <p className="mt-6 text-center text-[10px] sm:text-[11px] text-foreground/40">
+            <p className="mt-6 text-center text-[11px] text-foreground/40">
               {isLogin ? t('auth.newToFaxr') : t('auth.alreadyMember')}{' '}
               <button
                 type="button"
@@ -504,27 +547,27 @@ export const Auth = () => {
                   setError(null);
                   setInfo(null);
                 }}
-                className="text-brand-gold font-bold hover:underline underline-offset-4 decoration-brand-gold/30"
+                className="inline-block py-2 -my-2 px-1 -mx-1 text-brand-gold font-bold max-lg:underline hover:underline underline-offset-4 decoration-brand-gold/30"
               >
                 {isLogin ? t('auth.apply') : t('auth.login')}
               </button>
             </p>
 
             {/* ── Trust badges ── */}
-            <div className="mt-8 flex items-center justify-center gap-5 sm:gap-6">
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 sm:gap-6">
               <div className="flex items-center gap-1.5 text-foreground/25">
                 <ShieldCheck className="w-3.5 h-3.5 text-brand-gold/35" />
-                <span className="text-[8px] sm:text-[9px] uppercase tracking-widest font-bold">{t('auth.secure')}</span>
+                <span className="text-[9px] uppercase tracking-widest font-bold whitespace-nowrap">{t('auth.secure')}</span>
               </div>
-              <div className="w-px h-3 bg-foreground/10" />
+              <div className="hidden sm:block w-px h-3 bg-foreground/10" />
               <div className="flex items-center gap-1.5 text-foreground/25">
                 <Lock className="w-3 h-3 text-brand-gold/35" />
-                <span className="text-[8px] sm:text-[9px] uppercase tracking-widest font-bold">{t('auth.privacy')}</span>
+                <span className="text-[9px] uppercase tracking-widest font-bold whitespace-nowrap">{t('auth.privacy')}</span>
               </div>
-              <div className="w-px h-3 bg-foreground/10" />
+              <div className="hidden sm:block w-px h-3 bg-foreground/10" />
               <div className="flex items-center gap-1.5 text-foreground/25">
                 <Send className="w-3 h-3 text-brand-gold/35" />
-                <span className="text-[8px] sm:text-[9px] uppercase tracking-widest font-bold">FAXR</span>
+                <span className="text-[9px] uppercase tracking-widest font-bold whitespace-nowrap">FAXR</span>
               </div>
             </div>
 

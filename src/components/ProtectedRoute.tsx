@@ -3,7 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export const RouteSpinner = () => (
-  <div className="min-h-screen flex items-center justify-center bg-background">
+  <div className="min-h-dvh flex items-center justify-center bg-background">
     <div className="w-8 h-8 border-4 border-brand-gold/30 border-t-brand-gold rounded-full animate-spin"></div>
   </div>
 );

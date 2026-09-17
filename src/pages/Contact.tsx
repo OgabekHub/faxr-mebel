@@ -38,6 +38,7 @@ export const Contact = () => {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [timeError, setTimeError] = useState(false);
   const successTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const formCardRef = useRef<HTMLDivElement>(null);
 
   // Tab selector between Message / Showroom Appointment booking
   const [activeFormTab, setActiveFormTab] = useState<'message' | 'appointment'>('message');
@@ -80,6 +81,7 @@ export const Contact = () => {
 
     if (result.ok) {
       setIsSuccess(true);
+      requestAnimationFrame(() => formCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
       setFormData({ name: '', phone: '', message: '', date: '', time: '' });
       clearTimeout(successTimer.current);
       successTimer.current = setTimeout(() => setIsSuccess(false), 5000);
@@ -89,68 +91,68 @@ export const Contact = () => {
   };
 
   return (
-    <div className="pt-36 pb-20 px-6 max-w-7xl mx-auto min-h-screen">
+    <div className="pt-36 pb-20 px-6 max-w-7xl mx-auto min-h-dvh">
       <div className="text-center mb-16">
         <span className="text-brand-gold uppercase tracking-hero text-[10px] font-black block">{t('contact.hero.teaser')}</span>
         <h1 className="text-4xl md:text-6xl font-editorial-title mt-2 mb-4">
           {t('contact.hero.title')} <span className="font-bold italic gold-foil-text">{t('contact.hero.titleGold')}</span>
         </h1>
-        <p className="text-xs text-foreground/50 max-w-xl mx-auto leading-relaxed font-light italic">
+        <p className="text-[13px] lg:text-xs text-foreground/65 lg:text-foreground/50 max-w-xl mx-auto leading-relaxed font-light italic">
           {t('contact.hero.desc')}
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-20">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mb-12 lg:mb-20">
         {/* Left Side: Contact Information Cards */}
         <div className="lg:col-span-5 space-y-6">
 
           {/* Card 1: Phone */}
-          <div className="bento-card glow-tracer p-8 flex items-start gap-4">
+          <div className="bento-card glow-tracer p-6 sm:p-8 flex items-start gap-4">
             <div className="w-12 h-12 rounded-2xl bg-brand-gold/10 flex items-center justify-center text-brand-gold shrink-0 border border-brand-gold/15">
               <Phone className="w-5 h-5" aria-hidden="true" />
             </div>
             <div>
               <h3 className="text-base font-bold mb-1.5 text-foreground">{t('contact.phone.title')}</h3>
-              <p className="text-[11px] text-foreground/45 mb-2 leading-relaxed">{t('contact.phone.desc')}</p>
-              <a href={site.phone.href} className="text-brand-gold hover:underline text-sm font-bold tracking-wider">{site.phone.display}</a>
+              <p className="text-xs lg:text-[11px] text-foreground/45 mb-2 leading-relaxed">{t('contact.phone.desc')}</p>
+              <a href={site.phone.href} className="inline-block py-3 -my-3 text-brand-gold hover:underline text-sm font-bold tracking-wider">{site.phone.display}</a>
             </div>
           </div>
 
           {/* Card 2: Email */}
-          <div className="bento-card glow-tracer p-8 flex items-start gap-4">
+          <div className="bento-card glow-tracer p-6 sm:p-8 flex items-start gap-4">
             <div className="w-12 h-12 rounded-2xl bg-brand-gold/10 flex items-center justify-center text-brand-gold shrink-0 border border-brand-gold/15">
               <Mail className="w-5 h-5" aria-hidden="true" />
             </div>
             <div>
               <h3 className="text-base font-bold mb-1.5 text-foreground">{t('contact.email.title')}</h3>
-              <p className="text-[11px] text-foreground/45 mb-2 leading-relaxed">{t('contact.email.desc')}</p>
-              <a href={`mailto:${site.email}`} className="text-brand-gold hover:underline text-sm font-bold">{site.email}</a>
+              <p className="text-xs lg:text-[11px] text-foreground/45 mb-2 leading-relaxed">{t('contact.email.desc')}</p>
+              <a href={`mailto:${site.email}`} className="inline-block py-3 -my-3 text-brand-gold hover:underline text-sm font-bold">{site.email}</a>
             </div>
           </div>
 
           {/* Card 3: Address */}
-          <div className="bento-card glow-tracer p-8 flex items-start gap-4">
+          <div className="bento-card glow-tracer p-6 sm:p-8 flex items-start gap-4">
             <div className="w-12 h-12 rounded-2xl bg-brand-gold/10 flex items-center justify-center text-brand-gold shrink-0 border border-brand-gold/15">
               <MapPin className="w-5 h-5" aria-hidden="true" />
             </div>
             <div>
               <h3 className="text-base font-bold mb-1.5 text-foreground">{t('contact.address.title')}</h3>
-              <p className="text-[11px] text-foreground/45 mb-1.5 leading-relaxed">{t('contact.address.desc')}</p>
+              <p className="text-xs lg:text-[11px] text-foreground/45 mb-1.5 leading-relaxed">{t('contact.address.desc')}</p>
               <p className="text-xs text-foreground/75 font-semibold">{t('contact.address.value')}</p>
             </div>
           </div>
 
           {/* Social Links Panel */}
           <div className="bento-card p-6 border-l-4 border-l-brand-gold">
-            <h3 className="text-[9px] font-black uppercase tracking-widest text-foreground/40 mb-3 block">{t('contact.social.title')}</h3>
-            <div className="flex flex-wrap gap-2.5">
+            <h3 className="text-[11px] lg:text-[9px] font-black uppercase tracking-widest text-foreground/40 mb-3 block">{t('contact.social.title')}</h3>
+            <div className="flex flex-wrap gap-3 lg:gap-2.5">
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-5 py-2.5 rounded-xl bg-foreground/5 hover:bg-brand-gold hover:text-black transition-colors font-bold text-xs uppercase tracking-wider"
+                  className="px-5 py-3.5 lg:py-2.5 rounded-xl bg-foreground/5 hover:bg-brand-gold hover:text-black transition-colors font-bold text-xs uppercase tracking-wider"
                 >
                   {social.name}
                 </a>
@@ -160,7 +162,7 @@ export const Contact = () => {
         </div>
 
         {/* Right Side: Form selector message/appointment */}
-        <div className="lg:col-span-7 bg-white dark:bg-white/5 bento-card p-8 md:p-10 border border-foreground/5 shadow-xl !overflow-visible">
+        <div ref={formCardRef} className="lg:col-span-7 bg-white dark:bg-white/5 bento-card p-5 sm:p-8 md:p-10 border border-foreground/5 shadow-xl !overflow-visible">
           {isSuccess ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
@@ -180,12 +182,12 @@ export const Contact = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
 
               {/* Form Tab selection */}
-              <div className="flex border-b border-foreground/5 pb-4 gap-4">
+              <div className="grid grid-cols-2 sm:flex border-b border-foreground/5 pb-4 gap-3 sm:gap-4">
                 <button
                   type="button"
                   onClick={() => { setActiveFormTab('message'); setSubmitError(null); }}
                   className={cn(
-                    "text-xs font-black uppercase tracking-widest pb-2 border-b-2",
+                    "text-[10px] sm:text-xs font-black uppercase tracking-wider sm:tracking-widest leading-snug text-center sm:text-left pt-3 sm:pt-0 pb-2 border-b-2",
                     activeFormTab === 'message' ? "border-brand-gold text-brand-gold font-bold" : "border-transparent text-foreground/40"
                   )}
                 >
@@ -195,7 +197,7 @@ export const Contact = () => {
                   type="button"
                   onClick={() => { setActiveFormTab('appointment'); setSubmitError(null); }}
                   className={cn(
-                    "text-xs font-black uppercase tracking-widest pb-2 border-b-2",
+                    "text-[10px] sm:text-xs font-black uppercase tracking-wider sm:tracking-widest leading-snug text-center sm:text-left pt-3 sm:pt-0 pb-2 border-b-2",
                     activeFormTab === 'appointment' ? "border-brand-gold text-brand-gold font-bold" : "border-transparent text-foreground/40"
                   )}
                 >
@@ -204,11 +206,12 @@ export const Contact = () => {
               </div>
 
               <div>
-                <label htmlFor="contact-name" className="text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">{t('contact.form.label.name')}</label>
+                <label htmlFor="contact-name" className="text-[11px] lg:text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">{t('contact.form.label.name')}</label>
                 <input
                   id="contact-name"
                   required
                   type="text"
+                  autoComplete="name"
                   maxLength={100}
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
@@ -218,11 +221,12 @@ export const Contact = () => {
               </div>
 
               <div>
-                <label htmlFor="contact-phone" className="text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">{t('contact.form.label.phone')}</label>
+                <label htmlFor="contact-phone" className="text-[11px] lg:text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">{t('contact.form.label.phone')}</label>
                 <input
                   id="contact-phone"
                   required
                   type="tel"
+                  autoComplete="tel"
                   maxLength={30}
                   value={formData.phone}
                   onChange={(e) => setFormData({...formData, phone: e.target.value})}
@@ -233,7 +237,7 @@ export const Contact = () => {
 
               {activeFormTab === 'message' ? (
                 <div>
-                  <label htmlFor="contact-message" className="text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">{t('contact.form.label.message')}</label>
+                  <label htmlFor="contact-message" className="text-[11px] lg:text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">{t('contact.form.label.message')}</label>
                   <textarea
                     id="contact-message"
                     required
@@ -249,7 +253,7 @@ export const Contact = () => {
                 /* Appointment scheduling elements */
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fade-in">
                   <div>
-                    <label htmlFor="contact-date" className="text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">{t('contact.form.label.date')}</label>
+                    <label htmlFor="contact-date" className="text-[11px] lg:text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">{t('contact.form.label.date')}</label>
                     <input
                       id="contact-date"
                       required
@@ -261,7 +265,7 @@ export const Contact = () => {
                     />
                   </div>
                   <div>
-                    <label className="text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">{t('contact.form.label.time')}</label>
+                    <label className="text-[11px] lg:text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">{t('contact.form.label.time')}</label>
                     <CustomSelect
                       value={formData.time}
                       onChange={(time) => { setFormData({...formData, time}); setTimeError(false); }}
@@ -270,14 +274,14 @@ export const Contact = () => {
                       className={cn(timeError && "[&>button]:border-red-500")}
                     />
                     {timeError && (
-                      <p role="alert" className="text-[10px] text-red-500 font-bold mt-2 ml-2">{t('contact.form.timeRequired')}</p>
+                      <p role="alert" className="text-xs lg:text-[10px] text-red-500 font-bold mt-2 ml-2">{t('contact.form.timeRequired')}</p>
                     )}
                   </div>
                 </div>
               )}
 
               {submitError && (
-                <p role="alert" className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl text-[11px] font-bold">
+                <p role="alert" className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl text-xs lg:text-[11px] font-bold">
                   {submitError}
                 </p>
               )}
@@ -285,7 +289,7 @@ export const Contact = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-brand-gold text-black py-4 rounded-xl font-extrabold text-xs uppercase tracking-hero hover:scale-102 shadow-xl shadow-brand-gold/15 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+                className="w-full bg-brand-gold text-black py-4 rounded-xl font-extrabold text-xs uppercase tracking-hero lg:hover:scale-102 active:scale-[0.99] shadow-xl shadow-brand-gold/15 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-4"
               >
                 {isSubmitting ? t('contact.form.submitting') : t('contact.form.submit')}
                 {!isSubmitting && <Send className="w-4 h-4" aria-hidden="true" />}
@@ -312,10 +316,10 @@ export const Contact = () => {
                   type="button"
                   onClick={() => setOpenFaqIndex(openFaqIndex === idx ? null : idx)}
                   aria-expanded={openFaqIndex === idx}
-                  className="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none"
+                  className="w-full px-5 sm:px-6 py-5 flex items-center justify-between gap-4 text-left focus:outline-none"
                 >
                   <span className="text-sm font-bold text-foreground">{t(`contact.faq.${faq.id}.q`)}</span>
-                  <ChevronDown className={cn("w-4 h-4 text-brand-gold duration-300", openFaqIndex === idx ? "rotate-180" : "")} aria-hidden="true" />
+                  <ChevronDown className={cn("w-4 h-4 shrink-0 text-brand-gold duration-300", openFaqIndex === idx ? "rotate-180" : "")} aria-hidden="true" />
                 </button>
 
                 <AnimatePresence initial={false}>
@@ -326,7 +330,7 @@ export const Contact = () => {
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.3 }}
                     >
-                      <div className="px-6 pb-6 pt-2 text-xs text-foreground/50 leading-relaxed font-light italic border-t border-foreground/5">
+                      <div className="px-5 sm:px-6 pb-6 pt-2 text-[13px] lg:text-xs text-foreground/65 lg:text-foreground/50 leading-relaxed font-light italic border-t border-foreground/5">
                         {t(`contact.faq.${faq.id}.a`)}
                       </div>
                     </motion.div>

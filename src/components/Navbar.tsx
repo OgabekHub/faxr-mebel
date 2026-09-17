@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { cn } from '../lib/utils';
 import { Link, useLocation } from 'react-router-dom';
 import { BrandLogo } from './BrandLogo';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 const languages = [
   { code: 'uz', name: 'UZ' },
@@ -76,8 +77,14 @@ export const Navbar = () => {
     setIsOpen(false);
   }, [location.pathname]);
 
+  // Keep the page behind the drawer still while it is open.
+  useBodyScrollLock(isOpen);
+
   const changeLanguage = (code: string) => {
-    void i18n.changeLanguage(code);
+    // Load the bundle first: switching straight away suspends every component that
+    // calls `t` while the JSON downloads, so on a slow phone connection the whole
+    // page is replaced by the route spinner and the reader loses their place.
+    void i18n.loadLanguages(code).then(() => i18n.changeLanguage(code));
     setIsOpen(false);
   };
 
@@ -93,8 +100,9 @@ export const Navbar = () => {
 
   return (
     <>
+      {isOpen && <div className="fixed inset-0 z-40 lg:hidden" aria-hidden="true" onClick={() => setIsOpen(false)} />}
       <nav className={cn(
-        "fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-[background-color,border-color,padding,border-radius,box-shadow] duration-300 px-6 md:px-8 py-3.5 w-[92%] max-w-7xl border shadow-xl backdrop-blur-md rounded-full",
+        "fixed top-[max(1.5rem,env(safe-area-inset-top))] left-1/2 -translate-x-1/2 z-50 transition-[background-color,border-color,padding,border-radius,box-shadow] duration-300 px-4 sm:px-6 md:px-8 py-3.5 w-[92%] max-w-7xl border shadow-xl backdrop-blur-md rounded-full",
         isScrolled
           ? "bg-white dark:bg-[#0A0A0A] border-neutral-200 dark:border-neutral-800/80 py-3 shadow-2xl"
           : "bg-white/95 dark:bg-[#0D0D0D]/95 border-neutral-200/60 dark:border-neutral-800/60"
@@ -163,8 +171,8 @@ export const Navbar = () => {
               <button
                 type="button"
                 onClick={handleThemeToggle}
-                className="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-200 transition-[transform,background-color] duration-300 hover:scale-110 transform-gpu"
-                aria-label="Theme toggle"
+                className="p-3 -m-1 lg:p-2 lg:m-0 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-200 transition-[transform,background-color] duration-300 lg:hover:scale-110 active:scale-95 transform-gpu"
+                aria-label={t('nav.theme')}
               >
                 {theme === 'light' ? <Moon className="w-4.5 h-4.5" /> : <Sun className="w-4.5 h-4.5 text-brand-gold animate-spin-slow" />}
               </button>
@@ -173,16 +181,16 @@ export const Navbar = () => {
             <Link
               to="/cart"
               className={cn(
-                "flex items-center justify-center w-10 h-10 rounded-full transition-[transform,background-color,border-color,box-shadow] duration-300 hover:scale-110 transform-gpu border relative",
+                "flex items-center justify-center w-10 h-10 rounded-full transition-[transform,background-color,border-color,box-shadow] duration-300 lg:hover:scale-110 active:scale-95 transform-gpu border relative",
                 totalItems > 0
                   ? "bg-[#8C6A3C] dark:bg-brand-gold border-[#8C6A3C] dark:border-brand-gold text-white dark:text-black font-extrabold shadow-md shadow-brand-gold/15"
                   : "bg-neutral-100 dark:bg-neutral-800/60 border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700"
               )}
-              aria-label={`Cart (${totalItems})`}
+              aria-label={`${t('nav.cart')} (${totalItems})`}
             >
               <ShoppingCart className="w-4.5 h-4.5" />
               {totalItems > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-black min-w-5 h-5 px-1 rounded-full flex items-center justify-center border-2 border-white dark:border-[#0A0A0A] animate-pulse">
+                <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] lg:text-[9px] font-black min-w-5 h-5 px-1 rounded-full flex items-center justify-center border-2 border-white dark:border-[#0A0A0A] animate-pulse motion-reduce:animate-none">
                   {cartBadge}
                 </span>
               )}
@@ -192,12 +200,12 @@ export const Navbar = () => {
             <Link
               to={isLoggedIn ? "/profile" : "/auth"}
               className={cn(
-                "p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-[transform,background-color,color] duration-300 hover:scale-110 transform-gpu",
+                "p-3 -m-1 lg:p-2 lg:m-0 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-[transform,background-color,color] duration-300 lg:hover:scale-110 active:scale-95 transform-gpu",
                 location.pathname === "/profile" || location.pathname === "/auth"
                   ? "text-[#8C6A3C] dark:text-brand-gold"
                   : "text-neutral-700 dark:text-neutral-200"
               )}
-              aria-label="Profile link"
+              aria-label={t('nav.profile')}
             >
               <User className="w-4.5 h-4.5" />
             </Link>
@@ -205,9 +213,9 @@ export const Navbar = () => {
             {/* Mobile / tablet Menu Trigger */}
             <button
               type="button"
-              className="lg:hidden p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-200 transition-colors"
+              className="lg:hidden p-3 -m-1 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-200 transition-colors"
               onClick={() => setIsOpen(open => !open)}
-              aria-label="Mobile menu"
+              aria-label={t('nav.menu')}
               aria-expanded={isOpen}
               aria-controls="mobile-nav-drawer"
             >
@@ -226,7 +234,7 @@ export const Navbar = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -15, scale: 0.95 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="absolute top-[calc(100%+0.75rem)] left-0 right-0 lg:hidden bg-white/95 dark:bg-[#0D0D0D]/95 border border-neutral-200 dark:border-neutral-800/80 rounded-[2rem] shadow-2xl backdrop-blur-md p-6 overflow-hidden flex flex-col gap-5"
+            className="absolute top-[calc(100%+0.75rem)] left-0 right-0 lg:hidden bg-white/95 dark:bg-[#0D0D0D]/95 border border-neutral-200 dark:border-neutral-800/80 rounded-[2rem] shadow-2xl backdrop-blur-md p-6 max-h-[calc(100dvh-8rem)] overflow-y-auto overscroll-contain flex flex-col gap-2"
           >
             {navLinks.map((link) => (
               <Link
@@ -234,7 +242,7 @@ export const Navbar = () => {
                 to={link.path}
                 onClick={() => setIsOpen(false)}
                 className={cn(
-                  "text-xs font-bold uppercase tracking-hero border-b border-neutral-100 dark:border-neutral-800 pb-3.5 transition-colors",
+                  "text-xs font-bold uppercase tracking-hero border-b border-neutral-100 dark:border-neutral-800 pt-3 pb-3.5 transition-colors",
                   location.pathname === link.path
                     ? "text-[#8C6A3C] dark:text-brand-gold font-extrabold"
                     : "text-neutral-800 dark:text-neutral-200 hover:text-brand-gold"
@@ -246,8 +254,8 @@ export const Navbar = () => {
 
             {/* Language Switcher in Mobile Drawer */}
             <div className="flex justify-between items-center pt-2">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-neutral-400">Language</span>
-              <div className="flex gap-2">
+              <span className="text-[10px] uppercase font-bold tracking-widest text-neutral-400">{t('nav.language')}</span>
+              <div className="flex gap-2" role="group" aria-label={t('nav.language')}>
                 {languages.map((lang) => (
                   <button
                     key={lang.code}
@@ -255,7 +263,7 @@ export const Navbar = () => {
                     onClick={() => changeLanguage(lang.code)}
                     aria-pressed={i18n.language.startsWith(lang.code)}
                     className={cn(
-                      "px-3 py-1.5 rounded-full text-[9px] font-black tracking-widest uppercase",
+                      "min-h-11 min-w-11 px-4 flex items-center justify-center rounded-full text-[11px] font-black tracking-widest uppercase",
                       i18n.language.startsWith(lang.code)
                         ? "bg-[#8C6A3C] dark:bg-brand-gold text-white dark:text-black font-bold"
                         : "bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400"

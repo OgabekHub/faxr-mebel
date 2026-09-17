@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Trash2, Edit3, DollarSign, ShoppingBag, Users, CheckCircle, ArrowUpRight, BarChart2, X, PlusCircle, Save, AlertTriangle } from 'lucide-react';
 import { cn, formatPrice, getErrorMessage } from '../lib/utils';
 import { CustomSelect } from '../components/CustomSelect';
 import { db } from '../lib/firebase';
 import { collection, doc, updateDoc, onSnapshot } from 'firebase/firestore';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import type { Order, OrderStatus } from '../types/domain';
 
 /** Orders as stored in Firestore; older documents may lack some fields. */
@@ -27,9 +29,9 @@ function nextOrderStatus(status: OrderStatus): OrderStatus | null {
 
 // Local-only catalogue mock. Faza 3 replaces this with the Firestore `products` collection.
 const initialProducts = [
-  { id: '1', name: 'Royal Velvet Sofa', price: 12000000, rating: 4.9, category: 'Sofa', image: '/images/sofa.png', wood: 'Walnut (Yong\'oq)', fabric: 'Italian Velvet' },
-  { id: '2', name: 'Modern Oak Dining Table', price: 8500000, rating: 4.8, category: 'Dining', image: '/images/dining_table.png', wood: 'Oak (Eman)', fabric: 'N/A' },
-  { id: '3', name: 'Minimalist Bed Frame', price: 15000000, rating: 5.0, category: 'Bedroom', image: '/images/bed.png', wood: 'Walnut (Yong\'oq)', fabric: 'Premium Textile' }
+  { id: '1', name: 'Royal Velvet Sofa', price: 12000000, rating: 4.9, category: 'Sofa', image: '/images/sofa.webp', wood: 'Walnut (Yong\'oq)', fabric: 'Italian Velvet' },
+  { id: '2', name: 'Modern Oak Dining Table', price: 8500000, rating: 4.8, category: 'Dining', image: '/images/dining_table.webp', wood: 'Oak (Eman)', fabric: 'N/A' },
+  { id: '3', name: 'Minimalist Bed Frame', price: 15000000, rating: 5.0, category: 'Bedroom', image: '/images/bed.webp', wood: 'Walnut (Yong\'oq)', fabric: 'Premium Textile' }
 ];
 
 type AdminProduct = (typeof initialProducts)[number];
@@ -78,6 +80,9 @@ export const Admin = () => {
     fabric: 'Italian Velvet',
     image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=600'
   });
+
+  // Freeze the page behind the product modal on touch devices.
+  useBodyScrollLock(isProductModalOpen);
 
   const handleDeleteProduct = (id: string) => {
     if (confirm("Ushbu premium mahsulotni katalogdan butunlay o'chirmoqchimisiz?")) {
@@ -156,7 +161,7 @@ export const Admin = () => {
   };
 
   return (
-    <div className="pt-36 pb-20 px-6 max-w-7xl mx-auto min-h-screen">
+    <div className="pt-36 pb-20 px-6 max-w-7xl mx-auto min-h-dvh">
       <header className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pb-6 border-b border-foreground/5">
         <div>
           <span className="text-brand-gold uppercase tracking-hero text-[10px] font-black block">Prestige Console</span>
@@ -164,10 +169,10 @@ export const Admin = () => {
         </div>
         
         {/* Navigation Tabs bar */}
-        <div className="flex bg-foreground/5 p-1 rounded-2xl border border-foreground/5">
+        <div className="flex w-full md:w-auto overflow-x-auto scrollbar-hide bg-foreground/5 p-1 rounded-2xl border border-foreground/5">
           <button 
             onClick={() => setActiveTab('overview')}
-            className={`px-5 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+            className={`shrink-0 whitespace-nowrap px-4 md:px-5 py-3 min-h-11 md:min-h-0 rounded-xl text-[10px] md:text-[9px] font-black uppercase tracking-widest transition-all ${
               activeTab === 'overview' ? 'bg-brand-gold text-black font-bold shadow-md' : 'text-foreground/45 hover:text-foreground'
             }`}
           >
@@ -175,7 +180,7 @@ export const Admin = () => {
           </button>
           <button 
             onClick={() => setActiveTab('products')}
-            className={`px-5 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+            className={`shrink-0 whitespace-nowrap px-4 md:px-5 py-3 min-h-11 md:min-h-0 rounded-xl text-[10px] md:text-[9px] font-black uppercase tracking-widest transition-all ${
               activeTab === 'products' ? 'bg-brand-gold text-black font-bold shadow-md' : 'text-foreground/45 hover:text-foreground'
             }`}
           >
@@ -183,7 +188,7 @@ export const Admin = () => {
           </button>
           <button 
             onClick={() => setActiveTab('orders')}
-            className={`px-5 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+            className={`shrink-0 whitespace-nowrap px-4 md:px-5 py-3 min-h-11 md:min-h-0 rounded-xl text-[10px] md:text-[9px] font-black uppercase tracking-widest transition-all ${
               activeTab === 'orders' ? 'bg-brand-gold text-black font-bold shadow-md' : 'text-foreground/45 hover:text-foreground'
             }`}
           >
@@ -198,7 +203,7 @@ export const Admin = () => {
           <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" aria-hidden="true" />
           <div className="text-left">
             <span className="text-xs font-bold text-foreground block">Firestore xatosi</span>
-            <p className="text-[10px] text-foreground/60 leading-relaxed">{ordersError ?? statusError}</p>
+            <p className="text-xs md:text-[10px] text-foreground/60 leading-relaxed">{ordersError ?? statusError}</p>
           </div>
         </div>
       )}
@@ -216,44 +221,44 @@ export const Admin = () => {
             {/* Stat counts row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               
-              <div className="bento-card glow-tracer p-8 flex items-center justify-between">
+              <div className="bento-card glow-tracer p-6 sm:p-8 flex items-center justify-between gap-4">
                 <div>
-                  <span className="text-[9px] font-black uppercase tracking-widest text-foreground/45">Jami Savdo</span>
-                  <div className="text-2xl font-editorial-title font-bold mt-2 text-foreground">{formatPrice(36150000)}</div>
-                  <span className="text-[9px] text-green-500 font-extrabold flex items-center mt-1"><ArrowUpRight className="w-3 h-3 mr-1" /> +12.4% bu oy</span>
+                  <span className="text-[10px] md:text-[9px] font-black uppercase tracking-widest text-foreground/45">Jami Savdo</span>
+                  <div className="text-xl sm:text-2xl font-editorial-title font-bold mt-2 text-foreground">{formatPrice(36150000)}</div>
+                  <span className="text-[10px] md:text-[9px] text-green-500 font-extrabold flex items-center mt-1"><ArrowUpRight className="w-3 h-3 mr-1" /> +12.4% bu oy</span>
                 </div>
                 <div className="w-12 h-12 rounded-2xl bg-brand-gold/10 flex items-center justify-center text-brand-gold border border-brand-gold/15">
                   <DollarSign className="w-5 h-5" />
                 </div>
               </div>
 
-              <div className="bento-card glow-tracer p-8 flex items-center justify-between">
+              <div className="bento-card glow-tracer p-6 sm:p-8 flex items-center justify-between gap-4">
                 <div>
-                  <span className="text-[9px] font-black uppercase tracking-widest text-foreground/45">Aktiv Buyurtmalar</span>
-                  <div className="text-2xl font-editorial-title font-bold mt-2 text-foreground">{orders.length} ta</div>
-                  <span className="text-[9px] text-brand-gold font-extrabold flex items-center mt-1">Hozir ustaxonada</span>
+                  <span className="text-[10px] md:text-[9px] font-black uppercase tracking-widest text-foreground/45">Aktiv Buyurtmalar</span>
+                  <div className="text-xl sm:text-2xl font-editorial-title font-bold mt-2 text-foreground">{orders.length} ta</div>
+                  <span className="text-[10px] md:text-[9px] text-brand-gold font-extrabold flex items-center mt-1">Hozir ustaxonada</span>
                 </div>
                 <div className="w-12 h-12 rounded-2xl bg-brand-gold/10 flex items-center justify-center text-brand-gold border border-brand-gold/15">
                   <ShoppingBag className="w-5 h-5" />
                 </div>
               </div>
 
-              <div className="bento-card glow-tracer p-8 flex items-center justify-between">
+              <div className="bento-card glow-tracer p-6 sm:p-8 flex items-center justify-between gap-4">
                 <div>
-                  <span className="text-[9px] font-black uppercase tracking-widest text-foreground/45">Premium Mijozlar</span>
-                  <div className="text-2xl font-editorial-title font-bold mt-2 text-foreground">148 ta</div>
-                  <span className="text-[9px] text-green-500 font-extrabold flex items-center mt-1"><ArrowUpRight className="w-3 h-3 mr-1" /> +5 yangi</span>
+                  <span className="text-[10px] md:text-[9px] font-black uppercase tracking-widest text-foreground/45">Premium Mijozlar</span>
+                  <div className="text-xl sm:text-2xl font-editorial-title font-bold mt-2 text-foreground">148 ta</div>
+                  <span className="text-[10px] md:text-[9px] text-green-500 font-extrabold flex items-center mt-1"><ArrowUpRight className="w-3 h-3 mr-1" /> +5 yangi</span>
                 </div>
                 <div className="w-12 h-12 rounded-2xl bg-brand-gold/10 flex items-center justify-center text-brand-gold border border-brand-gold/15">
                   <Users className="w-5 h-5" />
                 </div>
               </div>
 
-              <div className="bento-card glow-tracer p-8 flex items-center justify-between">
+              <div className="bento-card glow-tracer p-6 sm:p-8 flex items-center justify-between gap-4">
                 <div>
-                  <span className="text-[9px] font-black uppercase tracking-widest text-foreground/45">Sifat Reytingi</span>
-                  <div className="text-2xl font-editorial-title font-bold mt-2 text-foreground">4.9 / 5.0</div>
-                  <span className="text-[9px] text-brand-gold font-extrabold flex items-center mt-1">Mukammal standart</span>
+                  <span className="text-[10px] md:text-[9px] font-black uppercase tracking-widest text-foreground/45">Sifat Reytingi</span>
+                  <div className="text-xl sm:text-2xl font-editorial-title font-bold mt-2 text-foreground">4.9 / 5.0</div>
+                  <span className="text-[10px] md:text-[9px] text-brand-gold font-extrabold flex items-center mt-1">Mukammal standart</span>
                 </div>
                 <div className="w-12 h-12 rounded-2xl bg-brand-gold/10 flex items-center justify-center text-brand-gold border border-brand-gold/15">
                   <CheckCircle className="w-5 h-5" />
@@ -265,7 +270,7 @@ export const Admin = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               
               {/* Sales Graph vector */}
-              <div className="lg:col-span-2 bento-card p-8 flex flex-col justify-between">
+              <div className="lg:col-span-2 bento-card p-6 sm:p-8 flex flex-col justify-between">
                 <div className="flex justify-between items-center mb-6">
                   <div>
                     <h3 className="text-base font-bold text-foreground">Savdo O'sish Dinamikasi</h3>
@@ -274,7 +279,7 @@ export const Admin = () => {
                   <BarChart2 className="w-5 h-5 text-brand-gold" />
                 </div>
 
-                <div className="w-full h-64 relative mt-4">
+                <div className="w-full h-40 sm:h-64 relative mt-4">
                   <svg className="w-full h-full" viewBox="0 0 500 200" preserveAspectRatio="none">
                     {/* Glowing golden linear gradient for chart filling */}
                     <defs>
@@ -302,7 +307,7 @@ export const Admin = () => {
                   </svg>
                   
                   {/* Chart X axis text */}
-                  <div className="flex justify-between text-[8px] font-black uppercase tracking-widest text-foreground/45 mt-3 px-2">
+                  <div className="flex justify-between text-[10px] md:text-[8px] font-black uppercase tracking-widest text-foreground/45 mt-3 px-2">
                     <span>Fevral</span>
                     <span>Mart</span>
                     <span>Aprel</span>
@@ -312,7 +317,7 @@ export const Admin = () => {
               </div>
 
               {/* Product Popularity category break */}
-              <div className="bento-card p-8 flex flex-col justify-between">
+              <div className="bento-card p-6 sm:p-8 flex flex-col justify-between">
                 <div>
                   <h3 className="text-base font-bold text-foreground mb-1">Kategoriyalar Ulushi</h3>
                   <p className="text-[10px] text-foreground/45 italic mb-6">Mijozlar eng ko'p sotib olgan yo'nalishlar</p>
@@ -350,7 +355,7 @@ export const Admin = () => {
                   </div>
                 </div>
 
-                <div className="pt-6 border-t border-foreground/5 text-[9px] uppercase font-black tracking-hero text-foreground/45 italic leading-relaxed mt-4">
+                <div className="pt-6 border-t border-foreground/5 text-[10px] md:text-[9px] uppercase font-black tracking-widest md:tracking-hero text-foreground/45 italic leading-relaxed mt-4">
                   Ustaxonamizdagi yong'oq yog'ochi zaxirasi: <strong className="text-foreground">8.5 tonna (Yetarli)</strong>
                 </div>
               </div>
@@ -368,11 +373,11 @@ export const Admin = () => {
             exit={{ opacity: 0, y: -15 }}
             className="space-y-6"
           >
-            <div className="flex justify-between items-center pb-4 border-b border-foreground/5">
+            <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 sm:gap-0 pb-4 border-b border-foreground/5">
               <h2 className="text-xl font-editorial-title font-bold text-foreground">Katalogdagi Mebellar Ro'yxati ({products.length})</h2>
               <button 
                 onClick={handleOpenAddProduct}
-                className="bg-brand-gold text-black px-5 py-3 rounded-xl font-extrabold text-[9px] uppercase tracking-hero flex items-center gap-1.5 hover:scale-103"
+                className="bg-brand-gold text-black w-full sm:w-auto justify-center shrink-0 whitespace-nowrap px-5 py-3.5 md:py-3 rounded-xl font-extrabold text-[10px] md:text-[9px] uppercase tracking-hero flex items-center gap-1.5 md:hover:scale-103 active:scale-[0.97]"
               >
                 <PlusCircle className="w-4 h-4" /> Yangi Mebel Qo'shish
               </button>
@@ -383,27 +388,27 @@ export const Admin = () => {
                 <div key={p.id} className="bento-card p-6 flex flex-col justify-between">
                   <div>
                     <div className="aspect-[4/3] rounded-2xl overflow-hidden mb-4 bg-foreground/5 relative">
-                      <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
-                      <div className="absolute top-3 left-3 glass px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest text-foreground">
+                      <img src={p.image} alt={p.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                      <div className="absolute top-3 left-3 glass px-3 py-1 rounded-full text-[10px] md:text-[8px] font-black uppercase tracking-widest text-foreground">
                         {p.category}
                       </div>
                     </div>
                     
                     <h3 className="text-base font-bold text-foreground">{p.name}</h3>
                     <span className="price-tag text-lg font-bold block mt-1.5">{formatPrice(p.price)}</span>
-                    <p className="text-[10px] text-foreground/45 mt-2 italic">🪵 {p.wood} | 🧵 {p.fabric}</p>
+                    <p className="text-xs md:text-[10px] text-foreground/45 mt-2 italic">🪵 {p.wood} | 🧵 {p.fabric}</p>
                   </div>
 
                   <div className="flex gap-3 pt-6 border-t border-foreground/5 mt-5">
                     <button 
                       onClick={() => handleOpenEditProduct(p)}
-                      className="flex-1 py-2.5 bg-foreground/5 hover:bg-brand-gold hover:text-black rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors flex items-center justify-center gap-1.5"
+                      className="flex-1 py-3.5 md:py-2.5 bg-foreground/5 hover:bg-brand-gold hover:text-black rounded-lg text-[10px] md:text-[9px] font-black uppercase tracking-widest transition-colors flex items-center justify-center gap-1.5"
                     >
                       <Edit3 className="w-3.5 h-3.5" /> Tahrirlash
                     </button>
                     <button 
                       onClick={() => handleDeleteProduct(p.id)}
-                      className="p-2.5 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-colors"
+                      className="p-3.5 md:p-2.5 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-colors"
                       aria-label="Delete product"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -441,13 +446,13 @@ export const Admin = () => {
                   <div key={o.id} className="bento-card p-6 flex flex-col md:flex-row items-center justify-between gap-6 border-l-4 border-l-brand-gold">
                     <div className="space-y-2 text-center md:text-left">
                       <div className="flex flex-wrap justify-center md:justify-start items-center gap-3">
-                        <span className="text-[9px] font-black uppercase tracking-widest text-brand-gold">ID: {o.id}</span>
-                        <span className="px-3 py-1 bg-brand-gold/10 border border-brand-gold/25 rounded-full text-[9px] font-bold text-brand-gold uppercase tracking-wider">
+                        <span className="text-[11px] md:text-[9px] font-black uppercase tracking-widest text-brand-gold">ID: {o.id}</span>
+                        <span className="px-3 py-1 bg-brand-gold/10 border border-brand-gold/25 rounded-full text-[11px] md:text-[9px] font-bold text-brand-gold uppercase tracking-wider">
                           {getStatusLabel(o.status)}
                         </span>
                         {o.paymentStatus && (
                           <span className={cn(
-                            "px-3 py-1 border rounded-full text-[9px] font-bold uppercase tracking-wider",
+                            "px-3 py-1 border rounded-full text-[11px] md:text-[9px] font-bold uppercase tracking-wider",
                             o.paymentStatus === 'paid' ? "bg-green-500/10 border-green-500/25 text-green-500" : "bg-orange-500/10 border-orange-500/25 text-orange-500"
                           )}>
                             {o.paymentStatus === 'paid' ? 'To\'langan' : 'To\'lov kutilmoqda'}
@@ -455,10 +460,10 @@ export const Admin = () => {
                         )}
                       </div>
                       <h3 className="text-lg font-bold text-foreground">{itemNames}</h3>
-                      <p className="text-[10px] text-foreground/45 font-light">
-                        Mijoz: <strong className="text-foreground">{o.client}</strong> | 📞 {o.phone || 'N/A'} | Manzil: <span className="italic text-foreground/60">{o.address || 'N/A'}</span>
+                      <p className="text-xs md:text-[10px] text-foreground/60 md:text-foreground/45 font-normal md:font-light">
+                        Mijoz: <strong className="text-foreground">{o.client}</strong> | 📞 {o.phone ? <a href={`tel:${o.phone}`} className="text-foreground underline underline-offset-2">{o.phone}</a> : 'N/A'} | Manzil: <span className="italic text-foreground/60">{o.address || 'N/A'}</span>
                       </p>
-                      <p className="text-[10px] text-foreground/45 font-light">
+                      <p className="text-xs md:text-[10px] text-foreground/60 md:text-foreground/45 font-normal md:font-light">
                         Parametr: <strong className="text-foreground">{wood}</strong> & <strong className="text-foreground">{fabric}</strong>
                       </p>
                     </div>
@@ -473,7 +478,7 @@ export const Admin = () => {
                         type="button"
                         onClick={() => advanceOrderStatus(o)}
                         disabled={isCompleted || updatingOrderId === o.id}
-                        className="px-5 py-3.5 bg-foreground/5 hover:bg-brand-gold hover:text-black rounded-xl text-[9px] font-black uppercase tracking-hero transition-all flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-foreground/5 disabled:hover:text-foreground"
+                        className="px-5 py-4 md:py-3.5 bg-foreground/5 hover:bg-brand-gold hover:text-black rounded-xl text-[11px] md:text-[9px] font-black uppercase tracking-widest md:tracking-hero transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-foreground/5 disabled:hover:text-foreground"
                       >
                         {isCompleted ? '✅ Yakunlangan' : updatingOrderId === o.id ? 'Saqlanmoqda...' : '🔄 Keyingi Bosqich'}
                       </button>
@@ -487,9 +492,10 @@ export const Admin = () => {
       </AnimatePresence>
 
       {/* Edit/Create Product Modal Dialog */}
-      <AnimatePresence>
+      {createPortal(
+        <AnimatePresence>
         {isProductModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 py-4 overscroll-contain">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -502,11 +508,12 @@ export const Admin = () => {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="bg-background border border-foreground/5 rounded-[2.2rem] w-full max-w-xl p-8 relative z-10 shadow-2xl"
+              className="bg-background border border-foreground/5 rounded-[2.2rem] w-full max-w-xl p-6 sm:p-8 relative z-10 shadow-2xl max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain"
             >
               <button 
                 onClick={() => setIsProductModalOpen(false)}
-                className="absolute right-6 top-6 p-2 rounded-full hover:bg-foreground/5 transition-colors text-foreground"
+                className="absolute right-4 top-4 md:right-6 md:top-6 p-3 md:p-2 rounded-full hover:bg-foreground/5 transition-colors text-foreground"
+                aria-label="Yopish"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -517,7 +524,7 @@ export const Admin = () => {
 
               <form onSubmit={handleSaveProduct} className="space-y-5">
                 <div>
-                  <label className="text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">Mebel nomi</label>
+                  <label className="text-[11px] md:text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">Mebel nomi</label>
                   <input 
                     required
                     type="text" 
@@ -528,19 +535,22 @@ export const Admin = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">Narxi (UZS)</label>
+                    <label className="text-[11px] md:text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">Narxi (UZS)</label>
                     <input 
                       required
-                      type="number" 
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      step={1000}
                       value={productForm.price}
                       onChange={(e) => setProductForm({...productForm, price: Number(e.target.value)})}
                       className="bg-foreground/5 border border-foreground/15 focus:border-brand-gold rounded-xl px-4 py-3 text-xs outline-none w-full transition-all text-foreground font-bold"
                     />
                   </div>
                   <div>
-                    <label className="text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">Kategoriya</label>
+                    <label className="text-[11px] md:text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">Kategoriya</label>
                     <CustomSelect 
                       value={productForm.category}
                       onChange={(value) => setProductForm({...productForm, category: value})}
@@ -555,9 +565,9 @@ export const Admin = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">Standart Yog'och</label>
+                    <label className="text-[11px] md:text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">Standart Yog'och</label>
                     <input 
                       required
                       type="text" 
@@ -568,7 +578,7 @@ export const Admin = () => {
                     />
                   </div>
                   <div>
-                    <label className="text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">Qoplama matosi</label>
+                    <label className="text-[11px] md:text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">Qoplama matosi</label>
                     <input 
                       required
                       type="text" 
@@ -581,10 +591,15 @@ export const Admin = () => {
                 </div>
 
                 <div>
-                  <label className="text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">Rasm havolasi (URL)</label>
+                  <label className="text-[11px] md:text-[9px] font-black uppercase tracking-widest text-foreground/45 mb-2 block ml-2">Rasm havolasi (URL)</label>
                   <input 
                     required
-                    type="text" 
+                    type="url"
+                    inputMode="url"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    autoComplete="off"
+                    spellCheck={false}
                     value={productForm.image}
                     onChange={(e) => setProductForm({...productForm, image: e.target.value})}
                     className="bg-foreground/5 border border-foreground/15 focus:border-brand-gold rounded-xl px-4 py-3 text-xs outline-none w-full transition-all text-foreground resize-none"
@@ -593,7 +608,7 @@ export const Admin = () => {
 
                 <button 
                   type="submit"
-                  className="w-full bg-brand-gold text-black py-4 rounded-xl font-extrabold text-xs uppercase tracking-hero hover:scale-102 shadow-xl shadow-brand-gold/15 flex items-center justify-center gap-2"
+                  className="w-full bg-brand-gold text-black py-4 rounded-xl font-extrabold text-xs uppercase tracking-hero md:hover:scale-102 active:scale-[0.98] shadow-xl shadow-brand-gold/15 flex items-center justify-center gap-2"
                 >
                   <Save className="w-4 h-4" /> Mebelni Saqlash
                 </button>
@@ -601,7 +616,9 @@ export const Admin = () => {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 };

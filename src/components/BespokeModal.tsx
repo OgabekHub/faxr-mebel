@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, ArrowRight, ArrowLeft, Ruler, Sparkles, Send, ShieldCheck, CheckCircle2, MessageSquareCode } from 'lucide-react';
@@ -6,6 +6,7 @@ import { formatPrice } from '../lib/utils';
 import { createPortal } from 'react-dom';
 import { postNotify } from '../services/notify';
 import { isValidUzPhone } from '../lib/validation';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 const BESPOKE_FORM_ID = 'bespoke-order-form';
 
@@ -38,6 +39,9 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
   const [submittedOrderId, setSubmittedOrderId] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
 
+  // Top of the current step: scrolled back into view when the step changes on phones.
+  const stepTopRef = useRef<HTMLDivElement>(null);
+
   // Reset modal state on open
   useEffect(() => {
     if (isOpen) {
@@ -56,6 +60,25 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
     }
   }, [isOpen]);
 
+  useBodyScrollLock(isOpen);
+
+  // Android Back closes the sheet instead of discarding the whole configuration.
+  // Trade-off: closing with X leaves the pushed entry, so the next Back is a no-op here.
+  useEffect(() => {
+    if (!isOpen) return;
+    window.history.pushState({ modal: 'bespoke' }, '');
+    const onPop = () => onClose();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('popstate', onPop);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('popstate', onPop);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [isOpen, onClose]);
+
   // Calculate customized premium markup price based on volume
   const volumeMultiplier = (length * width) / 25000;
   const rawPrice = product.price * (volumeMultiplier < 1 ? 1 : volumeMultiplier);
@@ -63,8 +86,21 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
   const fabricPremium = fabric === 'leather' ? 1.25 : 1.0;
   const finalPrice = Math.round(rawPrice * woodPremium * fabricPremium);
 
-  const handleNext = () => setStep(step + 1);
-  const handlePrev = () => setStep(step - 1);
+  // On phones the sheet keeps the old scroll position when the step changes.
+  const scrollToStep = () => {
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      requestAnimationFrame(() => stepTopRef.current?.scrollIntoView({ block: 'start' }));
+    }
+  };
+
+  const handleNext = () => {
+    setStep(step + 1);
+    scrollToStep();
+  };
+  const handlePrev = () => {
+    setStep(step - 1);
+    scrollToStep();
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,7 +149,7 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-4 bg-black/85 backdrop-blur-md"
+          className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-4 bg-black/85 md:backdrop-blur-md"
         >
           {/* Main Modal Container */}
           <motion.div
@@ -121,46 +157,57 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.95, y: 20 }}
             transition={{ type: 'spring', damping: 25 }}
-            className="w-full max-w-4xl h-full md:h-auto md:max-h-[90vh] overflow-y-auto overflow-x-hidden bg-background border-0 md:border border-foreground/10 rounded-none md:rounded-[3rem] shadow-2xl relative"
+            className="w-full max-w-4xl h-full md:h-auto md:max-h-[90vh] overflow-y-auto overflow-x-hidden overscroll-contain bg-background border-0 md:border border-foreground/10 rounded-none md:rounded-[3rem] shadow-2xl relative"
           >
+            {/* Phone-only close control: stays above the fold in the form, submitting and success states. */}
+            <div className="md:hidden sticky top-0 z-30 flex justify-end px-4 pt-safe pb-2 bg-background/90 backdrop-blur-sm">
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Yopish"
+                className="w-11 h-11 rounded-full bg-foreground/8 border border-foreground/10 flex items-center justify-center text-foreground"
+              >
+                <X className="w-4 h-4" aria-hidden="true" />
+              </button>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-12 min-h-screen md:min-h-[500px]">
+            <div className="grid grid-cols-1 md:grid-cols-12 min-h-full md:min-h-[500px]">
               
               {/* Left Column: Live Bespoke Product Overview */}
-              <div className="md:col-span-5 bg-foreground/5 border-b md:border-b-0 md:border-r border-foreground/10 p-8 flex flex-col justify-between">
+              <div className="md:col-span-5 bg-foreground/5 border-b md:border-b-0 md:border-r border-foreground/10 p-5 md:p-8 flex flex-col justify-between">
                 <div>
                   <span className="text-brand-gold uppercase tracking-hero text-[10px] font-black block">Concierge Desk</span>
                   <h3 className="text-2xl font-editorial-title font-bold mt-2">{t('product.' + product.id + '.name')}</h3>
                   <p className="text-[9px] text-foreground/45 uppercase tracking-hero font-extrabold mt-1">Bespoke Manufacturing</p>
                   
-                  <div className="relative mt-8 group">
+                  <div className="relative mt-5 md:mt-8 group">
                     <div className="absolute inset-0 bg-brand-gold/5 rounded-3xl blur-2xl group-hover:scale-105" />
                     <img 
                       src={product.image} 
                       alt={product.name} 
-                      className="w-full h-48 object-contain rounded-2xl drop-shadow-[0_20px_20px_rgba(0,0,0,0.15)] filter brightness-95" 
+                      className="w-full h-36 md:h-48 object-contain rounded-2xl drop-shadow-[0_20px_20px_rgba(0,0,0,0.15)] filter brightness-95" 
                     />
                   </div>
                 </div>
 
                 <div className="space-y-4 pt-6 border-t border-foreground/5">
-                  <div className="flex justify-between items-center text-[10px] uppercase font-bold text-foreground/45 tracking-wider">
+                  <div className="flex justify-between items-center text-[11px] md:text-[10px] uppercase font-bold text-foreground/45 tracking-wider">
                     <span>O'lcham:</span>
                     <span className="text-foreground">{length}cm x {width}cm</span>
                   </div>
-                  <div className="flex justify-between items-center text-[10px] uppercase font-bold text-foreground/45 tracking-wider">
+                  <div className="flex justify-between items-center text-[11px] md:text-[10px] uppercase font-bold text-foreground/45 tracking-wider">
                     <span>Daraxt / Matosi:</span>
                     <span className="text-brand-gold">{wood.toUpperCase()} / {fabric.toUpperCase()}</span>
                   </div>
                   <div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-1 border-t border-foreground/10 pt-4">
-                    <span className="text-[10px] uppercase font-black tracking-widest text-foreground whitespace-nowrap">{t('shop.modal.totalPrice')}:</span>
+                    <span className="text-[11px] md:text-[10px] uppercase font-black tracking-widest text-foreground whitespace-nowrap">{t('shop.modal.totalPrice')}:</span>
                     <span className="price-tag text-xl font-bold whitespace-nowrap">{formatPrice(finalPrice)}</span>
                   </div>
                 </div>
               </div>
 
               {/* Right Column: Multi-Step Interactive Form */}
-              <div className="md:col-span-7 p-8 flex flex-col justify-between">
+              <div className="md:col-span-7 p-5 pb-safe md:p-8 md:pb-8 flex flex-col justify-between">
                 
                 {/* Steps Header indicator & Close Button */}
                 {!submitted && (
@@ -174,7 +221,7 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
                           }`} 
                         />
                       ))}
-                      <span className="text-[9px] uppercase font-black text-foreground/45 tracking-widest ml-auto">
+                      <span className="text-[11px] md:text-[9px] uppercase font-black text-foreground/45 tracking-widest ml-auto">
                         Step {step} of 3
                       </span>
                     </div>
@@ -183,7 +230,7 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
                       type="button"
                       onClick={onClose}
                       aria-label="Yopish"
-                      className="shrink-0 w-9 h-9 rounded-full bg-foreground/8 hover:bg-foreground/15 flex items-center justify-center border border-foreground/10 text-foreground"
+                      className="shrink-0 w-9 h-9 rounded-full bg-foreground/8 hover:bg-foreground/15 hidden md:flex items-center justify-center border border-foreground/10 text-foreground"
                     >
                       <X className="w-4 h-4" aria-hidden="true" />
                     </button>
@@ -202,7 +249,7 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
                       <MessageSquareCode className="w-6 h-6 text-brand-gold animate-bounce" aria-hidden="true" />
                     </div>
                     <h3 className="text-xl font-editorial-title font-bold">Xavfsiz hisob-faktura shakllanmoqda...</h3>
-                    <p className="text-[10px] text-foreground/45 uppercase tracking-hero mt-2">Menejerlar bilan bog'lanish va Telegram xabarnomasi yuborilmoqda</p>
+                    <p className="text-[11px] tracking-widest md:text-[10px] md:tracking-hero text-foreground/45 uppercase mt-2">Menejerlar bilan bog'lanish va Telegram xabarnomasi yuborilmoqda</p>
                   </div>
                 )}
 
@@ -221,36 +268,36 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
 
                     {/* Premium VIP Receipt */}
                     <div className="bg-foreground/[0.03] border border-foreground/5 rounded-[2rem] p-6 relative">
-                      <div className="flex justify-between items-center mb-4 pb-3 border-b border-foreground/5">
+                      <div className="flex flex-wrap justify-between items-center gap-2 mb-4 pb-3 border-b border-foreground/5">
                         <span className="text-[10px] uppercase font-black tracking-widest text-brand-gold">VIP Buyurtma Tafsilotlari</span>
-                        <span className="text-[8px] uppercase tracking-widest font-black bg-brand-gold/10 text-brand-gold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                        <span className="text-[10px] md:text-[8px] uppercase tracking-widest font-black bg-brand-gold/10 text-brand-gold px-2.5 py-0.5 rounded-full flex items-center gap-1">
                           <span className="w-1 h-1 bg-brand-gold rounded-full animate-pulse"></span>
                           Yuborildi
                         </span>
                       </div>
 
                       <div className="space-y-3 text-[11px] leading-relaxed">
-                        <div className="flex justify-between">
+                        <div className="flex justify-between gap-4">
                           <span className="text-foreground/45 uppercase tracking-wider font-semibold">Buyurtma ID</span>
-                          <span className="text-foreground font-mono font-bold">{submittedOrderId}</span>
+                          <span className="text-foreground font-mono font-bold text-right min-w-0 break-words">{submittedOrderId}</span>
                         </div>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between gap-4">
                           <span className="text-foreground/45 uppercase tracking-wider font-semibold">O'lchamlar</span>
-                          <span className="text-foreground font-bold">{length}cm x {width}cm</span>
+                          <span className="text-foreground font-bold text-right min-w-0 break-words">{length}cm x {width}cm</span>
                         </div>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between gap-4">
                           <span className="text-foreground/45 uppercase tracking-wider font-semibold">Yog'och / Mato</span>
-                          <span className="text-foreground font-bold uppercase">{wood.toUpperCase()} / {fabric.toUpperCase()}</span>
+                          <span className="text-foreground font-bold uppercase text-right min-w-0 break-words">{wood.toUpperCase()} / {fabric.toUpperCase()}</span>
                         </div>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between gap-4">
                           <span className="text-foreground/45 uppercase tracking-wider font-semibold">Mijoz</span>
-                          <span className="text-foreground font-bold">{userName}</span>
+                          <span className="text-foreground font-bold text-right min-w-0 break-words">{userName}</span>
                         </div>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between gap-4">
                           <span className="text-foreground/45 uppercase tracking-wider font-semibold">Telefon</span>
-                          <span className="text-foreground font-bold">{userPhone}</span>
+                          <span className="text-foreground font-bold text-right min-w-0 break-words">{userPhone}</span>
                         </div>
-                        <div className="pt-3 border-t border-dashed border-foreground/10 flex justify-between items-end">
+                        <div className="pt-3 border-t border-dashed border-foreground/10 flex justify-between items-end gap-4">
                           <span className="text-[10px] uppercase font-black tracking-widest text-foreground">Jami qiymati:</span>
                           <span className="text-base font-editorial-title gold-foil-text font-bold">{formatPrice(finalPrice)}</span>
                         </div>
@@ -260,7 +307,7 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
                     <button
                       type="button"
                       onClick={onClose}
-                      className="w-full py-4 bg-brand-gold text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-gold-muted mt-6 shadow-xl shadow-brand-gold/15"
+                      className="w-full py-4 bg-brand-gold text-black rounded-2xl text-[11px] md:text-[10px] font-black uppercase tracking-widest hover:bg-brand-gold-muted mt-6 shadow-xl shadow-brand-gold/15"
                     >
                       Yopish
                     </button>
@@ -269,17 +316,17 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
 
                 {/* Multi-step Form Views */}
                 {!submitted && !isSubmitting && (
-                  <div className="flex-1 flex flex-col justify-between">
+                  <div ref={stepTopRef} className="flex-1 flex flex-col justify-between">
                     
                     {/* Step 1: Dimensions */}
                     {step === 1 && (
                       <div className="space-y-8 py-4">
                         <div>
-                          <h4 className="text-lg font-bold flex items-center gap-2">
-                            <Ruler className="w-5 h-5 text-brand-gold" />
+                          <h4 className="text-lg font-bold flex items-start md:items-center gap-2">
+                            <Ruler className="w-5 h-5 shrink-0 mt-0.5 md:mt-0 text-brand-gold" />
                             Mebel O'lchamlarini Kiriting
                           </h4>
-                          <p className="text-[10px] text-foreground/50 mt-1.5 font-light">Xonangizga mos keladigan uzunlik va kengliklarni belgilang. Biz mebelni uyingiz sharoitidan kelib chiqib aniq tayyorlaymiz.</p>
+                          <p className="text-xs md:text-[10px] text-foreground/50 mt-1.5 font-normal md:font-light">Xonangizga mos keladigan uzunlik va kengliklarni belgilang. Biz mebelni uyingiz sharoitidan kelib chiqib aniq tayyorlaymiz.</p>
                         </div>
 
                         {/* Length Slider */}
@@ -320,17 +367,17 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
                     {step === 2 && (
                       <div className="space-y-8 py-4">
                         <div>
-                          <h4 className="text-lg font-bold flex items-center gap-2">
-                            <Sparkles className="w-5 h-5 text-brand-gold" />
+                          <h4 className="text-lg font-bold flex items-start md:items-center gap-2">
+                            <Sparkles className="w-5 h-5 shrink-0 mt-0.5 md:mt-0 text-brand-gold" />
                             Premium Materiallar Tanlovi
                           </h4>
-                          <p className="text-[10px] text-foreground/50 mt-1.5 font-light">Mebelingizning yog'och ramkasi va qoplama matosi turini tanlang. Oliy navli materiallarimiz narxda kichik farq qilishi mumkin.</p>
+                          <p className="text-xs md:text-[10px] text-foreground/50 mt-1.5 font-normal md:font-light">Mebelingizning yog'och ramkasi va qoplama matosi turini tanlang. Oliy navli materiallarimiz narxda kichik farq qilishi mumkin.</p>
                         </div>
 
                         {/* Wood selection */}
                         <div className="space-y-3">
-                          <label className="text-[9px] uppercase font-black tracking-widest text-foreground/55 block">Premium Daraxt Turi</label>
-                          <div className="grid grid-cols-3 gap-3">
+                          <label className="text-[11px] md:text-[9px] uppercase font-black tracking-widest text-foreground/55 block">Premium Daraxt Turi</label>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                             {[
                               { id: 'walnut', name: "Walnut (Yong'oq)", markup: "+15%" },
                               { id: 'oak', name: "Oak (Eman)", markup: "+10%" },
@@ -340,14 +387,14 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
                                 key={w.id}
                                 type="button"
                                 onClick={() => setWood(w.id)}
-                                className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between min-h-[90px] ${
-                                  wood === w.id 
+                                className={`p-3 md:p-4 rounded-2xl border text-left transition-all flex flex-col justify-between min-h-[90px] ${
+                                  wood === w.id
                                     ? 'border-brand-gold bg-brand-gold/5 shadow-md' 
                                     : 'border-foreground/10 hover:border-foreground/20 bg-foreground/5'
                                 }`}
                               >
-                                <span className="text-[10px] font-bold text-foreground leading-tight">{w.name}</span>
-                                <span className="text-[8px] uppercase tracking-widest font-black text-brand-gold mt-2">{w.markup}</span>
+                                <span className="text-[11px] md:text-[10px] font-bold text-foreground leading-tight">{w.name}</span>
+                                <span className="text-[10px] md:text-[8px] uppercase tracking-widest font-black text-brand-gold mt-2">{w.markup}</span>
                               </button>
                             ))}
                           </div>
@@ -355,8 +402,8 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
 
                         {/* Fabric selection */}
                         <div className="space-y-3">
-                          <label className="text-[9px] uppercase font-black tracking-widest text-foreground/55 block">Hashamatli Qoplama Matosi</label>
-                          <div className="grid grid-cols-2 gap-3">
+                          <label className="text-[11px] md:text-[9px] uppercase font-black tracking-widest text-foreground/55 block">Hashamatli Qoplama Matosi</label>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {[
                               { id: 'velvet', name: "Italiya Baxmali (Velvet)", desc: "Suvga chidamli yumshoq mato" },
                               { id: 'leather', name: "Toza Charm (Leather) (+25%)", desc: "Premium darajadagi tabiiy charm" }
@@ -371,8 +418,8 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
                                     : 'border-foreground/10 hover:border-foreground/20 bg-foreground/5'
                                 }`}
                               >
-                                <span className="text-[10px] font-bold text-foreground leading-tight">{f.name}</span>
-                                <span className="text-[8px] text-foreground/45 font-medium italic mt-2 leading-snug">{f.desc}</span>
+                                <span className="text-[11px] md:text-[10px] font-bold text-foreground leading-tight">{f.name}</span>
+                                <span className="text-[11px] md:text-[8px] text-foreground/45 font-medium italic mt-2 leading-snug">{f.desc}</span>
                               </button>
                             ))}
                           </div>
@@ -384,15 +431,15 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
                     {step === 3 && (
                       <form id={BESPOKE_FORM_ID} onSubmit={handleSubmit} className="space-y-6 py-4">
                         <div>
-                          <h4 className="text-lg font-bold flex items-center gap-2">
-                            <ShieldCheck className="w-5 h-5 text-brand-gold" />
+                          <h4 className="text-lg font-bold flex items-start md:items-center gap-2">
+                            <ShieldCheck className="w-5 h-5 shrink-0 mt-0.5 md:mt-0 text-brand-gold" />
                             Bog'lanish va Yetkazish Shartlari
                           </h4>
-                          <p className="text-[10px] text-foreground/50 mt-1.5 font-light">Biz Toshkent shahrida bepul va o'ta ehtiyotkorona Luxe transport xizmati (o'rnatish bilan birga) hamda standart formatlarni taklif etamiz.</p>
+                          <p className="text-xs md:text-[10px] text-foreground/50 mt-1.5 font-normal md:font-light">Biz Toshkent shahrida bepul va o'ta ehtiyotkorona Luxe transport xizmati (o'rnatish bilan birga) hamda standart formatlarni taklif etamiz.</p>
                         </div>
 
                         {/* Service tier selector */}
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           {[
                             { id: 'luxe', title: "Luxe Concierge Delivery", desc: "Bepul yuklash, yetkazish va xonangizga o'rnatib berish." },
                             { id: 'standard', title: "Standard Delivery", desc: "Klassik tashuv va eshikkacha yetkazib berish xizmati." }
@@ -407,8 +454,8 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
                                   : 'border-foreground/10 hover:border-foreground/20 bg-foreground/5'
                                 }`}
                             >
-                              <span className="text-[10px] font-bold text-foreground leading-tight">{d.title}</span>
-                              <span className="text-[8px] text-foreground/45 mt-2 font-medium leading-relaxed">{d.desc}</span>
+                              <span className="text-[11px] md:text-[10px] font-bold text-foreground leading-tight">{d.title}</span>
+                              <span className="text-[11px] md:text-[8px] text-foreground/45 mt-2 font-medium leading-relaxed">{d.desc}</span>
                             </button>
                           ))}
                         </div>
@@ -416,10 +463,11 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
                         {/* Name and Phone Inputs */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <label htmlFor="bespoke-name" className="text-[9px] uppercase font-black tracking-widest text-foreground/55">{t('contact.form.label.name')}</label>
+                            <label htmlFor="bespoke-name" className="text-[11px] md:text-[9px] uppercase font-black tracking-widest text-foreground/55">{t('contact.form.label.name')}</label>
                             <input
                               id="bespoke-name"
                               type="text"
+                              autoComplete="name"
                               required
                               maxLength={100}
                               placeholder={t('contact.form.placeholder.name')}
@@ -430,10 +478,12 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
                           </div>
 
                           <div className="space-y-2">
-                            <label htmlFor="bespoke-phone" className="text-[9px] uppercase font-black tracking-widest text-foreground/55">{t('contact.form.label.phone')}</label>
+                            <label htmlFor="bespoke-phone" className="text-[11px] md:text-[9px] uppercase font-black tracking-widest text-foreground/55">{t('contact.form.label.phone')}</label>
                             <input
                               id="bespoke-phone"
                               type="tel"
+                              autoComplete="tel"
+                              enterKeyHint="send"
                               required
                               maxLength={30}
                               placeholder={t('contact.form.placeholder.phone')}
@@ -454,12 +504,12 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
                     )}
 
                     {/* Navigation Buttons */}
-                    <div className="flex gap-4 border-t border-foreground/10 pt-6 mt-6">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 border-t border-foreground/10 pt-6 mt-6">
                       {step > 1 && (
                         <button
                           type="button"
                           onClick={handlePrev}
-                          className="px-6 py-4 bg-foreground/5 border border-foreground/10 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-foreground/10 flex items-center gap-2 text-foreground"
+                          className="px-6 py-4 bg-foreground/5 border border-foreground/10 rounded-2xl text-[11px] md:text-[10px] font-black uppercase tracking-widest hover:bg-foreground/10 flex items-center justify-center sm:justify-start gap-2 text-foreground"
                         >
                           <ArrowLeft className="w-4 h-4" aria-hidden="true" />
                           Orqaga
@@ -470,7 +520,7 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
                         <button
                           type="button"
                           onClick={handleNext}
-                          className="flex-1 py-4 bg-brand-gold text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-gold-muted flex items-center justify-center gap-2 shadow-xl shadow-brand-gold/15"
+                          className="flex-1 py-4 bg-brand-gold text-black rounded-2xl text-[11px] md:text-[10px] font-black uppercase tracking-widest hover:bg-brand-gold-muted flex items-center justify-center gap-2 shadow-xl shadow-brand-gold/15"
                         >
                           Davom etish
                           <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -481,7 +531,7 @@ export const BespokeModal: React.FC<BespokeModalProps> = ({ isOpen, onClose, pro
                           type="submit"
                           form={BESPOKE_FORM_ID}
                           disabled={!userName.trim() || !userPhone.trim()}
-                          className="flex-1 py-4 bg-brand-gold text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-gold-muted flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-brand-gold/15"
+                          className="flex-1 py-4 bg-brand-gold text-black rounded-2xl text-[11px] md:text-[10px] font-black uppercase tracking-widest hover:bg-brand-gold-muted flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-brand-gold/15"
                         >
                           Tugatish va Buyurtmani Yuborish
                           <Send className="w-4 h-4" aria-hidden="true" />

@@ -2,10 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Smartphone, Check, ExternalLink, RotateCcw, Info, AlertCircle } from 'lucide-react';
 import { createPortal } from 'react-dom';
+import { Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import type { ModelViewerElement } from '../types/model-viewer';
 import { useModelViewer } from '../hooks/useModelViewer';
 import { site } from '../config/site';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 interface ARModalProps {
   isOpen: boolean;
@@ -40,7 +42,31 @@ export const ARModal: React.FC<ARModalProps> = ({
     }
   }, [isOpen]);
 
+  // Android Back closes the sheet instead of popping the router and leaving it over a new page.
+  useEffect(() => {
+    if (!isOpen) return;
+    window.history.pushState({ arModal: true }, '');
+    const onPop = () => onClose();
+    window.addEventListener('popstate', onPop);
+    return () => {
+      window.removeEventListener('popstate', onPop);
+      if (window.history.state?.arModal) window.history.back();
+    };
+  }, [isOpen]);
+
+  // Escape closes the sheet.
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen]);
+
   useEffect(() => () => clearTimeout(copyTimer.current), []);
+
+  useBodyScrollLock(isOpen);
 
   // Native listeners on the custom element: React's onLoad is not fired by <model-viewer>.
   useEffect(() => {
@@ -91,7 +117,7 @@ export const ARModal: React.FC<ARModalProps> = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-4 bg-black/85 backdrop-blur-md"
+          className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-4 bg-black/85 md:backdrop-blur-md"
         >
           {/* Main Modal Container */}
           <motion.div
@@ -99,11 +125,14 @@ export const ARModal: React.FC<ARModalProps> = ({
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.95, y: 20 }}
             transition={{ type: 'spring', damping: 25 }}
-            className="w-full max-w-4xl h-full md:h-auto md:max-h-[90vh] overflow-y-auto overflow-x-hidden bg-background border-0 md:border border-foreground/10 rounded-none md:rounded-[3rem] shadow-2xl relative"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Kengaytirilgan Borliq"
+            className="w-full max-w-4xl h-full md:h-auto md:max-h-[90vh] overflow-y-auto overflow-x-hidden overscroll-contain bg-background border-0 md:border border-foreground/10 rounded-none md:rounded-[3rem] shadow-2xl relative"
           >
 
 
-            <div className="grid grid-cols-1 md:grid-cols-12 min-h-screen md:min-h-[500px]">
+            <div className="grid grid-cols-1 md:grid-cols-12 min-h-full md:min-h-[500px]">
 
               {/* Left Side: 3D Model Viewer */}
               <div className="md:col-span-7 bg-[#0A0A0A] relative flex flex-col overflow-hidden min-h-[360px] md:min-h-[500px]">
@@ -116,7 +145,7 @@ export const ARModal: React.FC<ARModalProps> = ({
                       transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }}
                       className="w-10 h-10 border-2 border-brand-gold/20 border-t-brand-gold rounded-full mb-4 shadow-[0_0_15px_rgba(197,160,89,0.3)]"
                     />
-                    <p className="text-[8px] uppercase tracking-[0.3em] text-white/60 font-black drop-shadow-md">
+                    <p className="text-[11px] md:text-[8px] uppercase tracking-[0.3em] text-white/60 font-black drop-shadow-md">
                       3D Model yuklanmoqda...
                     </p>
                   </div>
@@ -126,13 +155,13 @@ export const ARModal: React.FC<ARModalProps> = ({
                 {showError && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-[#0A0A0A]/80 backdrop-blur-sm text-center px-8">
                     <AlertCircle className="w-8 h-8 text-amber-400 mb-3" aria-hidden="true" />
-                    <p className="text-[10px] uppercase tracking-widest text-white/70 font-black mb-4">
+                    <p className="text-xs md:text-[10px] uppercase tracking-widest text-white/70 font-black mb-4">
                       3D modelni yuklab bo'lmadi
                     </p>
                     <button
                       type="button"
                       onClick={handleRetry}
-                      className="px-5 py-2.5 bg-brand-gold text-black rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-brand-gold-muted"
+                      className="px-6 py-3.5 min-h-11 md:min-h-0 md:px-5 md:py-2.5 bg-brand-gold text-black rounded-xl text-[11px] md:text-[9px] font-black uppercase tracking-widest hover:bg-brand-gold-muted active:bg-brand-gold-muted"
                     >
                       Qayta urinish
                     </button>
@@ -167,10 +196,10 @@ export const ARModal: React.FC<ARModalProps> = ({
                 )}
 
                 {/* Top overlay badges */}
-                <div className="absolute top-5 left-5 z-10 flex items-center gap-2 pointer-events-none">
+                <div className="absolute top-[max(1.25rem,env(safe-area-inset-top))] md:top-5 left-5 z-10 flex items-center gap-2 pointer-events-none">
                   <div className="px-3 py-1.5 rounded-full bg-black/60 border border-white/10 backdrop-blur flex items-center gap-2 text-white">
                     <span className="w-2 h-2 rounded-full bg-brand-gold animate-pulse" />
-                    <span className="text-[8px] uppercase tracking-[0.25em] font-black">3D LIVE VIEW</span>
+                    <span className="text-[10px] md:text-[8px] uppercase tracking-[0.25em] font-black">3D LIVE VIEW</span>
                   </div>
                 </div>
 
@@ -181,18 +210,18 @@ export const ARModal: React.FC<ARModalProps> = ({
                     animate={{ opacity: 1 }}
                     className="absolute bottom-4 left-4 right-4 pointer-events-none"
                   >
-                    <div className="flex items-center justify-center gap-3 text-white/25">
-                      <span className="text-[7px] uppercase tracking-widest font-bold">↕ Kattalashtirish</span>
+                    <div className="flex items-center justify-center gap-3 text-white/60 md:text-white/25">
+                      <span className="text-[10px] md:text-[7px] uppercase tracking-widest font-bold">Pinch — Kattalashtirish</span>
                       <span className="w-px h-2.5 bg-white/10" />
                       <RotateCcw className="w-2.5 h-2.5" aria-hidden="true" />
-                      <span className="text-[7px] uppercase tracking-widest font-bold">Aylantirish</span>
+                      <span className="text-[10px] md:text-[7px] uppercase tracking-widest font-bold">Aylantirish</span>
                     </div>
                   </motion.div>
                 )}
               </div>
 
               {/* Right Side: QR Code + Info */}
-              <div className="md:col-span-5 p-7 flex flex-col justify-between">
+              <div className="md:col-span-5 p-7 pb-[max(1.75rem,env(safe-area-inset-bottom))] md:pb-7 flex flex-col justify-between">
                 <div>
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -208,18 +237,21 @@ export const ARModal: React.FC<ARModalProps> = ({
                       type="button"
                       onClick={onClose}
                       aria-label="Yopish"
-                      className="shrink-0 w-9 h-9 rounded-full bg-foreground/8 hover:bg-foreground/15 flex items-center justify-center border border-foreground/10 text-foreground mt-1"
+                      className="shrink-0 w-11 h-11 md:w-9 md:h-9 rounded-full bg-foreground/8 hover:bg-foreground/15 active:bg-foreground/15 flex items-center justify-center border border-foreground/10 text-foreground mt-1"
                     >
                       <X className="w-4 h-4" aria-hidden="true" />
                     </button>
                   </div>
-                  <p className="text-[10px] text-foreground/45 leading-relaxed font-light mt-2">
+                  <p className="hidden md:block text-[10px] text-foreground/45 leading-relaxed font-light mt-2">
                     Telefoningiz kamerasini quyidagi QR-kodga qarating va mebelni haqiqiy xonangizga 3D formatida joylashtiring.
+                  </p>
+                  <p className="md:hidden text-xs text-foreground/70 leading-relaxed mt-2">
+                    Mebelni shu telefoningiz orqali AR rejimida o'z xonangizga joylashtiring.
                   </p>
                 </div>
 
                 {/* QR Code Section */}
-                <div className="bg-foreground/5 border border-foreground/5 rounded-[1.75rem] p-5 my-4 flex flex-col items-center gap-4 text-center">
+                <div className="bg-foreground/5 border border-foreground/5 rounded-[1.75rem] p-5 my-4 hidden md:flex flex-col items-center gap-4 text-center">
 
                   {/* QR Code */}
                   <div className="relative group">
@@ -244,31 +276,41 @@ export const ARModal: React.FC<ARModalProps> = ({
                   <div>
                     <div className="flex items-center justify-center gap-1.5 text-brand-gold">
                       <Smartphone className="w-3.5 h-3.5" aria-hidden="true" />
-                      <span className="text-[9px] uppercase font-black tracking-widest">
+                      <span className="text-[11px] md:text-[9px] uppercase font-black tracking-widest">
                         Kamerani Yaqinlashtiring
                       </span>
                     </div>
-                    <p className="text-[8px] text-foreground/35 mt-1 font-medium italic">
+                    <p className="text-[10px] md:text-[8px] text-foreground/50 md:text-foreground/35 mt-1 font-medium italic">
                       iOS & Android qurilmalarida ishlaydi
                     </p>
                   </div>
 
                   {/* Info note */}
                   <div className="flex items-start gap-2 bg-brand-gold/5 border border-brand-gold/15 rounded-xl p-2.5 text-left">
-                    <Info className="w-3 h-3 text-brand-gold shrink-0 mt-0.5" aria-hidden="true" />
-                    <p className="text-[8px] text-foreground/50 leading-relaxed">
+                    <Info className="w-3.5 h-3.5 md:w-3 md:h-3 text-brand-gold shrink-0 mt-0.5" aria-hidden="true" />
+                    <p className="text-[11px] md:text-[8px] text-foreground/60 md:text-foreground/50 leading-relaxed">
                       QR kodni skaner qilgach, "O'z xonangizda ko'ring" tugmasini bosing
                     </p>
                   </div>
                 </div>
 
                 {/* Action buttons */}
-                <div className="space-y-2.5">
+                <div className="space-y-3 md:space-y-2.5">
+                  {/* Phones cannot scan their own QR code: go straight to the AR page instead. */}
+                  <Link
+                    to={`/ar/${productId}`}
+                    onClick={onClose}
+                    className="md:hidden w-full min-h-12 py-3.5 flex items-center justify-center gap-2 bg-brand-gold text-black rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl shadow-brand-gold/15 active:bg-brand-gold-muted"
+                  >
+                    <Smartphone className="w-4 h-4" aria-hidden="true" />
+                    O'z xonangizda ko'ring
+                  </Link>
+
                   {/* Copy link */}
                   <button
                     type="button"
                     onClick={handleCopyLink}
-                    className="w-full py-3 flex items-center justify-center gap-2 bg-foreground/5 border border-foreground/10 hover:border-brand-gold/40 rounded-2xl text-[9px] font-black uppercase tracking-widest text-foreground/60 hover:text-brand-gold"
+                    className="w-full py-3 min-h-11 md:min-h-0 flex items-center justify-center gap-2 bg-foreground/5 border border-foreground/10 hover:border-brand-gold/40 active:border-brand-gold/40 rounded-2xl text-[11px] md:text-[9px] font-black uppercase tracking-widest text-foreground/60 hover:text-brand-gold active:text-brand-gold"
                   >
                     {qrCopied ? (
                       <>
@@ -287,7 +329,7 @@ export const ARModal: React.FC<ARModalProps> = ({
                   <button
                     type="button"
                     onClick={onClose}
-                    className="w-full py-3.5 bg-brand-gold text-black rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-brand-gold-muted shadow-xl shadow-brand-gold/15"
+                    className="w-full py-3.5 min-h-12 md:min-h-0 bg-brand-gold text-black rounded-2xl text-[11px] md:text-[9px] font-black uppercase tracking-widest hover:bg-brand-gold-muted active:bg-brand-gold-muted shadow-xl shadow-brand-gold/15"
                   >
                     Tushunarli / Yopish
                   </button>

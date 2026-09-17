@@ -12,20 +12,21 @@ import { BentoSpotlight } from '../components/BentoSpotlight';
 import { CustomSelect } from '../components/CustomSelect';
 import { createPortal } from 'react-dom';
 import { SEO } from '../components/SEO';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 
 // Locally hosted premium generated images and stock items
 const allProducts = [
-  { id: '1', name: 'Baby Blue Chesterfield Sofa', price: 12000000, rating: 4.9, category: 'Sofa', image: '/images/sofa_blue.png', wood: 'Oak (Eman)', fabric: 'Baby Blue Velvet', size: '280cm x 180cm x 85cm' },
-  { id: '2', name: 'Marble Dining Table Set', price: 8500000, rating: 4.8, category: 'Dining', image: '/images/sofa_brown.png', wood: 'Oak (Eman)', fabric: 'N/A', size: '220cm x 100cm x 75cm' },
-  { id: '3', name: 'Gold & Black Luxury Bedroom Set', price: 15000000, rating: 5.0, category: 'Bedroom', image: '/images/bedroom_gold_black.png', wood: 'Oak & Ebony', fabric: 'Black Tufted Velvet', size: '200cm x 220cm x 120cm' },
-  { id: '4', name: 'Beige Chesterfield Sofa', price: 13500000, rating: 4.9, category: 'Sofa', image: '/images/sofa_beige.png', wood: 'Birch (Qayrag\'och)', fabric: 'Sand Beige Velvet', size: '320cm x 200cm x 85cm' },
-  { id: '5', name: 'Modern LED TV Wall Unit', price: 9800000, rating: 4.8, category: 'Luxury Decor', image: '/images/tv_gorka_modern.png', wood: 'MDF Walnut finish', fabric: 'N/A', size: '300cm x 45cm x 210cm' },
-  { id: '6', name: 'Royal Gold TV Showcase', price: 17000000, rating: 5.0, category: 'Luxury Decor', image: '/images/tv_gorka_classic.png', wood: 'Carved Beechwood', fabric: 'Glass & Gold leaf', size: '340cm x 50cm x 230cm' },
-  { id: '7', name: 'Olive Green Glossy Kitchen', price: 24000000, rating: 4.9, category: 'Dining', image: '/images/kitchen_green.png', wood: 'MDF Gloss Lacquer', fabric: 'Black Marble Counter', size: '360cm x 60cm x 240cm' },
-  { id: '8', name: 'Modern White & Oak Kitchen', price: 21500000, rating: 4.8, category: 'Dining', image: '/images/kitchen_white_oak.png', wood: 'Natural Oak & MDF', fabric: 'White Quartz Counter', size: '320cm x 60cm x 220cm' },
-  { id: '9', name: 'Neoclassical Gold Kitchen', price: 26000000, rating: 5.0, category: 'Dining', image: '/images/kitchen_neoclassic.png', wood: 'MDF Matt lacquer & Gold', fabric: 'Black Marble Counter', size: '400cm x 60cm x 240cm' },
-  { id: '10', name: 'Contemporary Glossy Kitchen', price: 19800000, rating: 4.7, category: 'Dining', image: '/images/kitchen_glossy_white_black.png', wood: 'High Gloss Acrylic', fabric: 'Reflective Glass Backsplash', size: '300cm x 60cm x 220cm' },
+  { id: '1', name: 'Baby Blue Chesterfield Sofa', price: 12000000, rating: 4.9, category: 'Sofa', image: '/images/sofa_blue.webp', wood: 'Oak (Eman)', fabric: 'Baby Blue Velvet', size: '280cm x 180cm x 85cm' },
+  { id: '2', name: 'Marble Dining Table Set', price: 8500000, rating: 4.8, category: 'Dining', image: '/images/sofa_brown.webp', wood: 'Oak (Eman)', fabric: 'N/A', size: '220cm x 100cm x 75cm' },
+  { id: '3', name: 'Gold & Black Luxury Bedroom Set', price: 15000000, rating: 5.0, category: 'Bedroom', image: '/images/bedroom_gold_black.webp', wood: 'Oak & Ebony', fabric: 'Black Tufted Velvet', size: '200cm x 220cm x 120cm' },
+  { id: '4', name: 'Beige Chesterfield Sofa', price: 13500000, rating: 4.9, category: 'Sofa', image: '/images/sofa_beige.webp', wood: 'Birch (Qayrag\'och)', fabric: 'Sand Beige Velvet', size: '320cm x 200cm x 85cm' },
+  { id: '5', name: 'Modern LED TV Wall Unit', price: 9800000, rating: 4.8, category: 'Luxury Decor', image: '/images/tv_gorka_modern.webp', wood: 'MDF Walnut finish', fabric: 'N/A', size: '300cm x 45cm x 210cm' },
+  { id: '6', name: 'Royal Gold TV Showcase', price: 17000000, rating: 5.0, category: 'Luxury Decor', image: '/images/tv_gorka_classic.webp', wood: 'Carved Beechwood', fabric: 'Glass & Gold leaf', size: '340cm x 50cm x 230cm' },
+  { id: '7', name: 'Olive Green Glossy Kitchen', price: 24000000, rating: 4.9, category: 'Dining', image: '/images/kitchen_green.webp', wood: 'MDF Gloss Lacquer', fabric: 'Black Marble Counter', size: '360cm x 60cm x 240cm' },
+  { id: '8', name: 'Modern White & Oak Kitchen', price: 21500000, rating: 4.8, category: 'Dining', image: '/images/kitchen_white_oak.webp', wood: 'Natural Oak & MDF', fabric: 'White Quartz Counter', size: '320cm x 60cm x 220cm' },
+  { id: '9', name: 'Neoclassical Gold Kitchen', price: 26000000, rating: 5.0, category: 'Dining', image: '/images/kitchen_neoclassic.webp', wood: 'MDF Matt lacquer & Gold', fabric: 'Black Marble Counter', size: '400cm x 60cm x 240cm' },
+  { id: '10', name: 'Contemporary Glossy Kitchen', price: 19800000, rating: 4.7, category: 'Dining', image: '/images/kitchen_glossy_white_black.webp', wood: 'High Gloss Acrylic', fabric: 'Reflective Glass Backsplash', size: '300cm x 60cm x 220cm' },
 ];
 
 type ShopProduct = (typeof allProducts)[number];
@@ -60,6 +61,8 @@ export const Shop = () => {
   const toastTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => () => clearTimeout(toastTimer.current), []);
+
+  useBodyScrollLock(quickViewProduct !== null);
 
   const handleToggleWishlist = (product: ShopProduct) => {
     toggleGlobalWishlist({
@@ -108,7 +111,7 @@ export const Shop = () => {
   }, [selectedCategory, searchQuery, priceRange, showOnlyFavorites, isInWishlist, t]);
 
   return (
-    <div className="pt-36 pb-20 px-6 max-w-7xl mx-auto min-h-screen">
+    <div className="pt-32 md:pt-36 pb-20 px-4 sm:px-6 max-w-7xl mx-auto min-h-screen">
       <SEO title={t('nav.shop')} />
       
       {/* Mini notification toast */}
@@ -118,40 +121,40 @@ export const Shop = () => {
             initial={{ opacity: 0, y: -40, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -40, scale: 0.9 }}
-            className="fixed top-28 left-1/2 -translate-x-1/2 z-50 glass px-6 py-3.5 rounded-full border border-brand-gold/30 shadow-2xl flex items-center gap-3"
+            className="fixed top-28 left-1/2 -translate-x-1/2 z-50 w-max max-w-[calc(100vw-2rem)] glass px-6 py-3.5 rounded-full border border-brand-gold/30 shadow-2xl flex items-center gap-3"
           >
-            <div className="w-5 h-5 bg-brand-gold text-black rounded-full flex items-center justify-center">
+            <div className="w-5 h-5 shrink-0 bg-brand-gold text-black rounded-full flex items-center justify-center">
               <Check className="w-3.5 h-3.5" />
             </div>
-            <span className="text-xs font-bold uppercase tracking-wider text-foreground">
+            <span className="text-xs font-bold uppercase tracking-wider text-foreground text-center">
               {toastMessage}
             </span>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <header className="mb-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-8 pb-8 border-b border-foreground/5">
+      <header className="mb-10 md:mb-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 md:gap-8 pb-6 md:pb-8 border-b border-foreground/5">
         <div>
           <span className="text-brand-gold uppercase tracking-hero text-[10px] font-black block">{t('shop.hero.teaser')}</span>
           <h1 className="text-4xl md:text-6xl font-editorial-title mt-2 mb-3">
             {t('shop.hero.title')} <span className="font-bold italic gold-foil-text">{t('shop.hero.titleGold')}</span>
           </h1>
-          <p className="text-foreground/45 text-[9px] uppercase tracking-hero font-extrabold">{t('shop.hero.desc')}</p>
+          <p className="text-foreground/45 text-[11px] md:text-[9px] uppercase tracking-[0.15em] md:tracking-[0.3em] font-extrabold">{t('shop.hero.desc')}</p>
         </div>
         
         {/* Toggle Grid/List and Category Chips */}
         <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
           {/* Category Scroller */}
-          <div className="flex bg-foreground/5 border border-foreground/5 p-1 rounded-2xl overflow-x-auto w-full md:w-auto">
+          <div className="flex flex-wrap md:flex-nowrap gap-1 md:gap-0 bg-foreground/5 border border-foreground/5 p-1 rounded-2xl md:overflow-x-auto w-full md:w-auto">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
                 className={cn(
-                  "px-5 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
-                  selectedCategory === cat 
-                    ? "bg-brand-gold text-black shadow-md font-bold" 
-                    : "text-foreground/45 hover:text-foreground"
+                  "px-4 md:px-5 py-3.5 md:py-3 rounded-xl text-[11px] md:text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
+                  selectedCategory === cat
+                    ? "bg-brand-gold text-black shadow-md font-bold"
+                    : "text-foreground/60 md:text-foreground/45 hover:text-foreground"
                 )}
               >
                 {t('shop.category.' + cat)}
@@ -162,14 +165,16 @@ export const Shop = () => {
           {/* Toggle View button */}
           <div className="hidden md:flex bg-foreground/5 p-1 rounded-xl gap-1">
             <button 
-              onClick={() => setViewType('grid')} 
-              className={cn("p-2 rounded-lg transition-colors", viewType === 'grid' ? "bg-brand-gold text-black shadow" : "text-foreground/40")}
+              onClick={() => setViewType('grid')}
+              aria-label="Grid view"
+              className={cn("p-3 lg:p-2 rounded-lg transition-colors", viewType === 'grid' ? "bg-brand-gold text-black shadow" : "text-foreground/40")}
             >
               <Grid className="w-4 h-4" />
             </button>
             <button 
-              onClick={() => setViewType('list')} 
-              className={cn("p-2 rounded-lg transition-colors", viewType === 'list' ? "bg-brand-gold text-black shadow" : "text-foreground/40")}
+              onClick={() => setViewType('list')}
+              aria-label="List view"
+              className={cn("p-3 lg:p-2 rounded-lg transition-colors", viewType === 'list' ? "bg-brand-gold text-black shadow" : "text-foreground/40")}
             >
               <List className="w-4 h-4" />
             </button>
@@ -177,45 +182,50 @@ export const Shop = () => {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-10">
         {/* Left Sidebar Filters */}
-        <aside className="space-y-8 lg:col-span-1">
+        <aside className="contents lg:block lg:space-y-8 lg:col-span-1">
           {/* Search Box */}
-          <div className="bento-card glow-tracer p-8">
+          <div className="bento-card glow-tracer p-6 lg:p-8">
             <h3 className="text-[10px] font-black uppercase tracking-hero mb-5 text-brand-gold">{t('shop.filter.search')}</h3>
             <div className="relative group mb-4">
-              <input 
-                type="text" 
-                placeholder={t('shop.filter.searchPlaceholder')} 
-                className="w-full bg-foreground/5 border border-foreground/10 focus:border-brand-gold rounded-xl px-4 py-3 text-xs focus:outline-none transition-colors placeholder:text-foreground/20 italic text-foreground"
+              <input
+                type="text"
+                inputMode="search"
+                enterKeyHint="search"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="none"
+                placeholder={t('shop.filter.searchPlaceholder')}
+                className="w-full bg-foreground/5 border border-foreground/10 focus:border-brand-gold rounded-xl px-4 pr-11 lg:pr-4 py-3 text-base lg:text-xs focus:outline-none transition-colors placeholder:text-foreground/35 lg:placeholder:text-foreground/20 italic text-foreground"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <Search className="absolute right-4 top-3.5 w-4 h-4 text-foreground/20 group-hover:text-brand-gold transition-colors" />
+              <Search className="absolute right-4 top-[17px] lg:top-3.5 w-4 h-4 text-foreground/20 group-hover:text-brand-gold transition-colors" />
             </div>
 
             {/* Premium Favorites Toggle Button */}
             <button
               onClick={() => setShowOnlyFavorites(prev => !prev)}
               className={cn(
-                "w-full flex items-center justify-between px-4 py-3 rounded-xl border",
+                "w-full flex items-center justify-between px-4 py-3.5 lg:py-3 rounded-xl border",
                 showOnlyFavorites 
                   ? "bg-red-500/10 border-red-500/30 text-red-500 font-bold" 
                   : "bg-foreground/5 border-foreground/10 text-foreground/50 hover:border-brand-gold hover:text-brand-gold"
               )}
             >
-              <span className="text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
+              <span className="text-[11px] lg:text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
                 <Heart className={cn("w-3.5 h-3.5", showOnlyFavorites ? "fill-current" : "")} />
                 {t('shop.filter.favorites')} ({wishlist.length})
               </span>
-              <span className="text-[8px] uppercase tracking-widest bg-foreground/10 px-2 py-0.5 rounded font-black">
-                {showOnlyFavorites ? "ON" : "OFF"}
+              <span className="text-[10px] lg:text-[8px] uppercase tracking-widest bg-foreground/10 px-2 py-0.5 rounded font-black">
+                {showOnlyFavorites ? t('common.on') : t('common.off')}
               </span>
             </button>
           </div>
 
           {/* Price Range Filter */}
-          <div className="bento-card glow-tracer p-8">
+          <div className="bento-card glow-tracer p-6 lg:p-8 order-last lg:order-none">
             <div className="flex justify-between items-center mb-5">
               <h3 className="text-[10px] font-black uppercase tracking-hero text-brand-gold">{t('shop.filter.price')}</h3>
               <span className="text-xs font-bold text-foreground/70">{t('shop.filter.priceRange')} {formatPrice(priceRange)}</span>
@@ -230,23 +240,23 @@ export const Shop = () => {
               aria-label={t('shop.filter.price')}
               className="w-full"
             />
-            <div className="flex justify-between text-[8px] font-black uppercase tracking-widest text-foreground/30 mt-3">
+            <div className="flex justify-between text-[10px] lg:text-[8px] font-black uppercase tracking-widest text-foreground/50 lg:text-foreground/30 mt-3">
               <span>{formatPrice(MIN_PRICE)}</span>
               <span>{formatPrice(MAX_PRICE)}</span>
             </div>
           </div>
 
           {/* Bespoke Inquiry Card */}
-          <div className="bento-card p-8 bg-brand-gold text-black relative overflow-hidden group shadow-lg shadow-brand-gold/15">
+          <div className="bento-card p-6 lg:p-8 order-last lg:order-none bg-brand-gold text-black relative overflow-hidden group shadow-lg shadow-brand-gold/15">
              <div className="absolute -right-16 -bottom-16 w-36 h-36 bg-black/10 rounded-full blur-2xl group-hover:scale-110" />
              <Sparkles className="w-6 h-6 mb-4 text-black animate-pulse-slow" />
              <h4 className="text-sm font-extrabold uppercase tracking-wider mb-2">{t('shop.bespoke.title')}</h4>
-             <p className="text-[10px] leading-relaxed mb-6 font-semibold opacity-75">
+             <p className="text-xs lg:text-[10px] leading-relaxed mb-6 font-semibold opacity-75">
                {t('shop.bespoke.desc')}
              </p>
              <Link 
                to="/contact" 
-               className="w-full py-3.5 bg-black text-white rounded-xl text-[9px] font-black uppercase tracking-hero text-center block hover:scale-[1.02] active:scale-95"
+               className="w-full py-4 lg:py-3.5 bg-black text-white rounded-xl text-[10px] lg:text-[9px] font-black uppercase tracking-hero text-center block hover:scale-[1.02] active:scale-95"
              >
                {t('shop.bespoke.cta')}
              </Link>
@@ -278,36 +288,48 @@ export const Shop = () => {
               >
                 {viewType === 'grid' ? (
                   <BentoSpotlight className="group flex-grow flex flex-col justify-between">
-                    <div className="relative aspect-[4/5] overflow-hidden rounded-t-[1.8rem]">
-                      <img 
-                        src={product.image} 
-                        alt={t('product.' + product.id + '.name')} 
-                        className="w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-105" 
+                    <div className="relative aspect-square sm:aspect-[4/5] overflow-hidden rounded-t-[1.8rem]">
+                      <img
+                        src={product.image}
+                        alt={t('product.' + product.id + '.name')}
+                        loading={index < 3 ? 'eager' : 'lazy'}
+                        decoding="async"
+                        className="w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-105"
                       />
                       
                       {/* Subtle dark overlay on hover — only on the image */}
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-500 pointer-events-none z-10" />
-                      
+
+                      {/* Phone-only hit area: tapping the photo opens quick view */}
+                      <button
+                        type="button"
+                        onClick={() => setQuickViewProduct(product)}
+                        aria-label={t('shop.product.quickView')}
+                        className="absolute inset-0 z-20 lg:hidden"
+                      />
+
                       {/* Floating actions — above all overlays */}
-                      <div className="absolute top-4 right-4 flex flex-col gap-2 z-30">
-                        <button 
+                      <div className="absolute top-4 right-4 flex flex-col gap-3 lg:gap-2 z-30">
+                        <button
                           onClick={() => handleToggleWishlist(product)}
+                          aria-label={t('shop.filter.favorites')}
                           className={cn(
-                            "p-2.5 rounded-full shadow-lg glass",
+                            "p-3 lg:p-2.5 rounded-full shadow-lg glass",
                             isInWishlist(product.id) ? "bg-red-500 text-white" : "text-foreground hover:scale-110"
                           )}
                         >
-                          <Heart className="w-3.5 h-3.5 fill-current" />
+                          <Heart className="w-4 h-4 lg:w-3.5 lg:h-3.5 fill-current" />
                         </button>
-                        <button 
+                        <button
                           onClick={() => setQuickViewProduct(product)}
-                          className="p-2.5 glass text-foreground rounded-full shadow-lg hover:scale-110"
+                          aria-label={t('shop.product.quickView')}
+                          className="p-3 lg:p-2.5 glass text-foreground rounded-full shadow-lg hover:scale-110"
                         >
-                          <Eye className="w-3.5 h-3.5" />
+                          <Eye className="w-4 h-4 lg:w-3.5 lg:h-3.5" />
                         </button>
                       </div>
                       
-                      <div className="absolute top-4 left-4 glass px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest text-foreground z-30">
+                      <div className="absolute top-4 left-4 glass px-3 py-1.5 rounded-full text-[10px] lg:text-[8px] font-black uppercase tracking-widest text-foreground z-30">
                         {t('shop.category.' + product.category)}
                       </div>
                     </div>
@@ -320,7 +342,7 @@ export const Shop = () => {
                              <Star className="w-3 h-3 fill-current" /> {product.rating}
                            </div>
                         </div>
-                        <p className="text-[10px] text-foreground/45 leading-relaxed italic line-clamp-2 mt-2">
+                        <p className="text-xs lg:text-[10px] text-foreground/45 leading-relaxed italic line-clamp-2 mt-2">
                           {t('shop.product.materialLabel')} {product.wood} | {product.fabric}
                         </p>
                       </div>
@@ -339,7 +361,7 @@ export const Shop = () => {
                 ) : (
                   <div className="bento-card glow-tracer p-6 flex flex-col md:flex-row items-center gap-8 group w-full">
                     <div className="w-1/3 min-w-[140px] md:min-w-[200px] h-full relative overflow-hidden shrink-0">
-                      <img src={product.image} alt={t('product.' + product.id + '.name')} className="w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-105" />
+                      <img src={product.image} alt={t('product.' + product.id + '.name')} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-105" />
                       <div className="absolute top-2 left-2 glass px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest text-foreground">
                         {t('shop.category.' + product.category)}
                       </div>
@@ -372,7 +394,7 @@ export const Shop = () => {
                       </button>
                       <button 
                         onClick={() => setQuickViewProduct(product)}
-                        className="w-full py-2 bg-foreground/5 hover:bg-foreground/10 text-foreground rounded-xl text-[9px] font-black uppercase tracking-widest"
+                        className="w-full py-3 lg:py-2 bg-foreground/5 hover:bg-foreground/10 text-foreground rounded-xl text-[9px] font-black uppercase tracking-widest"
                       >
                         {t('shop.product.quickView')}
                       </button>
@@ -385,9 +407,9 @@ export const Shop = () => {
           </AnimatePresence>
           
           {filteredProducts.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-40 bento-card border-dashed">
+            <div className="flex flex-col items-center justify-center px-6 md:px-0 py-24 md:py-40 bento-card border-dashed">
               <Search className="w-12 h-12 text-foreground/10 mb-4 animate-bounce" />
-              <p className="text-foreground/45 text-[10px] italic tracking-widest uppercase font-black">{t('shop.product.noResults')}</p>
+              <p className="text-foreground/45 text-xs md:text-[10px] text-center italic tracking-widest uppercase font-black">{t('shop.product.noResults')}</p>
             </div>
           )}
         </div>
@@ -404,7 +426,7 @@ export const Shop = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setQuickViewProduct(null)}
-                className="fixed inset-0 bg-black/60 backdrop-blur-md"
+                className="fixed inset-0 bg-black/60 md:backdrop-blur-md"
               />
               
               {/* Modal Dialog Card */}
@@ -412,12 +434,13 @@ export const Shop = () => {
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="bg-background border-0 md:border border-foreground/5 rounded-none md:rounded-[2.5rem] w-full max-w-4xl p-5 md:p-8 relative z-10 shadow-2xl flex flex-col md:grid md:grid-cols-2 gap-6 md:gap-8 min-h-[100dvh] md:min-h-0 max-h-[100dvh] md:max-h-[90vh] overflow-y-auto overflow-x-hidden"
+                className="bg-background border-0 md:border border-foreground/5 rounded-none md:rounded-[2.5rem] w-full max-w-4xl p-5 pb-safe md:p-8 relative z-10 shadow-2xl flex flex-col md:grid md:grid-cols-2 gap-6 md:gap-8 min-h-[100dvh] md:min-h-0 max-h-[100dvh] md:max-h-[90vh] overflow-y-auto overflow-x-hidden overscroll-contain md:overscroll-auto"
               >
                 {/* Close trigger button */}
-                <button 
+                <button
                   onClick={() => setQuickViewProduct(null)}
-                  className="absolute right-4 top-4 md:right-6 md:top-6 p-2 rounded-full bg-background/50 backdrop-blur-md md:bg-transparent hover:bg-foreground/5 transition-colors z-20 text-foreground"
+                  aria-label={t('shop.modal.close')}
+                  className="fixed md:absolute right-4 top-[max(1rem,env(safe-area-inset-top))] md:right-6 md:top-6 p-3 md:p-2 rounded-full bg-background/50 backdrop-blur-md md:bg-transparent hover:bg-foreground/5 transition-colors z-20 text-foreground"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -436,19 +459,19 @@ export const Shop = () => {
                     <span className="text-[10px] font-black uppercase tracking-widest text-brand-gold block mb-1">{t('shop.modal.artisanBlock')}</span>
                     <h3 className="text-xl md:text-2xl font-editorial-title font-bold text-foreground mb-3">{t('product.' + quickViewProduct.id + '.name')}</h3>
                     
-                    <div className="flex flex-wrap items-center gap-4 text-[10px] uppercase font-bold text-foreground/45 tracking-wider mb-4 pb-3 border-b border-foreground/5">
+                    <div className="flex flex-wrap items-center gap-4 text-[11px] md:text-[10px] uppercase font-bold text-foreground/45 tracking-wider mb-4 pb-3 border-b border-foreground/5">
                       <span className="flex items-center gap-1"><Star className="w-3.5 h-3.5 fill-current text-brand-gold" /> {quickViewProduct.rating} {t('shop.modal.ratingLabel')}</span>
                       <span>{t('shop.product.sizeLabel')} <strong className="text-foreground">{quickViewProduct.size}</strong></span>
                     </div>
 
-                    <p className="text-[11px] text-foreground/50 leading-relaxed font-light italic mb-5">
+                    <p className="text-xs md:text-[11px] text-foreground/50 leading-relaxed font-normal md:font-light italic mb-5">
                       {t('shop.modal.customDesc')}
                     </p>
 
                     {/* Wood and Upholstery Selection Controls inside Modal - Side by Side Grid */}
-                    <div className="grid grid-cols-2 gap-3 md:gap-4 mb-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 mb-6">
                       <div className="flex flex-col justify-between h-full">
-                        <label className="text-[9px] font-black uppercase tracking-widest text-foreground/40 block mb-2">{t('shop.modal.woodLabel')}</label>
+                        <label className="text-[10px] md:text-[9px] font-black uppercase tracking-widest text-foreground/40 block mb-2">{t('shop.modal.woodLabel')}</label>
                         <CustomSelect 
                           value={bespokeWood}
                           onChange={setBespokeWood}
@@ -462,7 +485,7 @@ export const Shop = () => {
                       </div>
 
                       <div className="flex flex-col justify-between h-full">
-                        <label className="text-[9px] font-black uppercase tracking-widest text-foreground/40 block mb-2">{t('shop.modal.fabricLabel')}</label>
+                        <label className="text-[10px] md:text-[9px] font-black uppercase tracking-widest text-foreground/40 block mb-2">{t('shop.modal.fabricLabel')}</label>
                         <CustomSelect 
                           value={bespokeFabric}
                           onChange={setBespokeFabric}
@@ -498,20 +521,20 @@ export const Shop = () => {
                           setActiveBespokeProduct(quickViewProduct);
                           setQuickViewProduct(null);
                         }}
-                        className="py-3 px-4 bg-foreground/5 border border-foreground/10 hover:border-brand-gold hover:text-brand-gold rounded-xl flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-wider text-foreground"
+                        className="py-3.5 md:py-3 px-4 bg-foreground/5 border border-foreground/10 hover:border-brand-gold hover:text-brand-gold rounded-xl flex items-center justify-center gap-2 text-[10px] md:text-[9px] font-black uppercase tracking-wider text-foreground"
                       >
                         <Smartphone className="w-4 h-4 text-brand-gold" />
-                        VIP Buyurtma
+                        {t('shop.modal.vipOrder')}
                       </button>
                       <button 
                         onClick={() => {
                           setActiveARProduct(quickViewProduct);
                           setQuickViewProduct(null);
                         }}
-                        className="py-3 px-4 bg-foreground/5 border border-foreground/10 hover:border-brand-gold hover:text-brand-gold rounded-xl flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-wider text-foreground"
+                        className="py-3.5 md:py-3 px-4 bg-foreground/5 border border-foreground/10 hover:border-brand-gold hover:text-brand-gold rounded-xl flex items-center justify-center gap-2 text-[10px] md:text-[9px] font-black uppercase tracking-wider text-foreground"
                       >
                         <QrCode className="w-4 h-4 text-brand-gold" />
-                        AR Kamera
+                        {t('shop.modal.arCamera')}
                       </button>
                     </div>
                   </div>
