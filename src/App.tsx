@@ -18,7 +18,6 @@ const Home = React.lazy(() => import('./pages/Home').then(m => ({ default: m.Hom
 const Portfolio = React.lazy(() => import('./pages/Portfolio').then(m => ({ default: m.Portfolio })));
 const Auth = React.lazy(() => import('./pages/Auth').then(m => ({ default: m.Auth })));
 const Admin = React.lazy(() => import('./pages/Admin').then(m => ({ default: m.Admin })));
-const Cart = React.lazy(() => import('./pages/Cart').then(m => ({ default: m.Cart })));
 const Contact = React.lazy(() => import('./pages/Contact').then(m => ({ default: m.Contact })));
 const About = React.lazy(() => import('./pages/About').then(m => ({ default: m.About })));
 const Profile = React.lazy(() => import('./pages/Profile').then(m => ({ default: m.Profile })));
@@ -83,8 +82,6 @@ const ScrollToTop = () => {
 const AppLayout = () => {
   const location = useLocation();
   const isAuthPage = location.pathname === '/auth';
-  const isCartPage = location.pathname === '/cart';
-  const isFooterHidden = isAuthPage || isCartPage;
 
   return (
     <div className="min-h-[100dvh] flex flex-col selection:bg-brand-gold selection:text-white">
@@ -104,12 +101,12 @@ const AppLayout = () => {
 
             <Route path="/about" element={<PageWrapper><About /></PageWrapper>} />
             <Route path="/contact" element={<PageWrapper><Contact /></PageWrapper>} />
-            <Route path="/cart" element={<PageWrapper><Cart /></PageWrapper>} />
+            <Route path="/cart" element={<Navigate to="/portfolio" replace />} />
             <Route path="*" element={<PageWrapper><NotFound /></PageWrapper>} />
           </Routes>
         </AnimatePresence>
       </main>
-      {!isFooterHidden && <Footer />}
+      {!isAuthPage && <Footer />}
     </div>
   );
 };

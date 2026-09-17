@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
-import { Menu, X, ShoppingCart, User, Moon, Sun } from 'lucide-react';
+import { Menu, X, User, Moon, Sun } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
-import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { cn } from '../lib/utils';
 import { Link, useLocation } from 'react-router-dom';
@@ -22,7 +21,6 @@ const WIPE_DONE_MS = 850;
 export const Navbar = () => {
   const { t, i18n } = useTranslation();
   const { theme, toggleTheme } = useTheme();
-  const { totalItems } = useCart();
   const { user, isAdmin } = useAuth();
   const isLoggedIn = user !== null;
   const [isOpen, setIsOpen] = useState(false);
@@ -96,7 +94,6 @@ export const Navbar = () => {
     ...(isAdmin ? [{ name: t('nav.admin'), path: '/admin' }] : []),
   ];
 
-  const cartBadge = totalItems > 99 ? '99+' : String(totalItems);
 
   return (
     <>
@@ -176,25 +173,6 @@ export const Navbar = () => {
               >
                 {theme === 'light' ? <Moon className="w-4.5 h-4.5" /> : <Sun className="w-4.5 h-4.5 text-brand-gold animate-spin-slow" />}
               </button>
-
-            {/* Redesigned Premium Highlighted Shopping Cart (Minimal Circle + pulsing Badge) */}
-            <Link
-              to="/cart"
-              className={cn(
-                "flex items-center justify-center w-10 h-10 rounded-full transition-[transform,background-color,border-color,box-shadow] duration-300 lg:hover:scale-110 active:scale-95 transform-gpu border relative",
-                totalItems > 0
-                  ? "bg-[#8C6A3C] dark:bg-brand-gold border-[#8C6A3C] dark:border-brand-gold text-white dark:text-black font-extrabold shadow-md shadow-brand-gold/15"
-                  : "bg-neutral-100 dark:bg-neutral-800/60 border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700"
-              )}
-              aria-label={`${t('nav.cart')} (${totalItems})`}
-            >
-              <ShoppingCart className="w-4.5 h-4.5" />
-              {totalItems > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] lg:text-[9px] font-black min-w-5 h-5 px-1 rounded-full flex items-center justify-center border-2 border-white dark:border-[#0A0A0A] animate-pulse motion-reduce:animate-none">
-                  {cartBadge}
-                </span>
-              )}
-            </Link>
 
             {/* Personal Portal profile link */}
             <Link

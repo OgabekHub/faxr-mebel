@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowRight, Star, Shield, MapPin, Clock, Phone, Send, Check, QrCode, Smartphone, ChevronLeft, ChevronRight, Heart } from 'lucide-react';
+import { ArrowRight, Star, Shield, MapPin, Clock, Phone, Send, Check, QrCode, ChevronLeft, ChevronRight, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { formatPrice } from '../lib/utils';
-import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { ARModal } from '../components/ARModal';
 import { RequestModal } from '../components/RequestModal';
-import { legacyShopCategoryToPortfolio } from '../types/domain';
-import { LEGACY_SHOP_IDS } from '../data/portfolio';
+import { findPortfolioItem, portfolioTitle } from '../hooks/usePortfolio';
+import type { PortfolioItem } from '../types/domain';
 import { BentoSpotlight } from '../components/BentoSpotlight';
 import { SEO } from '../components/SEO';
 
@@ -62,44 +60,20 @@ const heroSlides: HeroSlide[] = [
   }
 ];
 
-// Premium locally hosted generated mebel assets
-const featuredProducts = [
-  {
-    id: '1',
-    name: 'Baby Blue Chesterfield Sofa',
-    price: 12000000,
-    rating: 4.9,
-    image: '/images/sofa_blue.webp',
-    category: 'Sofa'
-  },
-  {
-    id: '2',
-    name: 'Marble Dining Table Set',
-    price: 8500000,
-    rating: 4.8,
-    image: '/images/sofa_brown.webp',
-    category: 'Dining'
-  },
-  {
-    id: '3',
-    name: 'Gold & Black Luxury Bedroom Set',
-    price: 15000000,
-    rating: 5.0,
-    image: '/images/bedroom_gold_black.webp',
-    category: 'Bedroom'
-  }
-];
-
-type FeaturedProduct = (typeof featuredProducts)[number];
+// Three portfolio pieces for the landing page: one per room, none of them a hero slide.
+const FEATURED_IDS = ['sofa-chesterfield-blue', 'kitchen-white-oak', 'tv-unit-royal-classic'];
+const featured: PortfolioItem[] = FEATURED_IDS.flatMap((id) => {
+  const item = findPortfolioItem(id);
+  return item ? [item] : [];
+});
 
 export const Home = () => {
   const { t, i18n } = useTranslation();
-  const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
 
   const [addedToast, setAddedToast] = useState<string | null>(null);
   const [isAROpen, setIsAROpen] = useState(false);
-  const [isBespokeOpen, setIsBespokeOpen] = useState(false);
+  const [requestItem, setRequestItem] = useState<PortfolioItem | null>(null);
   const [mapActive, setMapActive] = useState(false);
 
   // Hero Carousel State
@@ -167,31 +141,16 @@ export const Home = () => {
     return { collection, title, titleGold };
   };
 
-  const handleAddToCart = (product: FeaturedProduct) => {
-    const name = t(`product.${product.id}.name`);
-    addToCart({
-      productId: product.id,
-      name,
-      price: product.price,
-      image: product.image,
-      category: t(`shop.category.${product.category}`),
-    });
-    setAddedToast(`${name} ${t('home.toast.added')}`);
-    setTimeout(() => setAddedToast(null), 3000);
-  };
-
   const currentSlideData = heroSlides[currentSlide];
   const { collection: sCollection, title: sTitle, titleGold: sTitleGold } = getSlideTexts(currentSlideData);
 
-  const handleToggleWishlist = (product: FeaturedProduct, e: React.MouseEvent) => {
+  const handleToggleWishlist = (item: PortfolioItem, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // Saved under the portfolio slug so the same piece is one favourite on every page.
-    const wishId = LEGACY_SHOP_IDS[product.id] ?? product.id;
     // Read the membership before toggling, otherwise the message says the opposite of what happened.
-    const wasInWishlist = isInWishlist(wishId);
-    toggleWishlist({ id: wishId });
-    setAddedToast(wasInWishlist ? t('shop.toast.wishlistRemoved') : t('shop.toast.wishlistAdded'));
+    const wasInWishlist = isInWishlist(item.id);
+    toggleWishlist({ id: item.id });
+    setAddedToast(wasInWishlist ? t('portfolio.toast.wishlistRemoved') : t('portfolio.toast.wishlistAdded'));
     setTimeout(() => setAddedToast(null), 3000);
   };
 
@@ -334,24 +293,15 @@ export const Home = () => {
           <BentoSpotlight className="p-8 justify-between flex-grow flex flex-col">
             <div>
               <span className="text-foreground/45 text-[10px] uppercase tracking-widest font-black block">{t('home.featured.teaser')}</span>
-              <h3 className="text-xl font-bold mt-2">{t(`product.${featuredProducts[0].id}.name`)}</h3>
+              <h3 className="text-xl font-bold mt-2">{portfolioTitle(featured[0].id, t)}</h3>
               <p className="text-foreground/50 text-xs md:text-[11px] mt-1.5 font-light italic">{t('home.featured.desc')}</p>
-              <span className="price-tag text-2xl mt-4 block italic">{formatPrice(12000000)}</span>
             </div>
             <div className="flex gap-2 mt-6">
-              <button 
-                onClick={() => handleAddToCart(featuredProducts[0])}
-                className="flex-1 py-3.5 bg-brand-gold text-black rounded-2xl text-[10px] tracking-wider md:text-[9px] md:tracking-widest font-black uppercase hover:bg-brand-gold-muted shadow-lg shadow-brand-gold/10"
+              <button
+                onClick={() => setRequestItem(featured[0])}
+                className="flex-1 py-3.5 bg-brand-gold text-black rounded-2xl text-[10px] tracking-wider md:text-[9px] md:tracking-widest font-black uppercase hover:bg-brand-gold-muted active:bg-brand-gold-muted shadow-lg shadow-brand-gold/10"
               >
-                {t('common.addToCart')}
-              </button>
-              <button 
-                onClick={() => setIsBespokeOpen(true)}
-                className="p-3.5 bg-foreground/5 border border-foreground/10 hover:border-brand-gold hover:text-brand-gold rounded-2xl flex items-center justify-center"
-                title="Bespoke Order"
-                aria-label="Bespoke Order"
-              >
-                <Smartphone className="w-4 h-4" />
+                {t('portfolio.modal.request')}
               </button>
               <button 
                 onClick={() => setIsAROpen(true)}
@@ -453,21 +403,23 @@ export const Home = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {featuredProducts.map((product) => (
-            <motion.div 
-              key={product.id}
+          {featured.map((item) => (
+            <motion.div
+              key={item.id}
               whileHover={{ y: -8 }}
               className="bento-card glow-tracer p-6 group flex flex-col h-full"
             >
               <div className="relative aspect-square rounded-[1.8rem] overflow-hidden mb-6">
-                <img src={product.image} alt={t(`product.${product.id}.name`)} loading="lazy" decoding="async" width={1024} height={1024} className="w-full h-full object-cover group-hover:scale-105" />
+                <img src={item.images[0].src} alt={portfolioTitle(item.id, t)} loading="lazy" decoding="async" width={item.images[0].width} height={item.images[0].height} className="w-full h-full object-cover group-hover:scale-105" />
                 
                 {/* Floating actions */}
                 <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
                   <button 
-                    onClick={(e) => handleToggleWishlist(product, e)}
+                    onClick={(e) => handleToggleWishlist(item, e)}
+                    aria-label={t('portfolio.filter.favorites')}
+                    aria-pressed={isInWishlist(item.id)}
                     className={`p-4 md:p-2.5 rounded-full shadow-md ${
-                      isInWishlist(LEGACY_SHOP_IDS[product.id] ?? product.id) ? "bg-red-500 text-white" : "glass text-foreground hover:scale-110"
+                      isInWishlist(item.id) ? "bg-red-500 text-white" : "glass text-foreground hover:scale-110"
                     }`}
                   >
                     <Heart className="w-3.5 h-3.5 fill-current" />
@@ -475,25 +427,19 @@ export const Home = () => {
                 </div>
 
                 <div className="absolute top-4 left-4 glass px-4 py-1.5 rounded-full text-[11px] md:text-[9px] font-black text-brand-gold uppercase tracking-wider md:tracking-widest">
-                  {t(`shop.category.${product.category}`)}
+                  {t(`portfolio.category.${item.category}`)}
                 </div>
               </div>
               
-              <div className="flex flex-col gap-1.5 sm:flex-row sm:justify-between sm:items-start mb-4">
-                <div>
-                  <h3 className="text-lg font-bold tracking-tight text-foreground">{t(`product.${product.id}.name`)}</h3>
-                  <div className="flex items-center gap-1 mt-1 text-brand-gold text-[10px] font-bold">
-                    <Star className="w-3 h-3 fill-current" /> {product.rating}
-                  </div>
-                </div>
-                <span className="price-tag text-lg font-bold shrink-0 sm:ml-2">{formatPrice(product.price)}</span>
+              <div className="mb-4">
+                <h3 className="text-lg font-bold tracking-tight text-foreground">{portfolioTitle(item.id, t)}</h3>
               </div>
               
-              <button 
-                onClick={() => handleAddToCart(product)}
+              <button
+                onClick={() => setRequestItem(item)}
                 className="w-full mt-auto py-3.5 md:py-3 bg-foreground/5 hover:bg-brand-gold hover:text-black active:bg-brand-gold active:text-black rounded-xl text-[11px] md:text-[9px] font-black uppercase tracking-widest border border-foreground/5"
               >
-                {t('common.addToCart')}
+                {t('portfolio.modal.request')}
               </button>
             </motion.div>
           ))}
@@ -566,19 +512,18 @@ export const Home = () => {
       <ARModal 
         isOpen={isAROpen}
         onClose={() => setIsAROpen(false)}
-        productName={t(`product.${featuredProducts[0].id}.name`)}
-        productId={featuredProducts[0].id}
+        productName={portfolioTitle(featured[0].id, t)}
+        productId={featured[0].id}
       />
 
       <RequestModal
-        isOpen={isBespokeOpen}
-        onClose={() => setIsBespokeOpen(false)}
-        source={{
-          itemId: featuredProducts[0].id,
-          category: legacyShopCategoryToPortfolio(featuredProducts[0].category),
-          image: featuredProducts[0].image,
-          title: t(`product.${featuredProducts[0].id}.name`),
-        }}
+        isOpen={requestItem !== null}
+        onClose={() => setRequestItem(null)}
+        source={
+          requestItem
+            ? { itemId: requestItem.id, category: requestItem.category, image: requestItem.images[0].src, title: portfolioTitle(requestItem.id, t) }
+            : undefined
+        }
       />
     </div>
   );
