@@ -5,18 +5,6 @@ export interface BespokeDetails {
   fabric: string;
 }
 
-export interface CartItem {
-  /** Cart line id: the product id, or `productId::wood::fabric` for a customised item. */
-  id: string;
-  productId: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-  category: string;
-  bespokeDetails?: BespokeDetails;
-}
-
 export type OrderStatus = 'pending' | 'wood' | 'artisan' | 'quality' | 'completed';
 export type PaymentMethod = 'click_payme' | 'consultation';
 export type PaymentStatus = 'paid' | 'pending';
@@ -77,24 +65,6 @@ export interface PortfolioItem {
   model?: string;
   /** Lower first. Firestore docs will carry the same field so ordering survives the move. */
   order?: number;
-}
-
-/**
- * Maps the old Shop taxonomy onto portfolio categories.
- * Goes away with Shop.tsx and Home's featured list.
- */
-export function legacyShopCategoryToPortfolio(category: string): PortfolioCategoryId {
-  switch (category) {
-    case 'Bedroom':
-      return 'bedroom';
-    case 'Dining':
-      return 'kitchen';
-    case 'Office':
-    case 'Luxury Decor':
-      return 'living';
-    default:
-      return 'soft';
-  }
 }
 
 /* ------------------------------------------------------------------ */

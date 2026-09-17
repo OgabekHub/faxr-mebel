@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavig
 import { ThemeProvider } from './context/ThemeContext';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
-import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -116,8 +115,7 @@ export default function App() {
     <HelmetProvider>
       <ThemeProvider>
         <AuthProvider>
-        <WishlistProvider>
-          <CartProvider>
+          <WishlistProvider>
             <Router>
               <ScrollToTop />
               <ErrorBoundary>
@@ -131,8 +129,7 @@ export default function App() {
                 </Suspense>
               </ErrorBoundary>
             </Router>
-          </CartProvider>
-        </WishlistProvider>
+          </WishlistProvider>
         </AuthProvider>
       </ThemeProvider>
     </HelmetProvider>
