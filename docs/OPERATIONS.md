@@ -46,6 +46,17 @@ Faqat `firestore:rules`. Indekslar Faza 4 da qo'shiladi; `--only firestore` (ind
 
 Tekshirish: Rules Playground → `get`, yo'l `admins/<UID>`, auth shu UID bilan → Allow.
 
+**Arizalar (`requests`) uchun qo'shimcha tekshiruv** — qoidalar yangilangandan keyin Playground'da:
+
+| Amal | Yo'l | Auth | Ma'lumot | Kutilgan |
+|---|---|---|---|---|
+| `create` | `requests/REQ-test` | ixtiyoriy UID (anonim ham) | `userId` = shu UID, `status` = `new`, `client`, `phone`, `category` = `kitchen` | **Allow** |
+| `create` | `requests/REQ-test` | ixtiyoriy UID | `status` = `installed` | **Deny** |
+| `get` | `requests/<boshqaning arizasi>` | oddiy UID | — | **Deny** |
+| `update` | `requests/<mavjud>` | admin bo'lmagan UID | — | **Deny** |
+
+Eng ko'p uchraydigan xato: qoidalar `(default)` bazaga chop etiladi. Hammasi muvaffaqiyatli ko'rinadi, lekin saytdagi har bir ariza `permission-denied` oladi. Baza tanlagichdan **nomlangan** bazani tanlaganingizga ishonch hosil qiling.
+
 ## 4. Admin huquqi berish
 
 `/admin` faqat `admins/{uid}` hujjati bor foydalanuvchiga ochiladi. Hujjat faqat Console'dan yaratiladi, klient yozolmaydi.
@@ -68,8 +79,20 @@ Token sizib chiqqan yoki eskirgan bo'lsa:
 
 Tokenni hech qachon `VITE_` prefiksi bilan yozmang va git'ga commit qilmang.
 
-## 6. Buyurtmalar
+## 6. Anonim kirishni yoqish
 
-- `orders` kolleksiyasi: mijoz faqat o'z buyurtmasini yaratadi va o'qiydi, holatni faqat admin o'zgartiradi.
-- Admin panel → "Aktiv Buyurtmalar" → "Keyingi bosqich": `pending → wood → artisan → quality → completed`. Mijoz Profile'da shu holatni ko'radi.
-- Telegram xabarnomasi ketmasa ham buyurtma saqlanadi; mijozga sariq ogohlantirish chiqadi. Xabar ketmagan buyurtmalarni Admin panelda ko'rish mumkin.
+Ariza qoldirish uchun mijoz ro'yxatdan o'tishi shart emas, lekin ariza baribir bazaga saqlanadi. Buning uchun sayt kirmagan mijozni ko'rinmas anonim hisob bilan kiritadi. Bu provayder sukut bo'yicha o'chiq:
+
+1. Firebase Console → Authentication → Sign-in method.
+2. Ro'yxatdan **Anonymous** ni toping → Enable → Save.
+
+Yoqilmagan bo'lsa: ariza Telegramga baribir keladi (⚠️ belgisi bilan), lekin bazaga tushmaydi va mijoz profilida ko'rinmaydi. Sayt xato bermaydi, ariza yo'qolmaydi.
+
+Anonim hisoblar Authentication → Users ro'yxatida "Anonymous" provayderi bilan ko'rinadi. Ularni o'chirish shart emas; mijoz haqiqiy hisob ochsa, yangi hisob bo'ladi.
+
+## 7. Arizalar
+
+- `requests` kolleksiyasi: mijoz (anonim ham) faqat o'z arizasini yaratadi va o'qiydi; holatni faqat admin o'zgartiradi; admin o'chira oladi.
+- Admin panel → "Arizalar" → "Keyingi bosqich": `new → measured → production → quality → installed` (ariza qabul qilindi → o'lchov olindi → ustaxonada → sifat nazorati → o'rnatildi). Mijoz Profile'da shu bosqichni ko'radi.
+- Ariza ikki joyga boradi: avval Firestore (8 soniya timeout bilan), keyin Telegram. Ikkalasidan bittasi ishlasa mijoz "yuborildi" ko'radi. Telegram xabarida `⚠️ Bazaga saqlanmadi` chiqsa — qoidalar chop etilmagan yoki anonim kirish yoqilmagan; mijozga o'zingiz qo'ng'iroq qiling.
+- Eski `orders` kolleksiyasi va uning qoidalari o'zgarmagan; savat olib tashlangach unga hech narsa yozilmaydi. Eski hujjatlar Console'dan o'qiladi.

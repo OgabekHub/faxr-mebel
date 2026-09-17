@@ -44,6 +44,35 @@ service cloud.firestore {
       allow update: if isAdmin();
     }
 
+    // Requests: a visitor asks for a home-measurement visit (the made-to-order flow).
+    // Created by the signed-in visitor for themselves; anonymous accounts count, so a
+    // lead never hits a login wall. Only an admin moves it through the build stages.
+    // Create is shape-validated so the collection cannot be used as free storage.
+    match /requests/{requestId} {
+      function requestOk() {
+        let d = request.resource.data;
+        return d.keys().hasOnly(['id', 'userId', 'client', 'phone', 'category', 'sourceItemId',
+                                 'preferredDate', 'preferredTime', 'area', 'note', 'status',
+                                 'lang', 'date', 'createdAt'])
+          && d.keys().hasAll(['id', 'userId', 'client', 'phone', 'category', 'status', 'date', 'createdAt'])
+          && d.id == requestId
+          && d.userId == request.auth.uid
+          && d.client is string && d.client.size() > 0 && d.client.size() <= 100
+          && d.phone is string && d.phone.size() > 0 && d.phone.size() <= 30
+          && d.category in ['soft', 'kitchen', 'bedroom', 'living']
+          && d.status == 'new'
+          && (!('note' in d) || (d.note is string && d.note.size() <= 1000))
+          && (!('area' in d) || (d.area is string && d.area.size() <= 300))
+          // Forces serverTimestamp(): no spoofed or clock-skewed dates in the admin sort.
+          && d.createdAt == request.time;
+      }
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && isValidId(requestId) && requestOk();
+      allow update: if isAdmin();
+      // Unlike `orders`, admins can delete: the owner must be able to clear junk without the Console.
+      allow delete: if isAdmin();
+    }
+
     // Reviews: Anyone can read, signed-in users can create
     match /reviews/{reviewId} {
       allow read: if true;
