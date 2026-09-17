@@ -9,6 +9,7 @@ import { useWishlist } from '../context/WishlistContext';
 import { ARModal } from '../components/ARModal';
 import { RequestModal } from '../components/RequestModal';
 import { legacyShopCategoryToPortfolio } from '../types/domain';
+import { LEGACY_SHOP_IDS } from '../data/portfolio';
 import { BentoSpotlight } from '../components/BentoSpotlight';
 import { SEO } from '../components/SEO';
 
@@ -185,15 +186,11 @@ export const Home = () => {
   const handleToggleWishlist = (product: FeaturedProduct, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    // Saved under the portfolio slug so the same piece is one favourite on every page.
+    const wishId = LEGACY_SHOP_IDS[product.id] ?? product.id;
     // Read the membership before toggling, otherwise the message says the opposite of what happened.
-    const wasInWishlist = isInWishlist(product.id);
-    toggleWishlist({
-      id: product.id,
-      name: t(`product.${product.id}.name`),
-      price: product.price,
-      image: product.image,
-      category: t(`shop.category.${product.category}`)
-    });
+    const wasInWishlist = isInWishlist(wishId);
+    toggleWishlist({ id: wishId });
     setAddedToast(wasInWishlist ? t('shop.toast.wishlistRemoved') : t('shop.toast.wishlistAdded'));
     setTimeout(() => setAddedToast(null), 3000);
   };
@@ -470,7 +467,7 @@ export const Home = () => {
                   <button 
                     onClick={(e) => handleToggleWishlist(product, e)}
                     className={`p-4 md:p-2.5 rounded-full shadow-md ${
-                      isInWishlist(product.id) ? "bg-red-500 text-white" : "glass text-foreground hover:scale-110"
+                      isInWishlist(LEGACY_SHOP_IDS[product.id] ?? product.id) ? "bg-red-500 text-white" : "glass text-foreground hover:scale-110"
                     }`}
                   >
                     <Heart className="w-3.5 h-3.5 fill-current" />

@@ -91,6 +91,7 @@ export const Navbar = () => {
   const navLinks = [
     { name: t('nav.home'), path: '/' },
     { name: t('nav.shop'), path: '/shop' },
+    { name: t('nav.portfolio'), path: '/portfolio' },
     { name: t('nav.about'), path: '/about' },
     { name: t('nav.contact'), path: '/contact' },
     ...(isAdmin ? [{ name: t('nav.admin'), path: '/admin' }] : []),

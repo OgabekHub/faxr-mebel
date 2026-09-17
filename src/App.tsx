@@ -16,6 +16,7 @@ import { AnimatePresence, motion } from 'motion/react';
 // Lazy load pages for code-splitting
 const Home = React.lazy(() => import('./pages/Home').then(m => ({ default: m.Home })));
 const Shop = React.lazy(() => import('./pages/Shop').then(m => ({ default: m.Shop })));
+const Portfolio = React.lazy(() => import('./pages/Portfolio').then(m => ({ default: m.Portfolio })));
 const Auth = React.lazy(() => import('./pages/Auth').then(m => ({ default: m.Auth })));
 const Admin = React.lazy(() => import('./pages/Admin').then(m => ({ default: m.Admin })));
 const Cart = React.lazy(() => import('./pages/Cart').then(m => ({ default: m.Cart })));
@@ -94,6 +95,7 @@ const AppLayout = () => {
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
             <Route path="/shop" element={<PageWrapper><Shop /></PageWrapper>} />
+            <Route path="/portfolio" element={<PageWrapper><Portfolio /></PageWrapper>} />
             <Route path="/auth" element={<PageWrapper><Auth /></PageWrapper>} />
 
             {/* Protected Routes */}

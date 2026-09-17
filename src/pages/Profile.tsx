@@ -9,6 +9,7 @@ import { cn, formatPrice } from '../lib/utils';
 import { useTranslation } from 'react-i18next';
 import { CustomSelect } from '../components/CustomSelect';
 import { useWishlist } from '../context/WishlistContext';
+import { findPortfolioItem, portfolioTitle } from '../hooks/usePortfolio';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import type { Order } from '../types/domain';
 
@@ -16,6 +17,11 @@ export const Profile = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { wishlist } = useWishlist();
+  // Favourites are references; pieces that have since left the portfolio are skipped.
+  const savedItems = wishlist.flatMap(({ id }) => {
+    const item = findPortfolioItem(id);
+    return item ? [item] : [];
+  });
   // ProtectedRoute only renders this page once auth has resolved with a signed-in user.
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'orders' | 'wishlist'>('orders');
@@ -342,33 +348,28 @@ export const Profile = () => {
                 exit={{ opacity: 0, x: -20 }}
                 className="grid grid-cols-1 sm:grid-cols-2 gap-6"
               >
-                {wishlist.length === 0 ? (
+                {savedItems.length === 0 ? (
                   <div className="col-span-1 sm:col-span-2 flex flex-col items-center justify-center py-20 opacity-50">
                     <Heart className="w-12 h-12 mb-4 text-foreground/20" />
                     <p className="text-xs uppercase tracking-widest font-bold">{t('profile.emptyWishlist')}</p>
                   </div>
                 ) : (
-                  wishlist.map((item) => (
+                  savedItems.map((item) => (
                     <div key={item.id} className="bento-card glow-tracer p-5 group flex flex-col justify-between">
                       <div className="relative aspect-square rounded-[1.5rem] overflow-hidden mb-5">
-                        <img src={item.image} alt={item.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                        <img src={item.images[0].src} alt={portfolioTitle(item.id, t)} width={item.images[0].width} height={item.images[0].height} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                         <div className="absolute top-4 left-4 glass px-3.5 py-1 rounded-full text-[10px] sm:text-[8px] font-black uppercase tracking-widest">
-                          {item.category}
+                          {t(`portfolio.category.${item.category}`)}
                         </div>
                       </div>
 
-                      <div className="flex justify-between items-center mb-4">
-                        <div>
-                          <h3 className="text-base font-bold text-foreground">{item.name}</h3>
-                          <span className="price-tag text-lg font-bold block mt-1">{formatPrice(item.price)}</span>
-                        </div>
-                      </div>
+                      <h3 className="text-base font-bold text-foreground mb-4">{portfolioTitle(item.id, t)}</h3>
 
-                      <button 
-                        onClick={() => navigate('/shop')}
+                      <button
+                        onClick={() => navigate('/portfolio')}
                         className="w-full py-4 sm:py-3 bg-foreground/5 hover:bg-brand-gold hover:text-black active:bg-brand-gold active:text-black rounded-xl text-[11px] sm:text-[9px] font-black uppercase tracking-widest border border-foreground/5"
                       >
-                        {t('common.seeAll')}
+                        {t('cta.portfolio')}
                       </button>
                     </div>
                   ))

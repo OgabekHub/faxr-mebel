@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { ARModal } from '../components/ARModal';
 import { RequestModal } from '../components/RequestModal';
 import { legacyShopCategoryToPortfolio } from '../types/domain';
+import { LEGACY_SHOP_IDS } from '../data/portfolio';
 import { BentoSpotlight } from '../components/BentoSpotlight';
 import { CustomSelect } from '../components/CustomSelect';
 import { createPortal } from 'react-dom';
@@ -65,19 +66,13 @@ export const Shop = () => {
 
   useBodyScrollLock(quickViewProduct !== null);
 
+  // Saved under the portfolio slug so the same piece is one favourite on every page.
+  const wishId = (product: ShopProduct) => LEGACY_SHOP_IDS[product.id] ?? product.id;
+
   const handleToggleWishlist = (product: ShopProduct) => {
-    toggleGlobalWishlist({
-      id: product.id,
-      name: t('product.' + product.id + '.name'),
-      price: product.price,
-      image: product.image,
-      category: t('shop.category.' + product.category)
-    });
-    if (isInWishlist(product.id)) {
-      triggerToast(t('shop.toast.wishlistRemoved'));
-    } else {
-      triggerToast(t('shop.toast.wishlistAdded'));
-    }
+    const wasSaved = isInWishlist(wishId(product));
+    toggleGlobalWishlist({ id: wishId(product) });
+    triggerToast(t(wasSaved ? 'shop.toast.wishlistRemoved' : 'shop.toast.wishlistAdded'));
   };
 
   const triggerToast = (msg: string) => {
@@ -107,7 +102,7 @@ export const Shop = () => {
       (selectedCategory === 'All' || p.category === selectedCategory) &&
       (needle === '' || t('product.' + p.id + '.name').toLowerCase().includes(needle)) &&
       p.price <= priceRange &&
-      (!showOnlyFavorites || isInWishlist(p.id))
+      (!showOnlyFavorites || isInWishlist(LEGACY_SHOP_IDS[p.id] ?? p.id))
     );
   }, [selectedCategory, searchQuery, priceRange, showOnlyFavorites, isInWishlist, t]);
 
@@ -316,7 +311,7 @@ export const Shop = () => {
                           aria-label={t('shop.filter.favorites')}
                           className={cn(
                             "p-3 lg:p-2.5 rounded-full shadow-lg glass",
-                            isInWishlist(product.id) ? "bg-red-500 text-white" : "text-foreground hover:scale-110"
+                            isInWishlist(wishId(product)) ? "bg-red-500 text-white" : "text-foreground hover:scale-110"
                           )}
                         >
                           <Heart className="w-4 h-4 lg:w-3.5 lg:h-3.5 fill-current" />
