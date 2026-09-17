@@ -224,10 +224,10 @@ export const Profile = () => {
                     <h3 className="text-lg font-bold text-foreground">{t('profile.noOrders', 'Sizda faol buyurtmalar yo\'q')}</h3>
                     <p className="text-xs text-foreground/45 italic max-w-sm">{t('profile.noOrdersDesc', 'Bizning katalogimizdan premium mebellarni tanlang va birinchi buyurtmangizni amalga oshiring.')}</p>
                     <button 
-                      onClick={() => navigate('/shop')}
+                      onClick={() => navigate('/portfolio')}
                       className="bg-brand-gold text-black px-6 py-4 sm:py-2.5 rounded-xl font-bold text-[11px] sm:text-[10px] uppercase tracking-widest hover:scale-102 active:scale-[0.98]"
                     >
-                      {t('cta.shop', 'Do\'konni Ko\'rish')}
+                      {t('cta.portfolio')}
                     </button>
                   </div>
                 ) : (

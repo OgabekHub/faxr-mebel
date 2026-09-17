@@ -258,7 +258,7 @@ export const Cart = () => {
             Eksklyuziv mebel katalogimizdan o'zingizga ma'qul kelgan asarni tanlang va uyingizga hashamat olib kiring.
           </p>
           <Link 
-            to="/shop" 
+            to="/portfolio" 
             className="bg-brand-gold text-black px-6 sm:px-8 py-3.5 rounded-full font-bold text-xs uppercase tracking-widest sm:tracking-hero sm:hover:scale-105 inline-flex items-center justify-center gap-2 shadow-lg shadow-brand-gold/15"
           >
             Kolleksiyani ko'rish <ArrowRight className="w-4 h-4" />

@@ -59,7 +59,6 @@ export const Footer = () => {
           <h4 className="text-[11px] md:text-[10px] font-bold uppercase tracking-widest text-brand-gold">{t('footer.nav')}</h4>
           <ul className="space-y-1 md:space-y-2.5 text-xs font-medium text-foreground/60">
             <li><Link to="/" className="inline-block py-1.5 md:py-0 hover:text-brand-gold active:text-brand-gold transition-colors">{t('nav.home')}</Link></li>
-            <li><Link to="/shop" className="inline-block py-1.5 md:py-0 hover:text-brand-gold active:text-brand-gold transition-colors">{t('nav.shop')}</Link></li>
             <li><Link to="/portfolio" className="inline-block py-1.5 md:py-0 hover:text-brand-gold active:text-brand-gold transition-colors">{t('nav.portfolio')}</Link></li>
             <li><Link to="/about" className="inline-block py-1.5 md:py-0 hover:text-brand-gold active:text-brand-gold transition-colors">{t('nav.about')}</Link></li>
             <li><Link to="/contact" className="inline-block py-1.5 md:py-0 hover:text-brand-gold active:text-brand-gold transition-colors">{t('nav.contact')}</Link></li>

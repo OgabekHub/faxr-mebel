@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation, useNavigationType } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigationType } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
@@ -15,7 +15,6 @@ import { AnimatePresence, motion } from 'motion/react';
 
 // Lazy load pages for code-splitting
 const Home = React.lazy(() => import('./pages/Home').then(m => ({ default: m.Home })));
-const Shop = React.lazy(() => import('./pages/Shop').then(m => ({ default: m.Shop })));
 const Portfolio = React.lazy(() => import('./pages/Portfolio').then(m => ({ default: m.Portfolio })));
 const Auth = React.lazy(() => import('./pages/Auth').then(m => ({ default: m.Auth })));
 const Admin = React.lazy(() => import('./pages/Admin').then(m => ({ default: m.Admin })));
@@ -55,7 +54,7 @@ const PageWrapper = ({ children }: { children: React.ReactNode }) => {
 /**
  * New destinations open at the top; Back returns to where you were.
  *
- * Without the POP branch a phone shopper who scrolls deep into /shop, opens a
+ * Without the POP branch a phone visitor who scrolls deep into /portfolio, opens a
  * product and goes back has to scroll all the way down again.
  */
 const ScrollToTop = () => {
@@ -94,8 +93,9 @@ const AppLayout = () => {
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
-            <Route path="/shop" element={<PageWrapper><Shop /></PageWrapper>} />
             <Route path="/portfolio" element={<PageWrapper><Portfolio /></PageWrapper>} />
+            {/* The shop is gone; bookmarks and shared links land on the portfolio instead of a 404. */}
+            <Route path="/shop" element={<Navigate to="/portfolio" replace />} />
             <Route path="/auth" element={<PageWrapper><Auth /></PageWrapper>} />
 
             {/* Protected Routes */}

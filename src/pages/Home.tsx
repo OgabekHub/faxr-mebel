@@ -36,7 +36,7 @@ const heroSlides: HeroSlide[] = [
     collectionKey: 'home.hero.collection',
     titleKey: 'home.hero.title',
     titleGoldKey: 'home.hero.titleGold',
-    ctaLink: '/shop',
+    ctaLink: '/portfolio',
   },
   {
     image: '/images/bedroom_gold_black.webp',
@@ -47,7 +47,7 @@ const heroSlides: HeroSlide[] = [
     titleGoldUz: 'Mukammal Orom.',
     titleGoldRu: 'Королевский Сон.',
     titleGoldEn: 'Royal Comfort.',
-    ctaLink: '/shop',
+    ctaLink: '/portfolio',
   },
   {
     image: '/images/kitchen_neoclassic.webp',
@@ -58,7 +58,7 @@ const heroSlides: HeroSlide[] = [
     titleGoldUz: 'Masterklass Sifat.',
     titleGoldRu: 'Идеальный Дизайн.',
     titleGoldEn: 'Exquisite Style.',
-    ctaLink: '/shop',
+    ctaLink: '/portfolio',
   }
 ];
 
@@ -279,8 +279,8 @@ export const Home = () => {
                 </h1>
                 
                 <div className="flex items-center gap-4">
-                  <Link to="/shop" className="bg-brand-gold text-black px-8 py-4 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-brand-gold-muted shadow-xl shadow-brand-gold/20">
-                    {t('cta.shop')}
+                  <Link to="/portfolio" className="bg-brand-gold text-black px-8 py-4 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-brand-gold-muted shadow-xl shadow-brand-gold/20">
+                    {t('cta.portfolio')}
                   </Link>
                 </div>
               </motion.div>
@@ -447,7 +447,7 @@ export const Home = () => {
             <h2 className="text-3xl md:text-5xl font-editorial-title mt-2">{t('featured.title')}</h2>
             <p className="text-xs text-foreground/50 italic mt-1">{t('featured.desc')}</p>
           </div>
-          <Link to="/shop" className="text-brand-gold font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:translate-x-2 py-3 -my-3 md:py-0 md:my-0">
+          <Link to="/portfolio" className="text-brand-gold font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:translate-x-2 py-3 -my-3 md:py-0 md:my-0">
             {t('common.seeAll')} <ArrowRight className="w-4 h-4 text-brand-gold" />
           </Link>
         </div>
