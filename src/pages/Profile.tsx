@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { LogOut, Heart, ClipboardList, Send, Award, Clock, CheckCircle, AlertTriangle, UserPlus } from 'lucide-react';
-import { auth, db } from '../lib/firebase';
+import { auth } from '../lib/firebaseAuth';
+import { db } from '../lib/firebaseDb';
 import { signOut } from 'firebase/auth';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';

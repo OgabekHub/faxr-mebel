@@ -21,8 +21,8 @@ const WIPE_DONE_MS = 850;
 export const Navbar = () => {
   const { t, i18n } = useTranslation();
   const { theme, toggleTheme } = useTheme();
-  const { user, isAdmin } = useAuth();
-  const isLoggedIn = user !== null;
+  // Only the admin flag: reading the session here would force every visitor to download Firebase.
+  const { isAdmin } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
@@ -176,7 +176,7 @@ export const Navbar = () => {
 
             {/* Personal Portal profile link */}
             <Link
-              to={isLoggedIn ? "/profile" : "/auth"}
+              to="/profile" /* ProtectedRoute sends signed-out visitors to /auth and back */
               className={cn(
                 "p-3 -m-1 lg:p-2 lg:m-0 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-[transform,background-color,color] duration-300 lg:hover:scale-110 active:scale-95 transform-gpu",
                 location.pathname === "/profile" || location.pathname === "/auth"

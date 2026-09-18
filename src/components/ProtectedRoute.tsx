@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -10,8 +10,13 @@ export const RouteSpinner = () => (
 
 /** Requires a signed-in user; otherwise redirects to /auth and remembers where the user was going. */
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, ensureAuth } = useAuth();
   const location = useLocation();
+
+  // Auth is loaded on demand; this page is one of the places that needs it.
+  useEffect(() => {
+    void ensureAuth();
+  }, [ensureAuth]);
 
   if (loading) return <RouteSpinner />;
 

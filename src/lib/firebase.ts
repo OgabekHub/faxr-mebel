@@ -1,8 +1,10 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
-export const auth = getAuth(app);
+/**
+ * Firebase app core only. Auth and Firestore live in `firebaseAuth.ts` and
+ * `firebaseDb.ts` so a page downloads just the SDK it uses: importing one file
+ * that initialised both used to pull all ~670 KB for any Firebase touch.
+ */
+export const app = initializeApp(firebaseConfig);
+export const firestoreDatabaseId = firebaseConfig.firestoreDatabaseId;

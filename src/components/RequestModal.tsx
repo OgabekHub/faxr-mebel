@@ -61,7 +61,7 @@ interface RequestModalProps {
  */
 export const RequestModal: React.FC<RequestModalProps> = ({ isOpen, onClose, source }) => {
   const { t, i18n } = useTranslation();
-  const { user, isAnonymous } = useAuth();
+  const { user, isAnonymous, ensureAuth } = useAuth();
   const [step, setStep] = useState(1);
 
   const [category, setCategory] = useState<PortfolioCategoryId>(source?.category ?? 'soft');
@@ -162,8 +162,13 @@ export const RequestModal: React.FC<RequestModalProps> = ({ isOpen, onClose, sou
     //    Firestore SDK stays out of the Home route chunk (this modal is rendered there).
     let saved = false;
     try {
-      const [{ auth, db }, { signInAnonymously }, fs] = await Promise.all([
-        import('../lib/firebase'),
+      // Wait for the restored session first: `currentUser` is null until Firebase has read
+      // its persistence, and checking earlier would give a signed-in visitor a new anonymous
+      // account. Starting the app listener also lets the navbar and /profile see the session.
+      await withTimeout(ensureAuth(), FIRESTORE_TIMEOUT_MS, 'auth_timeout');
+      const [{ auth }, { db }, { signInAnonymously }, fs] = await Promise.all([
+        import('../lib/firebaseAuth'),
+        import('../lib/firebaseDb'),
         import('firebase/auth'),
         import('firebase/firestore'),
       ]);

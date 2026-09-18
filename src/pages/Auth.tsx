@@ -10,7 +10,8 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
 } from 'firebase/auth';
-import { auth } from '../lib/firebase';
+import { auth } from '../lib/firebaseAuth';
+import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getErrorCode } from '../lib/utils';
@@ -32,6 +33,13 @@ export const Auth = () => {
   const [focused, setFocused] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const { ensureAuth } = useAuth();
+
+  // Start the app-wide session listener, so a sign-in here marks the session hint and
+  // the navbar and /profile see the user without a reload.
+  useEffect(() => {
+    void ensureAuth();
+  }, [ensureAuth]);
 
   const from = (location.state as AuthLocationState | null)?.from?.pathname || '/profile';
 

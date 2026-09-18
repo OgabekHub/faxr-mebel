@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, ClipboardList, Inbox, Hammer, CheckCircle, Phone, MapPin, CalendarDays, Trash2 } from 'lucide-react';
 import { cn, getErrorMessage, formatDayLabel } from '../lib/utils';
-import { db } from '../lib/firebase';
+import { db } from '../lib/firebaseDb';
 import { collection, doc, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
 import { findPortfolioItem, portfolioTitle } from '../hooks/usePortfolio';
 import { REQUEST_STATUS_FLOW, PORTFOLIO_CATEGORY_IDS, type FurnitureRequest, type RequestStatus } from '../types/domain';

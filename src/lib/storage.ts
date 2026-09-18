@@ -39,3 +39,11 @@ export function writeString(key: string, value: string): void {
     // ignore
   }
 }
+
+export function removeKey(key: string): void {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    // ignore
+  }
+}
