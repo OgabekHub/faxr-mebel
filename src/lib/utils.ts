@@ -18,6 +18,15 @@ export function formatDayLabel(isoDay: string, lang: string): string {
   return `${day}-${UZ_MONTHS[month - 1]}`;
 }
 
+/** An ISO timestamp as "18-sentabr, 23:52" (local time), by UI language. */
+export function formatDateTimeLabel(iso: string, lang: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  const day = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  return `${formatDayLabel(day, lang)}, ${time}`;
+}
+
 /** `REQ-YYYYMMDD-####`: readable on a phone screen and in the ops chat, and passes firestore.rules' isValidId(). */
 export function generateRequestId(): string {
   const now = new Date();

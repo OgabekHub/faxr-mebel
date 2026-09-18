@@ -6,7 +6,7 @@ import { db } from '../lib/firebaseDb';
 import { signOut } from 'firebase/auth';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { formatDayLabel } from '../lib/utils';
+import { formatDayLabel, formatDateTimeLabel } from '../lib/utils';
 import { useTranslation } from 'react-i18next';
 import { CustomSelect } from '../components/CustomSelect';
 import { useWishlist } from '../context/WishlistContext';
@@ -249,7 +249,7 @@ export const Profile = () => {
                           onChange={setSelectedRequestId}
                           options={requests.map(r => ({
                             value: r.id,
-                            label: `${r.id} (${new Date(r.date).toLocaleDateString()})`
+                            label: `${r.id} (${formatDateTimeLabel(r.date, i18n.language)})`
                           }))}
                           className="w-full sm:w-56"
                         />
@@ -263,7 +263,7 @@ export const Profile = () => {
                             <span className="text-[10px] sm:text-[9px] font-black uppercase tracking-widest text-brand-gold">{t('profile.activeRequest')}</span>
                             <h3 className="text-lg font-bold text-foreground mt-1">{currentRequest.title}</h3>
                             <p className="text-xs sm:text-[10px] text-foreground/45 mt-1 font-bold">
-                              {t('profile.code')}: <span className="select-all">{currentRequest.id}</span> | {t('profile.date')}: {new Date(currentRequest.date).toLocaleDateString()}
+                              {t('profile.code')}: <span className="select-all">{currentRequest.id}</span> | {t('profile.date')}: {formatDateTimeLabel(currentRequest.date, i18n.language)}
                             </p>
                           </div>
 

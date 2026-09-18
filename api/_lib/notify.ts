@@ -247,8 +247,12 @@ export function buildMessage(input: NotifyInput): string {
         afternoon: 'kunduzi (12:00–16:00)',
         evening: 'kechqurun (16:00–19:00)',
       };
+      // `2026-09-19` → "19-sentabr" (Intl has no Uzbek month names).
+      const months = ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avgust', 'sentabr', 'oktabr', 'noyabr', 'dekabr'];
+      const [, mm, dd] = (p.preferredDate ?? '').split('-').map(Number);
+      const day = mm && dd && months[mm - 1] ? `${dd}-${months[mm - 1]}` : e(p.preferredDate);
       const visit = p.preferredDate
-        ? `${e(p.preferredDate)}, ${slot[p.preferredTime]}`
+        ? `${day}, ${slot[p.preferredTime]}`
         : `kelishiladi (${slot[p.preferredTime]} qulay)`;
       return [
         "🏠 <b>YANGI O'LCHOV SO'ROVI</b> 🏠",

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, ClipboardList, Inbox, Hammer, CheckCircle, Phone, MapPin, CalendarDays, Trash2 } from 'lucide-react';
-import { cn, getErrorMessage, formatDayLabel } from '../lib/utils';
+import { cn, getErrorMessage, formatDayLabel, formatDateTimeLabel } from '../lib/utils';
 import { db } from '../lib/firebaseDb';
 import { collection, doc, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
 import { findPortfolioItem, portfolioTitle } from '../hooks/usePortfolio';
@@ -283,7 +283,7 @@ export const Admin = () => {
                         <p className="text-xs md:text-[10px] text-foreground/60 italic leading-relaxed break-words">✍️ {r.note}</p>
                       )}
                       <p className="text-[10px] md:text-[9px] text-foreground/40 uppercase tracking-wider">
-                        Qabul qilindi: {new Date(r.date).toLocaleString('uz-UZ', { dateStyle: 'medium', timeStyle: 'short' })}
+                        Qabul qilindi: {formatDateTimeLabel(r.date, 'uz')}
                       </p>
                     </div>
 
