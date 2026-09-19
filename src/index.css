@@ -79,7 +79,10 @@
   scroll-behavior: smooth;
 }
 
-/* Smooth theme transition for ALL elements using CSS custom properties */
+/* Smooth theme crossfade for ALL elements. Colours only: a global transform
+   transition re-tweens every frame motion writes (entrance and tap animations,
+   spinners), so they lagged and wobbled on desktop. An element that animates a
+   transform on hover opts in with its own `transition-transform`. */
 body,
 body *,
 body *::before,
@@ -90,28 +93,7 @@ body *::after {
     border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1),
     fill 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-    stroke 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-    scale 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-    translate 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Touch devices: keep the theme crossfade, but let JS-driven transforms (motion
-   animations, `active:scale-*` press feedback) run untweened. Tweening transform over
-   500ms is what makes a tap feel dead on a phone. */
-@media (hover: none) {
-  body,
-  body *,
-  body *::before,
-  body *::after {
-    transition:
-      background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-      color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-      border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-      box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-      fill 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-      stroke 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  }
+    stroke 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* When circular wipe is active, skip CSS transitions — the wipe handles the visual reveal */
@@ -199,7 +181,12 @@ body::before {
   background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: 2rem;
-  transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  /* Not `all`: motion animates these cards' transform (entrance), and a CSS
+     transition on it would re-tween every frame. */
+  transition:
+    background-color 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+    border-color 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+    box-shadow 0.5s cubic-bezier(0.25, 1, 0.5, 1);
   position: relative;
   overflow: hidden;
 }
@@ -216,10 +203,10 @@ body::before {
 
 /* Hand-written :hover rules need the same (hover: hover) gate Tailwind gives its own
    hover: utilities — on a touch screen a tap latches the hovered state until you tap
-   elsewhere, leaving the card lifted 8px with a stuck glow. */
+   elsewhere, leaving a stuck glow. Glow and border only: lifting the card slid its
+   icons and text out from under the cursor. */
 @media (hover: hover) {
   .glow-tracer:hover {
-    transform: translateY(-8px);
     box-shadow: 0 30px 60px -15px var(--gold-glow);
     border-color: var(--color-brand-gold);
   }
@@ -322,7 +309,7 @@ input[type="range"]::-webkit-slider-thumb {
   background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: 2rem;
-  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.5s ease;
+  transition: border-color 0.5s ease, box-shadow 0.5s ease;
 }
 
 .bento-spotlight.bg-brand-gold {
@@ -374,13 +361,12 @@ input[type="range"]::-webkit-slider-thumb {
   }
 
   .bento-spotlight:hover {
-    transform: translateY(-5px);
     border-color: rgba(197, 160, 89, 0.25);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
   }
 }
 
-/* Touch equivalent: a gold cue while the finger is down, with no lift to jitter. */
+/* Touch equivalent: a gold cue while the finger is down. */
 .bento-spotlight:active {
   border-color: rgba(197, 160, 89, 0.25);
 }

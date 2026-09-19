@@ -58,7 +58,7 @@ export const About = () => {
         </div>
         
         <div className="relative rounded-[2.5rem] overflow-hidden aspect-[4/3] group shadow-2xl">
-          <img src="/images/dining_table.webp" alt="Showroom" width={1024} height={1024} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105" />
+          <img src="/images/dining_table.webp" alt="Showroom" width={1024} height={1024} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
           <div className="absolute inset-0 bg-black/30 flex items-center justify-center p-6 text-center">
             <span className="text-[9px] uppercase tracking-widest sm:tracking-[0.3em] text-white/90 border border-white/20 px-4 sm:px-5 py-2.5 rounded-full font-black">{t('about.story.workshop')}</span>
           </div>
@@ -107,9 +107,8 @@ export const About = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {artisans.map((artisan, idx) => (
-            <motion.div
+            <div
               key={idx}
-              whileHover={{ y: -8 }}
               className="bento-card glow-tracer p-6 text-center"
             >
               <div className="w-24 h-24 rounded-full overflow-hidden mx-auto mb-6 border border-brand-gold/20 bg-foreground/5">
@@ -119,7 +118,7 @@ export const About = () => {
               <h3 className="text-base font-bold text-foreground mb-1">{artisan.name}</h3>
               <span className="text-[11px] md:text-[9px] font-black uppercase tracking-widest text-brand-gold block mb-4">{t(`about.artisan.${artisan.id}.role`)}</span>
               <p className="text-xs md:text-[11px] text-foreground/50 leading-relaxed font-light italic">{t(`about.artisan.${artisan.id}.bio`)}</p>
-            </motion.div>
+            </div>
           ))}
         </div>
       </section>

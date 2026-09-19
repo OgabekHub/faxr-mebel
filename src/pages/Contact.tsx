@@ -289,7 +289,7 @@ export const Contact = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-brand-gold text-black py-4 rounded-xl font-extrabold text-xs uppercase tracking-hero lg:hover:scale-102 active:scale-[0.99] shadow-xl shadow-brand-gold/15 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+                className="w-full bg-brand-gold text-black py-4 rounded-xl font-extrabold text-xs uppercase tracking-hero lg:hover:bg-brand-gold-muted active:scale-[0.99] shadow-xl shadow-brand-gold/15 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-4"
               >
                 {isSubmitting ? t('contact.form.submitting') : t('contact.form.submit')}
                 {!isSubmitting && <Send className="w-4 h-4" aria-hidden="true" />}
@@ -319,7 +319,7 @@ export const Contact = () => {
                   className="w-full px-5 sm:px-6 py-5 flex items-center justify-between gap-4 text-left focus:outline-none"
                 >
                   <span className="text-sm font-bold text-foreground">{t(`contact.faq.${faq.id}.q`)}</span>
-                  <ChevronDown className={cn("w-4 h-4 shrink-0 text-brand-gold duration-300", openFaqIndex === idx ? "rotate-180" : "")} aria-hidden="true" />
+                  <ChevronDown className={cn("w-4 h-4 shrink-0 text-brand-gold transition-transform duration-300", openFaqIndex === idx ? "rotate-180" : "")} aria-hidden="true" />
                 </button>
 
                 <AnimatePresence initial={false}>

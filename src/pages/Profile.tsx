@@ -234,7 +234,7 @@ export const Profile = () => {
                     <p className="text-xs text-foreground/45 italic max-w-sm">{t('profile.noRequestsDesc')}</p>
                     <button
                       onClick={() => navigate('/portfolio')}
-                      className="bg-brand-gold text-black px-6 py-4 sm:py-2.5 rounded-xl font-bold text-[11px] sm:text-[10px] uppercase tracking-widest hover:scale-102 active:scale-[0.98]"
+                      className="bg-brand-gold text-black px-6 py-4 sm:py-2.5 rounded-xl font-bold text-[11px] sm:text-[10px] uppercase tracking-widest hover:bg-brand-gold-muted active:scale-[0.98]"
                     >
                       {t('cta.portfolio')}
                     </button>

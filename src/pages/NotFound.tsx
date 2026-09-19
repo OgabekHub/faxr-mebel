@@ -16,7 +16,7 @@ export const NotFound = () => {
       <p className="text-sm md:text-xs text-foreground/60 md:text-foreground/50 max-w-md leading-relaxed font-light italic mb-10">{t('notFound.desc')}</p>
       <Link
         to="/"
-        className="bg-brand-gold text-black px-6 sm:px-8 py-3.5 rounded-full font-bold text-xs uppercase tracking-[0.15em] sm:tracking-[0.3em] hover:scale-105 active:scale-[0.97] inline-flex items-center gap-2 shadow-lg shadow-brand-gold/15"
+        className="bg-brand-gold text-black px-6 sm:px-8 py-3.5 rounded-full font-bold text-xs uppercase tracking-[0.15em] sm:tracking-[0.3em] hover:bg-brand-gold-muted active:scale-[0.97] inline-flex items-center gap-2 shadow-lg shadow-brand-gold/15"
       >
         <ArrowLeft className="w-4 h-4 shrink-0" /> {t('notFound.cta')}
       </Link>

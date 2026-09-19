@@ -249,14 +249,14 @@ export const Home = () => {
           {/* Left/Right controls (Fade in on hover) */}
           <button
             onClick={handlePrevSlide}
-            className="absolute left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full glass border border-white/10 hover:border-brand-gold text-white hover:text-brand-gold hidden md:flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 hover:scale-105 active:scale-95"
+            className="absolute left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full glass border border-white/10 hover:border-brand-gold text-white hover:text-brand-gold hidden md:flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 active:scale-95"
             aria-label="Previous Slide"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button
             onClick={handleNextSlide}
-            className="absolute right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full glass border border-white/10 hover:border-brand-gold text-white hover:text-brand-gold hidden md:flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 hover:scale-105 active:scale-95"
+            className="absolute right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full glass border border-white/10 hover:border-brand-gold text-white hover:text-brand-gold hidden md:flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 active:scale-95"
             aria-label="Next Slide"
           >
             <ChevronRight className="w-5 h-5" />
@@ -323,7 +323,7 @@ export const Home = () => {
            className="col-span-1 md:col-span-2 row-span-2 flex"
         >
           <BentoSpotlight className="bg-brand-gold text-black p-8 md:p-4 lg:p-8 justify-between flex-grow flex flex-col relative overflow-hidden group shadow-lg shadow-brand-gold/10">
-            <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-125" />
+            <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-white/10 rounded-full blur-2xl transition-transform duration-700 group-hover:scale-125" />
             <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white shrink-0">
               <Shield className="w-5 h-5 text-brand-gold" />
             </div>
@@ -357,8 +357,8 @@ export const Home = () => {
             <p className="text-[11px] md:text-[10px] text-foreground/45 mt-1 italic">{t('home.teaser1.desc')}</p>
           </div>
           {/* A CSS background can never lazy-load; the absolute <img> keeps the card height. */}
-          <div className="flex-grow relative overflow-hidden min-h-[140px] group-hover:scale-105">
-            <img src="/images/bed.webp" alt="" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover" />
+          <div className="flex-grow relative overflow-hidden min-h-[140px]">
+            <img src="/images/bed.webp" alt="" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
           </div>
         </BentoSpotlight>
 
@@ -367,8 +367,8 @@ export const Home = () => {
             <h3 className="text-xs font-black uppercase tracking-widest">{t('home.teaser2.title')}</h3>
             <p className="text-[11px] md:text-[10px] text-foreground/45 mt-1 italic">{t('home.teaser2.desc')}</p>
           </div>
-          <div className="flex-grow relative overflow-hidden min-h-[140px] group-hover:scale-105">
-            <img src="/images/dining_table.webp" alt="" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover" />
+          <div className="flex-grow relative overflow-hidden min-h-[140px]">
+            <img src="/images/dining_table.webp" alt="" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
           </div>
         </BentoSpotlight>
 
@@ -397,20 +397,19 @@ export const Home = () => {
             <h2 className="text-3xl md:text-5xl font-editorial-title mt-2">{t('featured.title')}</h2>
             <p className="text-xs text-foreground/50 italic mt-1">{t('featured.desc')}</p>
           </div>
-          <Link to="/portfolio" className="text-brand-gold font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:translate-x-2 py-3 -my-3 md:py-0 md:my-0">
-            {t('common.seeAll')} <ArrowRight className="w-4 h-4 text-brand-gold" />
+          <Link to="/portfolio" className="text-brand-gold font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:text-brand-gold-muted py-3 -my-3 md:py-0 md:my-0">
+            {t('common.seeAll')} <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {featured.map((item) => (
-            <motion.div
+            <div
               key={item.id}
-              whileHover={{ y: -8 }}
               className="bento-card glow-tracer p-6 group flex flex-col h-full"
             >
               <div className="relative aspect-square rounded-[1.8rem] overflow-hidden mb-6">
-                <img src={item.images[0].src} alt={portfolioTitle(item.id, t)} loading="lazy" decoding="async" width={item.images[0].width} height={item.images[0].height} className="w-full h-full object-cover group-hover:scale-105" />
+                <img src={item.images[0].src} alt={portfolioTitle(item.id, t)} loading="lazy" decoding="async" width={item.images[0].width} height={item.images[0].height} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
                 
                 {/* Floating actions */}
                 <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
@@ -419,7 +418,7 @@ export const Home = () => {
                     aria-label={t('portfolio.filter.favorites')}
                     aria-pressed={isInWishlist(item.id)}
                     className={`p-4 md:p-2.5 rounded-full shadow-md ${
-                      isInWishlist(item.id) ? "bg-red-500 text-white" : "glass text-foreground hover:scale-110"
+                      isInWishlist(item.id) ? "bg-red-500 text-white" : "glass text-foreground hover:text-red-500"
                     }`}
                   >
                     <Heart className="w-3.5 h-3.5 fill-current" />
@@ -441,7 +440,7 @@ export const Home = () => {
               >
                 {t('portfolio.modal.request')}
               </button>
-            </motion.div>
+            </div>
           ))}
         </div>
       </section>
@@ -503,7 +502,7 @@ export const Home = () => {
 
       {/* Floating CTA for Mobile Telegram Group */}
       <div className="fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] right-6 z-40 md:hidden flex flex-col gap-4">
-        <a href="https://t.me/faxrmebel" target="_blank" rel="noopener noreferrer" aria-label="Telegram" title="Telegram" className="bg-[#229ED9] text-white p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95">
+        <a href="https://t.me/faxrmebel" target="_blank" rel="noopener noreferrer" aria-label="Telegram" title="Telegram" className="bg-[#229ED9] text-white p-4 rounded-full shadow-2xl hover:bg-[#1A8BC4] active:scale-95">
           <Send className="w-6 h-6" />
         </a>
       </div>

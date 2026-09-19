@@ -312,7 +312,7 @@ export const Auth = () => {
                 to="/"
                 className="inline-flex items-center gap-1.5 py-2 -mt-2 mb-4 pr-3 text-foreground/55 hover:text-foreground/70 transition-colors text-xs group"
               >
-                <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5" />
+                <ArrowLeft className="w-3.5 h-3.5" />
                 {t('nav.home')}
               </Link>
               <div className="text-center">
@@ -492,7 +492,6 @@ export const Auth = () => {
 
               {/* Submit button */}
               <motion.button
-                whileHover={{ scale: 1.015 }}
                 whileTap={{ scale: 0.98 }}
                 type="submit"
                 disabled={isLoading}
@@ -509,12 +508,12 @@ export const Auth = () => {
                   ) : (
                     <>
                       {isLogin ? t('auth.grantAccess') : t('auth.createAccount')}
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1" />
+                      <ArrowRight className="w-4 h-4" />
                     </>
                   )}
                 </span>
                 {/* Shimmer effect */}
-                <div className="absolute inset-0 bg-white/10 translate-x-[-110%] group-hover:translate-x-[110%] skew-x-12" />
+                <div className="absolute inset-0 bg-white/10 translate-x-[-110%] group-hover:translate-x-[110%] skew-x-12 transition-transform duration-700" />
               </motion.button>
             </form>
 
@@ -529,11 +528,10 @@ export const Auth = () => {
 
             {/* ── Google login ── */}
             <motion.button
-              whileHover={{ scale: 1.015 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleGoogleLogin}
               disabled={isLoading}
-              className="w-full bg-foreground/[0.04] border border-foreground/[0.08] text-foreground py-3.5 rounded-2xl flex items-center justify-center gap-3 hover:bg-foreground/[0.08] hover:border-foreground/15 transition-all text-[11px] font-bold uppercase tracking-widest disabled:opacity-50"
+              className="w-full bg-foreground/[0.04] border border-foreground/[0.08] text-foreground py-3.5 rounded-2xl flex items-center justify-center gap-3 hover:bg-foreground/[0.08] hover:border-foreground/15 transition-colors text-[11px] font-bold uppercase tracking-widest disabled:opacity-50"
             >
               {/* Official Google icon */}
               <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">

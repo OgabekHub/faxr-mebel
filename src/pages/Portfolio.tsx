@@ -216,14 +216,14 @@ export const Portfolio = () => {
           </div>
 
           <div className="bento-card p-6 lg:p-8 order-last lg:order-none bg-brand-gold text-black relative overflow-hidden group shadow-lg shadow-brand-gold/15">
-            <div className="absolute -right-16 -bottom-16 w-36 h-36 bg-black/10 rounded-full blur-2xl group-hover:scale-110" />
+            <div className="absolute -right-16 -bottom-16 w-36 h-36 bg-black/10 rounded-full blur-2xl transition-transform duration-700 group-hover:scale-110" />
             <Sparkles className="w-6 h-6 mb-4 text-black animate-pulse-slow" />
             <h4 className="text-sm font-extrabold uppercase tracking-wider mb-2">{t('portfolio.cta.title')}</h4>
             <p className="text-xs lg:text-[10px] leading-relaxed mb-6 font-semibold opacity-75">{t('portfolio.cta.desc')}</p>
             <button
               type="button"
               onClick={() => openRequest(null)}
-              className="w-full py-4 lg:py-3.5 bg-black text-white rounded-xl text-[10px] lg:text-[9px] font-black uppercase tracking-hero text-center block hover:scale-[1.02] active:scale-95"
+              className="w-full py-4 lg:py-3.5 bg-black text-white rounded-xl text-[10px] lg:text-[9px] font-black uppercase tracking-hero text-center block hover:bg-neutral-800 active:scale-95"
             >
               {t('portfolio.cta.button')}
             </button>
@@ -266,7 +266,7 @@ export const Portfolio = () => {
                           onClick={() => handleToggleWishlist(item)}
                           aria-label={t('portfolio.filter.favorites')}
                           aria-pressed={isInWishlist(item.id)}
-                          className={cn('p-3 lg:p-2.5 rounded-full shadow-lg glass', isInWishlist(item.id) ? 'bg-red-500 text-white' : 'text-foreground hover:scale-110')}
+                          className={cn('p-3 lg:p-2.5 rounded-full shadow-lg glass', isInWishlist(item.id) ? 'bg-red-500 text-white' : 'text-foreground hover:text-red-500')}
                         >
                           <Heart className="w-4 h-4 lg:w-3.5 lg:h-3.5 fill-current" />
                         </button>
@@ -274,7 +274,7 @@ export const Portfolio = () => {
                           type="button"
                           onClick={() => openGallery(item)}
                           aria-label={t('portfolio.open')}
-                          className="p-3 lg:p-2.5 glass text-foreground rounded-full shadow-lg hover:scale-110"
+                          className="p-3 lg:p-2.5 glass text-foreground rounded-full shadow-lg hover:text-brand-gold"
                         >
                           <Eye className="w-4 h-4 lg:w-3.5 lg:h-3.5" />
                         </button>

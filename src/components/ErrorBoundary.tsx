@@ -20,13 +20,13 @@ const ErrorFallback = ({ error, resetErrorBoundary }: FallbackProps) => {
           <button
             type="button"
             onClick={resetErrorBoundary}
-            className="w-full sm:w-auto px-6 py-3.5 sm:py-3 bg-brand-gold text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:scale-105 active:scale-95 transition-transform duration-150"
+            className="w-full sm:w-auto px-6 py-3.5 sm:py-3 bg-brand-gold text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-brand-gold-muted active:scale-95"
           >
             Qayta urinish
           </button>
           <a
             href="/"
-            className="w-full sm:w-auto px-6 py-3.5 sm:py-3 bg-foreground/10 text-foreground rounded-xl text-xs font-bold uppercase tracking-widest hover:scale-105 active:scale-95 transition-transform duration-150"
+            className="w-full sm:w-auto px-6 py-3.5 sm:py-3 bg-foreground/10 text-foreground rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-foreground/15 active:scale-95"
           >
             Bosh sahifa
           </a>
